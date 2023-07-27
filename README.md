@@ -21,27 +21,23 @@ bash
 
 
 
-git clone https://github.com/your-username/event-notification-app.git
+git clone https://github.com/your-username/event-notification-app](https://github.com/gdimit01/Otterly.git
 Navigate to the project directory.
-bash
-
-##
 
 cd event-notification-app
 Install the dependencies.
 bash
-
-##
 
 npm install
 
 # or
 
 yarn install
-Set up Firebase in your project.
+
+# Set up Firebase in your project.
 Create a Firebase project on the Firebase Console.
 Obtain your Firebase configuration and add it to the firebaseConfig.js file.
-javascript
+
 
 # Replace with your Firebase configuration
 export const firebaseConfig = {
