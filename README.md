@@ -8,6 +8,8 @@ Create and manage events with details such as name, location, and description.
 Receive real-time notifications for new events.
 Delete notifications and corresponding events.
 
+The main files like screens are the major players in the code. At the moment, the src simply contains a theme and navigation. Also the components are styling a few things like Button and form input
+
 # Prerequisites
 Before running the app, ensure that you have the following installed:
 
