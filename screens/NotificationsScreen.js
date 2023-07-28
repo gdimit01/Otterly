@@ -1,4 +1,13 @@
+/**
+ * The code is a JavaScript file that defines a NotificationScreen component in a React Native
+ * application, which displays a list of notifications and allows the user to delete notifications by
+ * swiping them.
+ * @returns The code is exporting the `NotificationScreen` component as the default export.
+ */
+import React, { useState, useEffect, useContext } from "react"; // Import useContext
+import { EventContext } from "..//screens/EventContext"; // Import EventContext
 import Icon from "react-native-vector-icons/FontAwesome";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig"; // Import auth from Firebase
 import {
   getFirestore,
@@ -10,7 +19,6 @@ import {
   query,
   where,
 } from "@firebase/firestore";
-import React, { useState, useEffect } from "react";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import {
   SafeAreaView,
@@ -41,9 +49,12 @@ const NotificationCard = ({
   description,
   image,
   time,
+  group,
+  tag,
   onDelete,
 }) => {
   const navigation = useNavigation(); // Initialize navigation
+  const [events, setEvents] = useContext(EventContext); // Use the EventContext
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({
@@ -122,6 +133,8 @@ const NotificationCard = ({
           description,
           image,
           time,
+          group,
+          tag,
         });
       }}
     >
@@ -132,6 +145,8 @@ const NotificationCard = ({
             <Text style={styles.notificationTitle}>{eventName}</Text>
             <Text style={styles.notificationDescription}>{description}</Text>
             <Text style={styles.notificationTime}>{time}</Text>
+            <Text style={styles.notificationGroup}>{group}</Text>
+            <Text style={styles.notificationTag}>#{tag}</Text>
           </View>
         </View>
       </Swipeable>
@@ -142,6 +157,7 @@ const NotificationCard = ({
 const NotificationScreen = () => {
   const isFocused = useIsFocused();
   const [notifications, setNotifications] = useState([]);
+  const [events, setEvents] = useContext(EventContext); // Use the EventContext
 
   // In NotificationScreen.js
 
@@ -188,6 +204,11 @@ const NotificationScreen = () => {
         console.log("Event data:", eventDoc.data()); // Log the event data
 
         await deleteDoc(doc(db, "events", notificationData.eventId));
+
+        // Remove the deleted event from the context
+        setEvents(
+          events.filter((event) => event.id !== notificationData.eventId)
+        );
       }
 
       Alert.alert("Success", "Notification and event deleted!");
@@ -208,6 +229,8 @@ const NotificationScreen = () => {
       description={item.description}
       image={item.image}
       time={item.time}
+      group={item.group} // Pass the group property
+      tag={item.tag} // Pass the tag property
       onDelete={() => deleteNotification(item.id)}
     />
   );
@@ -325,6 +348,22 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     padding: 10,
+  },
+  notificationGroup: {
+    color: "#0000FF", // Default blue color
+    fontSize: 12,
+    fontWeight: "bold",
+    position: "absolute", // Position it absolutely
+    top: -10, // 10 pixels from the top of the container
+    right: -15, // 10 pixels from the right of the container
+  },
+  notificationTag: {
+    color: "#0000FF", // Default blue color
+    fontSize: 12,
+    fontWeight: "bold",
+    position: "absolute", // Position it absolutely
+    bottom: -10, // 10 pixels from the bottom of the container
+    right: -15, // 10 pixels from the right of the container
   },
 });
 

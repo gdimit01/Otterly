@@ -1,4 +1,5 @@
 import React from "react";
+import { EventProvider } from "./screens/EventContext";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -11,6 +12,8 @@ import CreateEventScreen from "./screens/CreateEventScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
 import EventScreen from "./screens/EventScreen";
+import StudyGroupsScreen from "./screens/StudyGroupsScreen";
+import SocialGroupsScreen from "./screens/SocialGroupsScreen";
 import SignupScreen from "./screens/SignupScreen";
 import LoginScreen from "./screens/LoginScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
@@ -73,17 +76,21 @@ function HomeTabs() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Welcome"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Home" component={HomeTabs} />
-        <Stack.Screen name="SignUp" component={SignupScreen} />
-        <Stack.Screen name="EventScreen" component={EventScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <EventProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Welcome"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Home" component={HomeTabs} />
+          <Stack.Screen name="SignUp" component={SignupScreen} />
+          <Stack.Screen name="EventScreen" component={EventScreen} />
+          <Stack.Screen name="StudyGroups" component={StudyGroupsScreen} />
+          <Stack.Screen name="SocialGroups" component={SocialGroupsScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </EventProvider>
   );
 }

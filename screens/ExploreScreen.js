@@ -7,39 +7,46 @@ import {
   StyleSheet,
   StatusBar,
   SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
 
 const DATA = [
   {
     id: "1",
-    name: "React Native Austin",
-    location: "Austin, USA",
+    name: "Study Groups",
     image: "https://via.placeholder.com/150",
   },
   {
     id: "2",
-    name: "React Native Bangalore",
-    location: "Bangalore, India",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: "3",
-    name: "React Native Montevideo",
-    location: "Montevideo, Uruguay",
+    name: "Social Groups",
     image: "https://via.placeholder.com/150",
   },
   // Add more groups here...
 ];
 
-const Card = ({ name, location, image }) => (
-  <View style={styles.card}>
-    <Image style={styles.image} source={{ uri: image }} />
-    <Text style={styles.name}>{name}</Text>
-    <Text style={styles.location}>{location}</Text>
-  </View>
-);
+const Card = ({ name, location, image, navigation }) => {
+  const handlePress = () => {
+    if (name === "Study Groups") {
+      navigation.navigate("StudyGroups");
+    } else if (name === "Social Groups") {
+      navigation.navigate("SocialGroups");
+    }
+  };
 
-const ExploreScreen = () => {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.card}
+      onPress={handlePress}
+    >
+      <Image style={styles.image} source={{ uri: image }} />
+      <Text style={styles.name}>{name}</Text>
+      <Text style={styles.location}>{location}</Text>
+    </TouchableOpacity>
+  );
+};
+
+const ExploreScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
@@ -47,7 +54,12 @@ const ExploreScreen = () => {
       <FlatList
         data={DATA}
         renderItem={({ item }) => (
-          <Card name={item.name} location={item.location} image={item.image} />
+          <Card
+            name={item.name}
+            location={item.location}
+            image={item.image}
+            navigation={navigation}
+          />
         )}
         keyExtractor={(item) => item.id}
       />

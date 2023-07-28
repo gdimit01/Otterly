@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,
   View,
@@ -8,9 +8,13 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
+import { EventContext } from "../screens/EventContext"; // Import EventContext
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FormButton from "../components/FormButton"; // import the FormButton component
+import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
+import FormPicker from "../components/FormPicker";
+import RNPickerSelect from "react-native-picker-select";
 
 import { getFirestore, collection, addDoc } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
@@ -22,6 +26,9 @@ const CreateEventScreen = () => {
   const [eventName, setEventName] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [eventDescription, setEventDescription] = useState("");
+  const [tag, setTag] = useState(null); // Initialize as null
+  const [group, setGroup] = useState(null); // Initialize as null
+  const [events, setEvents] = useContext(EventContext);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -48,6 +55,10 @@ const CreateEventScreen = () => {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    console.log("Events updated:", events);
+  }, [events]);
+
   const createEvent = async () => {
     try {
       const user = auth.currentUser; // Get the currently logged-in user
@@ -60,6 +71,8 @@ const CreateEventScreen = () => {
           creator: creator,
           invites: invites.split(",").map((email) => email.trim()),
           userId: user.uid, // Add the user's ID to the event document
+          tag: tag, // Set as string
+          group: group, // Set as string
         });
         console.log("Event document written with ID: ", eventRef.id);
 
@@ -71,13 +84,31 @@ const CreateEventScreen = () => {
           time: new Date().toLocaleString([], { timeZoneName: "short" }), // Current time with timezone abbreviation
           userId: user.uid, // Add the user's ID to the notification document
           eventId: eventRef.id, // Add the event's ID to the notification document
+          tag: tag, // Set as string
+          group: group, // Set as string
         });
 
         console.log(
           "Notification document written with ID: ",
           notificationRef.id
         );
-
+        console.log("Events before:", events);
+        // Add the new event to the context
+        setEvents((prevEvents) => [
+          ...prevEvents,
+          {
+            id: eventRef.id,
+            name: eventName,
+            location: eventLocation,
+            description: eventDescription,
+            creator: creator,
+            invites: invites.split(",").map((email) => email.trim()),
+            userId: user.uid,
+            tag: tag, // Set as string
+            group: group, // Set as string
+          },
+        ]);
+        console.log("Events after:", events);
         // Save the event ID to AsyncStorage
         await AsyncStorage.setItem("lastCreatedEventId", eventRef.id);
 
@@ -118,8 +149,25 @@ const CreateEventScreen = () => {
               value={invites}
               onChangeText={setInvites}
             />
+            <FormPicker
+              onValueChange={(value) => setTag(value)} // Set as string
+              items={[
+                { label: "Computer Science", value: "Computer Science" },
+                { label: "Cultural", value: "Cultural" },
+                { label: "Dance", value: "Dance" },
+              ]}
+              placeholder={{ label: "Select a tag...", value: null }}
+            />
+            <FormPicker
+              onValueChange={(value) => setGroup(value)} // Set as string
+              items={[
+                { label: "Study Group", value: "Study Group" },
+                { label: "Social Group", value: "Social Group" },
+              ]}
+              placeholder={{ label: "Select a group...", value: null }}
+            />
+
             <FormButton title="Create Event" onPress={createEvent} />
-            {/* Use FormButton here */}
           </>
         </View>
       </TouchableWithoutFeedback>
@@ -130,17 +178,17 @@ const CreateEventScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center", // Center the content horizontally
-    justifyContent: "center", // Center the content vertically
+    alignItems: "center",
+    justifyContent: "center",
   },
   content: {
-    width: "80%", // Set the width to 80% of the parent container
+    width: "80%",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "center", // Center the text within the container
+    textAlign: "center",
   },
 });
 

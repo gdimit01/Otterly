@@ -18,6 +18,9 @@ const EventScreen = ({ route }) => {
   // Data from the NotificationCard
   const event = route.params;
 
+  // Retrieve the selected tag and group from the navigation parameters
+  const { tag, group } = event;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />

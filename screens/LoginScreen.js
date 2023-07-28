@@ -13,12 +13,13 @@ import {
   ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import { sendPasswordResetEmail } from "firebase/auth"; //the key
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,6 +57,39 @@ const LoginScreen = () => {
       });
   };
 
+  const handleForgotPassword = () => {
+    Alert.prompt(
+      "Forgot Password",
+      "Please enter your email:",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: (email) => {
+            if (email) {
+              sendPasswordResetEmail(auth, email)
+                .then(() => {
+                  Alert.alert("Password reset email sent!");
+                })
+                .catch((error) => {
+                  Alert.alert(
+                    "Error occurred while sending password reset email: ",
+                    error.message
+                  );
+                });
+            } else {
+              Alert.alert("Please enter your email.");
+            }
+          },
+        },
+      ],
+      "plain-text"
+    );
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -78,7 +112,9 @@ const LoginScreen = () => {
           ) : (
             <FormButton title="Log In" onPress={handleLogin} />
           )}
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          <Text style={styles.forgotPassword} onPress={handleForgotPassword}>
+            Forgot Password?
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
