@@ -107,6 +107,9 @@ const NotificationCard = ({
     );
   };
 
+  // Extract event name from the title
+  const eventName = title.replace("New Event Created: ", "");
+
   // Wrap the NotificationCard with TouchableOpacity
   return (
     <TouchableOpacity
@@ -115,7 +118,7 @@ const NotificationCard = ({
         // Navigate to the EventScreen with the relevant information
         navigation.navigate("EventScreen", {
           id,
-          title,
+          title: eventName,
           description,
           image,
           time,
@@ -126,7 +129,7 @@ const NotificationCard = ({
         <View style={styles.notificationCard}>
           <Image source={{ uri: image }} style={styles.notificationImage} />
           <View style={styles.notificationTextContainer}>
-            <Text style={styles.notificationTitle}>{title}</Text>
+            <Text style={styles.notificationTitle}>{eventName}</Text>
             <Text style={styles.notificationDescription}>{description}</Text>
             <Text style={styles.notificationTime}>{time}</Text>
           </View>
