@@ -10,6 +10,7 @@ import ExploreScreen from "./screens/ExploreScreen";
 import CreateEventScreen from "./screens/CreateEventScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
+import EventScreen from "./screens/EventScreen";
 import SignupScreen from "./screens/SignupScreen";
 import LoginScreen from "./screens/LoginScreen";
 import WelcomeScreen from "./screens/WelcomeScreen";
@@ -81,6 +82,7 @@ export default function App() {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Home" component={HomeTabs} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
+        <Stack.Screen name="EventScreen" component={EventScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

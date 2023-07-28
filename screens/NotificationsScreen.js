@@ -1,3 +1,4 @@
+import Icon from "react-native-vector-icons/FontAwesome";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig"; // Import auth from Firebase
 import {
   getFirestore,
@@ -10,7 +11,7 @@ import {
   where,
 } from "@firebase/firestore";
 import React, { useState, useEffect } from "react";
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import {
   SafeAreaView,
   View,
@@ -24,7 +25,13 @@ import {
   Alert,
   Animated,
 } from "react-native";
-import { RectButton, Swipeable } from "react-native-gesture-handler";
+import { createStackNavigator } from "@react-navigation/stack";
+import {
+  RectButton,
+  Swipeable,
+  PanGestureHandler,
+  State,
+} from "react-native-gesture-handler";
 
 // ... rest of your code
 
@@ -36,47 +43,96 @@ const NotificationCard = ({
   time,
   onDelete,
 }) => {
+  const navigation = useNavigation(); // Initialize navigation
+
   const renderRightActions = (progress, dragX) => {
-    const scale = dragX.interpolate({
-      inputRange: [-100, 0],
-      outputRange: [1, 0],
+    const translateMore = dragX.interpolate({
+      inputRange: [-200, 0],
+      outputRange: [0, 200],
       extrapolate: "clamp",
     });
+    const translateFlag = dragX.interpolate({
+      inputRange: [-150, -50],
+      outputRange: [0, 150],
+      extrapolate: "clamp",
+    });
+    const translateDelete = dragX.interpolate({
+      inputRange: [-100, 0],
+      outputRange: [0, 100],
+      extrapolate: "clamp",
+    });
+
     return (
       <View style={styles.rightActionContainer}>
-        <RectButton style={styles.moreAction}>
-          <Text style={styles.actionText}>More</Text>
-        </RectButton>
-        <RectButton style={styles.flagAction}>
-          <Text style={styles.actionText}>Flag</Text>
-        </RectButton>
-        <RectButton style={styles.deleteAction} onPress={onDelete}>
-          <Animated.Text
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={() => console.log("More pressed")}
+        >
+          <Animated.View
             style={[
-              styles.actionText,
-              {
-                transform: [{ scale }],
-              },
+              styles.moreAction,
+              { transform: [{ translateX: translateMore }] },
             ]}
           >
-            Delete
-          </Animated.Text>
-        </RectButton>
+            <Icon name="ellipsis-h" size={20} color="#fff" />
+            <Text style={styles.actionText}>More</Text>
+          </Animated.View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.6}
+          onPress={() => console.log("Flag pressed")}
+        >
+          <Animated.View
+            style={[
+              styles.flagAction,
+              { transform: [{ translateX: translateFlag }] },
+            ]}
+          >
+            <Icon name="flag" size={20} color="#fff" />
+            <Text style={styles.actionText}>Flag</Text>
+          </Animated.View>
+        </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.6} onPress={onDelete}>
+          <Animated.View
+            style={[
+              styles.deleteAction,
+              { transform: [{ translateX: translateDelete }] },
+            ]}
+          >
+            <Icon name="trash" size={20} color="#fff" />
+            <Text style={styles.actionText}>Delete</Text>
+          </Animated.View>
+        </TouchableOpacity>
       </View>
     );
   };
 
+  // Wrap the NotificationCard with TouchableOpacity
   return (
-    <Swipeable renderRightActions={renderRightActions}>
-      <View style={styles.notificationCard}>
-        <Image source={{ uri: image }} style={styles.notificationImage} />
-        <View style={styles.notificationTextContainer}>
-          <Text style={styles.notificationTitle}>{title}</Text>
-          <Text style={styles.notificationDescription}>{description}</Text>
-          <Text style={styles.notificationTime}>{time}</Text>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => {
+        // Navigate to the EventScreen with the relevant information
+        navigation.navigate("EventScreen", {
+          id,
+          title,
+          description,
+          image,
+          time,
+        });
+      }}
+    >
+      <Swipeable renderRightActions={renderRightActions}>
+        <View style={styles.notificationCard}>
+          <Image source={{ uri: image }} style={styles.notificationImage} />
+          <View style={styles.notificationTextContainer}>
+            <Text style={styles.notificationTitle}>{title}</Text>
+            <Text style={styles.notificationDescription}>{description}</Text>
+            <Text style={styles.notificationTime}>{time}</Text>
+          </View>
         </View>
-      </View>
-    </Swipeable>
+      </Swipeable>
+    </TouchableOpacity>
   );
 };
 
@@ -182,7 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
-  },
+  }, //important as this holds the card in place
   notificationCard: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -234,6 +290,8 @@ const styles = StyleSheet.create({
   rightActionContainer: {
     flexDirection: "row",
     alignItems: "center",
+    paddingBottom: 10,
+    height: "100%",
     justifyContent: "flex-end",
   },
   moreAction: {
@@ -242,13 +300,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 70,
     height: "100%",
+    borderRadius: 10,
   },
   flagAction: {
-    backgroundColor: "yellow",
+    backgroundColor: "orange",
     justifyContent: "center",
     alignItems: "center",
     width: 70,
     height: "100%",
+    borderRadius: 10,
   },
   deleteAction: {
     backgroundColor: "#dd2c00",
@@ -256,6 +316,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 70,
     height: "100%",
+    borderRadius: 10,
   },
   actionText: {
     color: "#fff",
