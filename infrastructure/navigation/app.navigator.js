@@ -1,4 +1,3 @@
-
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -13,9 +12,9 @@ const Stack = createNativeStackNavigator();
 export function AppNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="WelcomeNavigator">
+      <Stack.Navigator initialRouteName="Welcome">
         <Stack.Screen
-          name="WelcomeNavigator"
+          name="Welcome"
           component={WelcomeNavigator}
           options={{ headerShown: false }}
         />
