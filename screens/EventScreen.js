@@ -21,12 +21,16 @@ const EventScreen = ({ route }) => {
   // Retrieve the selected tag and group from the navigation parameters
   const { tag, group } = event;
 
+  //added uri
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
         <Text style={styles.title}>Event</Text>
-        <Image source={{ uri: event.image }} style={styles.mainImage} />
+        <Image
+          source={{ uri: "https://via.placeholder.com/150" }}
+          style={styles.mainImage}
+        />
         <Text style={styles.title}>{event.title}</Text>
         <Text style={styles.description}>{event.description}</Text>
         <Text style={styles.time}>
@@ -36,6 +40,11 @@ const EventScreen = ({ route }) => {
         </Text>
 
         <Text style={styles.location}>{event.location}</Text>
+
+        {/* Display the tag and group */}
+        <Text style={styles.tag}>Tag: {tag}</Text>
+        <Text style={styles.group}>Group: {group}</Text>
+
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -74,6 +83,14 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 14,
     color: "#888",
+    marginBottom: 10,
+  },
+  tag: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  group: {
+    fontSize: 14,
     marginBottom: 10,
   },
   backButton: {

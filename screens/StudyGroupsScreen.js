@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -8,54 +8,72 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-
+import { EventContext } from "../screens/EventContext";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "@firebase/firestore";
 import SearchBarComponent from "../components/SearchBarComponent";
-import { EventContext } from "../screens/EventContext"; // Import EventContext
-
-// Custom hook for fetching and filtering events
-const useStudyGroupEvents = () => {
-  const { events } = useContext(EventContext); // Use EventContext
-  const [studyGroupEvents, setStudyGroupEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Check if events is defined before calling filter
-      const filteredEvents = events
-        ? events.filter((event) => event.group === "StudyGroup")
-        : [];
-
-      setStudyGroupEvents(filteredEvents);
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [events]);
-
-  return { studyGroupEvents, loading, error };
-};
 
 const StudyGroupsScreen = () => {
   const navigation = useNavigation();
-  const { studyGroupEvents, loading, error } = useStudyGroupEvents();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [events, setEvents] = useContext(EventContext);
+
+  useEffect(() => {
+    setLoading(true);
+    const db = getFirestore();
+    const fetchEvents = async () => {
+      try {
+        const q = query(
+          collection(db, "events"),
+          where("group", "==", "Study Group")
+        );
+        const querySnapshot = await getDocs(q);
+        let eventsData = [];
+        querySnapshot.forEach((doc) => {
+          eventsData.push({ id: doc.id, ...doc.data() });
+        });
+        setEvents(eventsData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const handleEventPress = (event) => {
-    navigation.navigate("EventScreen", event);
+    navigation.navigate("EventScreen", {
+      image: event.image,
+      title: event.name,
+      description: event.description,
+      time: event.time,
+      location: event.location,
+      tag: event.tag,
+      group: event.group,
+    });
   };
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
 
   if (error) {
-    return <Text>Error: {error.message}</Text>;
+    return <Text>Error: {error}</Text>;
   }
 
   return (
@@ -64,14 +82,18 @@ const StudyGroupsScreen = () => {
       <Text style={styles.title}>Study Groups</Text>
       <SearchBarComponent />
       <FlatList
-        data={studyGroupEvents} // Use studyGroupEvents instead of DATA
+        data={events}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleEventPress(item)}>
-            <Card
-              name={item.name}
-              location={item.location}
-              image={item.image}
-            />
+            <View style={styles.card}>
+              <Image
+                style={styles.image}
+                source={{ uri: "https://via.placeholder.com/150" }}
+              />
+              <Text style={styles.name}>{item.name}</Text>
+              <Text style={styles.location}>{item.location}</Text>
+              <Text style={styles.group}>Group: {item.group}</Text>
+            </View>
           </TouchableOpacity>
         )}
         keyExtractor={(item) => item.id}
@@ -80,15 +102,12 @@ const StudyGroupsScreen = () => {
   );
 };
 
-const Card = ({ name, location, image }) => (
-  <View style={styles.card}>
-    <Image style={styles.image} source={{ uri: image }} />
-    <Text style={styles.name}>{name}</Text>
-    <Text style={styles.location}>{location}</Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
@@ -113,6 +132,11 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 16,
     color: "gray",
+    marginTop: 5,
+  },
+  group: {
+    fontSize: 16,
+    color: "blue",
     marginTop: 5,
   },
 });

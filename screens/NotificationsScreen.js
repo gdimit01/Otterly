@@ -5,7 +5,7 @@
  * @returns The code is exporting the `NotificationScreen` component as the default export.
  */
 import React, { useState, useEffect, useContext } from "react"; // Import useContext
-import { EventContext } from "..//screens/EventContext"; // Import EventContext
+import { EventContext } from "../screens/EventContext"; // Import EventContext
 import Icon from "react-native-vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig"; // Import auth from Firebase
