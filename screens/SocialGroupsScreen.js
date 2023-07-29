@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,24 @@ import {
   SafeAreaView,
 } from "react-native";
 
-export default function SocialGroupsScreen() {
+import SearchBarComponent from "../components/SearchBarComponent";
+import { EventContext } from "../screens/EventContext"; // Import EventContext
+
+const SocialGroupsScreen = () => {
+  const { events } = useContext(EventContext); // Use EventContext
+
+  // Check if events is defined before calling filter
+  const socialGroupEvents = events
+    ? events.filter((event) => event.group === "SocialGroup")
+    : [];
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
-      <Text style={styles.title}>Study Groups</Text>
+      <Text style={styles.title}>Social Groups</Text>
+      <SearchBarComponent />
       <FlatList
-        data={DATA}
+        data={socialGroupEvents} // Use socialGroupEvents instead of DATA
         renderItem={({ item }) => (
           <Card name={item.name} location={item.location} image={item.image} />
         )}
@@ -23,7 +34,7 @@ export default function SocialGroupsScreen() {
       />
     </SafeAreaView>
   );
-}
+};
 
 const Card = ({ name, location, image }) => (
   <View style={styles.card}>
@@ -32,28 +43,6 @@ const Card = ({ name, location, image }) => (
     <Text style={styles.location}>{location}</Text>
   </View>
 );
-
-const DATA = [
-  {
-    id: "1",
-    name: "React Native Austin",
-    location: "Austin, USA",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: "2",
-    name: "React Native Bangalore",
-    location: "Bangalore, India",
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: "3",
-    name: "React Native Montevideo",
-    location: "Montevideo, Uruguay",
-    image: "https://via.placeholder.com/150",
-  },
-  // Add more groups here...
-];
 
 const styles = StyleSheet.create({
   title: {
@@ -84,4 +73,4 @@ const styles = StyleSheet.create({
   },
 });
 
-//export default SocialGroupsScreen;
+export default SocialGroupsScreen;

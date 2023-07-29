@@ -5,7 +5,7 @@ import { AppNavigator } from "./infrastructure/navigation/app.navigator"; // Imp
 export default function App() {
   return (
     <EventProvider>
-      <AppNavigator /> {/* Use the AppNavigator component */}
+      <AppNavigator />
     </EventProvider>
   );
 }
