@@ -30,7 +30,9 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.replace("Home");
+        navigation.replace("HomeStack");
+      } else {
+        console.log("User is currently not logged in.");
       }
     });
 
