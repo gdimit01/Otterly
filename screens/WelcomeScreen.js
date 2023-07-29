@@ -50,7 +50,7 @@ const WelcomeScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
         <Text style={styles.text}>
-          Already a member?{" "}
+          Already a member?
           <Text style={styles.link} onPress={handleLogIn}>
             Log in
           </Text>
