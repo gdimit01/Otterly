@@ -84,8 +84,8 @@ export const HomeScreen = () => {
       <ScrollView contentContainerStyle={styles.container}>
         {user ? (
           <View style={styles.userInfoContainer}>
-            <Text>
-              Name: {firstName} {surname}
+            <Text style={styles.greetingText}>
+              Hi {firstName} {surname}
             </Text>
             <Text>Email: {user.email}</Text>
           </View>
@@ -193,5 +193,13 @@ const styles = StyleSheet.create({
   },
   activityTitle: {
     marginTop: 10,
+  },
+  greetingText: {
+    fontSize: 20, // this sets the font size
+    color: "#000000", // this sets the text color
+    fontWeight: "bold", // this makes the text bold
+    // You can add any other styles you want here. Some examples:
+    fontStyle: "italic",
+    textDecorationLine: "underline",
   },
 });
