@@ -27,11 +27,15 @@ export const HomeNavigator = () => {
             <Ionicons name={icons[route.name]} size={size} color={color} />
           );
         },
+        tabBarActiveTintColor: "tomato",
+        tabBarInactiveTintColor: "gray",
+        tabBarStyle: [
+          {
+            display: "flex",
+          },
+          null,
+        ],
       })}
-      tabBarOptions={{
-        activeTintColor: "tomato",
-        inactiveTintColor: "gray",
-      }}
     >
       <Tab.Screen
         name="Home"
