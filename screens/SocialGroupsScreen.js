@@ -9,17 +9,7 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import SearchBarComponent from "../components/SearchBarComponent";
-import { EventContext } from "../screens/EventContext"; // Import EventContext
-
-export default SocialGroupsScreen = () {
-  const { events } = useContext(EventContext); // Use EventContext
-
-  // Check if events is defined before calling filter
-  const socialGroupEvents = events
-    ? events.filter((event) => event.group === "SocialGroup")
-    : [];
-
+export default function SocialGroupsScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
@@ -33,7 +23,7 @@ export default SocialGroupsScreen = () {
       />
     </SafeAreaView>
   );
-};
+}
 
 const Card = ({ name, location, image }) => (
   <View style={styles.card}>

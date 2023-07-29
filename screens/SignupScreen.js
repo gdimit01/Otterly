@@ -97,9 +97,10 @@ const SignupScreen = (props) => {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            {/* <Image source={require("../../assets/back_arrow.png")} /> */}
-          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={styles.backButton}
+          ></TouchableOpacity>
           <Icon name="user-plus" size={30} color="#000" style={styles.icon} />
           <Text style={styles.title}>Sign Up</Text>
           <FormInput
