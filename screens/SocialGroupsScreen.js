@@ -9,7 +9,17 @@ import {
   SafeAreaView,
 } from "react-native";
 
-const StudyGroupsScreen = () => {
+import SearchBarComponent from "../components/SearchBarComponent";
+import { EventContext } from "../screens/EventContext"; // Import EventContext
+
+export default SocialGroupsScreen = () {
+  const { events } = useContext(EventContext); // Use EventContext
+
+  // Check if events is defined before calling filter
+  const socialGroupEvents = events
+    ? events.filter((event) => event.group === "SocialGroup")
+    : [];
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
@@ -84,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SocialGroupsScreen;
+//export default SocialGroupsScreen;
