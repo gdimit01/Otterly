@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
-  View,
   Text,
+  View,
   StyleSheet,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,9 +16,10 @@ import { useNavigation } from "@react-navigation/native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
-//import { signUp } from "../services/authentication.service";
+import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { getAuth, createUserWithEmailAndPassword } from "@firebase/auth";
 
-export default SignupScreen = (props) => {
+export default function SignupScreen(props) {
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -30,6 +31,23 @@ export default SignupScreen = (props) => {
 
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const signUp = async (firstName, surname, email, password) => {
+    try {
+      const auth = getAuth();
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      await user.updateProfile({ displayName: `${firstName} ${surname}` });
+      return user;
+    } catch (error) {
+      console.error("Failed to sign up: ", error);
+      return null;
+    }
   };
 
   const handleSignUp = async () => {
@@ -119,7 +137,7 @@ export default SignupScreen = (props) => {
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
