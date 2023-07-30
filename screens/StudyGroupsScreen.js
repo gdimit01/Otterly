@@ -26,6 +26,7 @@ const StudyGroupsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [events, setEvents] = useContext(EventContext);
+  const [searchQuery, setSearchQuery] = useState(""); // Add this
 
   useEffect(() => {
     setLoading(true);
@@ -52,6 +53,10 @@ const StudyGroupsScreen = () => {
     fetchEvents();
   }, []);
 
+  // Filter events based on searchQuery
+  const filteredEvents = events.filter((event) =>
+    event.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   const handleEventPress = (event) => {
     navigation.navigate("EventScreen", {
       image: event.image,
@@ -80,9 +85,12 @@ const StudyGroupsScreen = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
       <Text style={styles.title}>Study Groups</Text>
-      <SearchBarComponent />
+      <SearchBarComponent
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
       <FlatList
-        data={events}
+        data={filteredEvents}
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleEventPress(item)}>
             <View style={styles.card}>
