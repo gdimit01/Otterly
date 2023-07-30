@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  StatusBar, // Import StatusBar
+  Platform, // Import Platform to identify if the device is Android
 } from "react-native";
 import styles from "./WelcomeScreen.styles.js";
 
@@ -42,6 +44,10 @@ const WelcomeScreen = ({ navigation }) => {
       source={require("../assets/space.png")}
       style={styles.container}
     >
+      {Platform.OS === "android" && (
+        <StatusBar translucent backgroundColor="transparent" />
+      )}
+      {/* Add StatusBar for Android */}
       <View style={styles.logoContainer}>
         <Image source={require("../assets/icon.png")} style={styles.logo} />
         <Text style={styles.slogan}>What do you love?</Text>
