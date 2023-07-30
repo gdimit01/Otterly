@@ -14,6 +14,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  StatusBar,
+  Platform,
 } from "react-native";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import FormButton from "../components/FormButton";
@@ -95,6 +97,8 @@ const LoginScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView style={styles.container} behavior="padding">
+        <StatusBar barStyle="dark-content" />
+        {/* Add StatusBar for both Android and iOS */}
         <View style={styles.container}>
           <Icon name="user" size={30} color="#000" style={styles.icon} />
           <Text style={styles.title}>Otterly App</Text>

@@ -9,6 +9,7 @@ import {
   FlatList,
   Image,
   View,
+  StatusBar,
 } from "react-native";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import { getFirestore, doc, getDoc } from "@firebase/firestore";
@@ -81,6 +82,7 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.container}>
         {user ? (
           <View style={styles.userInfoContainer}>

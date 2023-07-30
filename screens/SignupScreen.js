@@ -4,24 +4,21 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  SafeAreaView,
-  Image,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
-  Keyboard,
   TouchableOpacity,
   ScrollView,
+  Platform,
+  Keyboard,
+  StatusBar,
 } from "react-native";
-import { FIREBASE_AUTH } from "../firebaseConfig";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore, doc, setDoc } from "@firebase/firestore";
-import { createUserWithEmailAndPassword } from "@firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
+//import { signUp } from "../services/authentication.service";
 
-const SignupScreen = (props) => {
+export default SignupScreen = (props) => {
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -29,13 +26,12 @@ const SignupScreen = (props) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const auth = FIREBASE_AUTH;
   const navigation = useNavigation();
 
   const handleBack = () => {
     navigation.goBack();
   };
-  //new additions
+
   const handleSignUp = async () => {
     setLoading(true);
     try {
@@ -51,31 +47,9 @@ const SignupScreen = (props) => {
       }
 
       // Create user with email and password
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const user = await signUp(firstName, surname, email, password);
 
-      // Check if user creation was successful
-      if (response && response.user) {
-        // User created successfully
-        console.log("User created successfully:", response.user);
-        console.log("User ID:", response.user.uid); // This is the user's ID
-
-        // Store user ID in AsyncStorage
-        await AsyncStorage.setItem("userID", response.user.uid);
-
-        // Get Firestore instance
-        const db = getFirestore();
-
-        // Add user details to Firestore
-        await setDoc(doc(db, "users", response.user.uid), {
-          firstName: firstName,
-          surname: surname,
-          email: email,
-        });
-
+      if (user) {
         alert("User created successfully!");
         navigation.navigate("Home"); // navigate to HomeScreen after successful signup
       } else {
@@ -95,6 +69,7 @@ const SignupScreen = (props) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      <StatusBar barStyle="dark-content" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollView}>
           <TouchableOpacity
@@ -171,5 +146,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-export default SignupScreen;
