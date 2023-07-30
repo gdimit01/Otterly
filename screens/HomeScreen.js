@@ -62,6 +62,14 @@ export const HomeScreen = () => {
     }
   }, [isFocused]);
 
+  //This fixed the black bar issue on Android
+  useEffect(() => {
+    StatusBar.setBarStyle("dark-content");
+    if (Platform.OS === "android") {
+      StatusBar.setBackgroundColor("transparent");
+      StatusBar.setTranslucent(true);
+    }
+  }, []);
   const handleSignOut = () => {
     auth
       .signOut()
