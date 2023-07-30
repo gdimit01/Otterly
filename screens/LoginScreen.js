@@ -106,7 +106,7 @@ const LoginScreen = () => {
           <FormInput
             value={password}
             placeholder="Password"
-            secureTextEntry={true}
+            secure={true}
             onChangeText={(text) => setPassword(text)}
           />
           {loading ? (
