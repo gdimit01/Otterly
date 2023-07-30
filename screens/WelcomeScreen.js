@@ -45,7 +45,11 @@ const WelcomeScreen = ({ navigation }) => {
       style={styles.container}
     >
       {Platform.OS === "android" && (
-        <StatusBar translucent backgroundColor="transparent" />
+        <StatusBar
+          translucent
+          backgroundColor="transparent"
+          barStyle="light-content"
+        />
       )}
       {/* Add StatusBar for Android */}
       <View style={styles.logoContainer}>
