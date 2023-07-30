@@ -6,6 +6,7 @@ import { HomeNavigator } from "./home.navigator";
 import EventScreen from "../../screens/EventScreen";
 import StudyGroupsScreen from "../../screens/StudyGroupsScreen";
 import SocialGroupsScreen from "../../screens/SocialGroupsScreen";
+import SettingsScreen from "../../screens/SettingsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,7 @@ export function AppNavigator() {
           component={SocialGroupsScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

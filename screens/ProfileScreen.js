@@ -1,145 +1,142 @@
 import React, { useState, useEffect } from "react";
+import { TextInput, Card, Title, Paragraph } from "react-native-paper";
 import {
   View,
   SafeAreaView,
-  Text,
   Image,
-  Button,
-  TextInput,
   StyleSheet,
   ScrollView,
   Alert,
+  Text,
 } from "react-native";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import {
   getFirestore,
   doc,
-  getDoc,
-  setDoc,
-  deleteDoc,
+  onSnapshot,
+  collection,
+  query,
+  where,
 } from "@firebase/firestore";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
-import FormButton from "../components/FormButton"; // import the FormButton component
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import FormButton from "../components/FormButton";
 import LabelInput from "../components/LabelInput";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Icon from "react-native-vector-icons/Ionicons";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [interests, setInterests] = useState("");
-  const [refresh, setRefresh] = useState(false); // Add this line
+  const [refresh, setRefresh] = useState(false);
+  const [studyGroupCount, setStudyGroupCount] = useState(0);
+  const [socialGroupCount, setSocialGroupCount] = useState(0);
+
+  const navigateToSettings = () => {
+    try {
+      navigation.navigate("SettingsScreen");
+    } catch (error) {
+      console.error("Navigation error:", error);
+      // Handle navigation error here (you could show an alert, for example)
+      Alert.alert(
+        "Navigation Error",
+        "There was a problem navigating to the settings screen. Please try again."
+      );
+    }
+  };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       console.log("Auth state changed:", user);
-
       if (user) {
         const db = getFirestore();
         const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-          setName(docSnap.data().firstName);
-          setEmail(user.email);
-        } else {
-          console.log("No such document!");
-        }
+        // Subscribe to real-time updates for the user document
+        const unsubscribeUserDoc = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setName(docSnap.data().firstName);
+            setEmail(user.email);
+          } else {
+            console.log("No such document!");
+          }
+        });
+
+        // Subscribe to real-time updates for Study Groups
+        const studyGroupQuery = query(
+          collection(db, "events"),
+          where("userId", "==", user.uid),
+          where("group", "==", "Study Group")
+        );
+
+        const unsubscribeStudyGroups = onSnapshot(
+          studyGroupQuery,
+          (snapshot) => {
+            // Set the count of study groups the user is associated with
+            setStudyGroupCount(snapshot.size);
+          },
+          (error) => console.log("Error fetching study group updates:", error)
+        );
+
+        // Subscribe to real-time updates for Social Groups
+        const socialGroupQuery = query(
+          collection(db, "events"),
+          where("userId", "==", user.uid),
+          where("group", "==", "Social Group")
+        );
+
+        const unsubscribeSocialGroups = onSnapshot(
+          socialGroupQuery,
+          (snapshot) => {
+            // Set the count of social groups the user is associated with
+            setSocialGroupCount(snapshot.size);
+          },
+          (error) => console.log("Error fetching social group updates:", error)
+        );
+
+        // Return a cleanup function to unsubscribe from real-time updates when the component unmounts
+        return () => {
+          unsubscribeUserDoc();
+          unsubscribeStudyGroups();
+          unsubscribeSocialGroups();
+        };
       }
     });
 
     // Cleanup subscription on unmount
-    return unsubscribe;
-  }, [refresh]); // Add refresh here
-
-  const handleSave = async () => {
-    try {
-      // Save the changes here, e.g., update the user profile in your database
-      const user = auth.currentUser;
-      if (user) {
-        const db = getFirestore();
-        const docRef = doc(db, "users", user.uid);
-
-        // Set the "firstName" field of the user's document
-        await setDoc(docRef, { firstName: name }, { merge: true });
-
-        // Store the user's name in AsyncStorage
-        await AsyncStorage.setItem("name", name);
-
-        // Trigger a refresh of the user data
-        setRefresh(!refresh);
-      }
-    } catch (error) {
-      console.error("Error saving changes:", error);
-    }
-  };
-
-  // Load the user's name from AsyncStorage when the component mounts
-  useEffect(() => {
-    const loadName = async () => {
-      const storedName = await AsyncStorage.getItem("name");
-      if (storedName) {
-        setName(storedName);
-      }
-    };
-
-    loadName();
+    return unsubscribeAuth;
   }, []);
-
-  const handleDeleteAccount = async () => {
-    Alert.alert(
-      "Delete Account",
-      "Are you sure you want to delete account?",
-      [
-        {
-          text: "No",
-          style: "cancel",
-        },
-        {
-          text: "Yes",
-          onPress: async () => {
-            try {
-              const user = auth.currentUser;
-              if (user) {
-                const db = getFirestore();
-                await deleteDoc(doc(db, "users", user.uid));
-                await user.delete();
-                navigation.navigate("WelcomeScreen"); // Navigate to WelcomeScreen
-              }
-            } catch (error) {
-              console.error("Error deleting account:", error);
-            }
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <TouchableOpacity
+        style={styles.settingsIcon}
+        onPress={navigateToSettings}
+      >
+        <Icon name="settings" size={30} color="#000" />
+      </TouchableOpacity>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
         <View style={styles.content}>
           <Image
             style={styles.profileImage}
             source={{ uri: "https://via.placeholder.com/150" }}
           />
-          <Text style={styles.title}>Edit Profile</Text>
-
-          {/* Name Input */}
-          <LabelInput label="Name" value={name} onChangeText={setName} />
-
-          {/* Email Input */}
-          <LabelInput label="Email" value={email} onChangeText={setEmail} />
-
-          {/* Interests Input */}
-          <LabelInput
-            label="Interests"
-            value={interests}
-            onChangeText={setInterests}
-          />
-
-          <FormButton title="Save Changes" onPress={handleSave} />
-          <FormButton title="Delete Account" onPress={handleDeleteAccount} />
+          <Text style={styles.userName}>{name}</Text>
+          <Text style={styles.userEmail}>{email}</Text>
+          <View style={styles.cardsContainer}>
+            <Card style={styles.card}>
+              <Card.Content>
+                <Title>Study Group Associations</Title>
+                <Paragraph>{studyGroupCount}</Paragraph>
+              </Card.Content>
+            </Card>
+            <Card style={styles.card}>
+              <Card.Content>
+                <Title>Social Group Associations</Title>
+                <Paragraph>{socialGroupCount}</Paragraph>
+              </Card.Content>
+            </Card>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -150,6 +147,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    padding: 10,
+    alignItems: "center",
+  },
+  settingsIcon: {
+    left: 315,
+    bottom: 10,
+    padding: 10,
+  },
+
   content: {
     padding: 20,
     alignItems: "center",
@@ -177,6 +187,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
     paddingLeft: 10,
+  },
+  userName: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  userEmail: {
+    fontSize: 12,
+  },
+  cardsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  card: {
+    flex: 1,
+    margin: 5,
   },
 });
 
