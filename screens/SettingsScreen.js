@@ -81,7 +81,40 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   const handleDeleteAccount = async () => {
-    // Same delete handler...
+    const user = auth.currentUser;
+    if (user) {
+      const db = getFirestore();
+      const docRef = doc(db, "users", user.uid);
+
+      // Delete the user's document from Firestore
+      await deleteDoc(docRef);
+
+      // Delete the user's info from AsyncStorage
+      await AsyncStorage.removeItem("name");
+
+      // Delete the user's account from Firebase Auth
+      user
+        .delete()
+        .then(() => {
+          Alert.alert(
+            "Account Deleted",
+            "Your account has been deleted. Press OK to return to the Welcome screen.",
+            [
+              {
+                text: "OK",
+                onPress: () => {
+                  navigation.popToTop(); // clear the navigation stack
+                  navigation.navigate("Welcome"); // navigate to "Main"
+                },
+              },
+            ],
+            { cancelable: false }
+          );
+        })
+        .catch((error) => {
+          console.error("Error deleting user:", error);
+        });
+    }
   };
 
   return (
