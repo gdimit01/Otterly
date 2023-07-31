@@ -1,25 +1,27 @@
 import React, { useState } from "react";
 import {
-  Text,
   View,
+  Text,
   StyleSheet,
   ActivityIndicator,
+  SafeAreaView,
+  Image,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
+  Keyboard,
   TouchableOpacity,
   ScrollView,
-  Platform,
-  Keyboard,
-  StatusBar,
 } from "react-native";
+import { FIREBASE_AUTH } from "../firebaseConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getFirestore, doc, setDoc } from "@firebase/firestore";
+import { createUserWithEmailAndPassword } from "@firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
-import { getAuth, createUserWithEmailAndPassword } from "@firebase/auth";
 
-export default function SignupScreen(props) {
+const SignupScreen = (props) => {
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -27,29 +29,13 @@ export default function SignupScreen(props) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const auth = FIREBASE_AUTH;
   const navigation = useNavigation();
 
   const handleBack = () => {
     navigation.goBack();
   };
-
-  const signUp = async (firstName, surname, email, password) => {
-    try {
-      const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      await user.updateProfile({ displayName: `${firstName} ${surname}` });
-      return user;
-    } catch (error) {
-      console.error("Failed to sign up: ", error);
-      return null;
-    }
-  };
-
+  //new additions
   const handleSignUp = async () => {
     setLoading(true);
     try {
@@ -65,11 +51,33 @@ export default function SignupScreen(props) {
       }
 
       // Create user with email and password
-      const user = await signUp(firstName, surname, email, password);
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-      if (user) {
+      // Check if user creation was successful
+      if (response && response.user) {
+        // User created successfully
+        console.log("User created successfully:", response.user);
+        console.log("User ID:", response.user.uid); // This is the user's ID
+
+        // Store user ID in AsyncStorage
+        await AsyncStorage.setItem("userID", response.user.uid);
+
+        // Get Firestore instance
+        const db = getFirestore();
+
+        // Add user details to Firestore
+        await setDoc(doc(db, "users", response.user.uid), {
+          firstName: firstName,
+          surname: surname,
+          email: email,
+        });
+
         alert("User created successfully!");
-        navigation.navigate("Home"); // navigate to HomeScreen after successful signup
+        navigation.navigate("HomeStack"); // navigate to HomeScreen after successful signup
       } else {
         // User creation failed
         alert("User creation failed.");
@@ -87,13 +95,11 @@ export default function SignupScreen(props) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <StatusBar barStyle="dark-content" />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <TouchableOpacity
-            onPress={handleBack}
-            style={styles.backButton}
-          ></TouchableOpacity>
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+            {/* <Image source={require("../../assets/back_arrow.png")} /> */}
+          </TouchableOpacity>
           <Icon name="user-plus" size={30} color="#000" style={styles.icon} />
           <Text style={styles.title}>Sign Up</Text>
           <FormInput
@@ -137,7 +143,7 @@ export default function SignupScreen(props) {
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -164,3 +170,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+
+export default SignupScreen;
