@@ -48,7 +48,10 @@ export const HomeScreen = () => {
             try {
               await AsyncStorage.setItem("user", JSON.stringify(user));
               await AsyncStorage.setItem("firstName", docSnap.data().firstName);
-              await AsyncStorage.setItem("surname", docSnap.data().surname);
+              // Check if surname is not undefined before saving
+              if (docSnap.data().surname) {
+                await AsyncStorage.setItem("surname", docSnap.data().surname);
+              }
             } catch (err) {
               console.error(err);
             }
