@@ -83,7 +83,7 @@ const SocialGroupsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
       <Text style={styles.title}>Social Groups</Text>
       <SearchBarComponent

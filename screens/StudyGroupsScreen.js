@@ -11,14 +11,14 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { EventContext } from "../screens/EventContext";
+import { EventContext } from "../screens/EventContext"; // Updated
 import {
   getFirestore,
   collection,
   getDocs,
   query,
   where,
-} from "@firebase/firestore";
+} from "firebase/firestore"; // Updated
 import SearchBarComponent from "../components/SearchBarComponent";
 
 const StudyGroupsScreen = () => {
@@ -26,7 +26,7 @@ const StudyGroupsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [events, setEvents] = useContext(EventContext);
-  const [searchQuery, setSearchQuery] = useState(""); // Add this
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -53,10 +53,10 @@ const StudyGroupsScreen = () => {
     fetchEvents();
   }, []);
 
-  // Filter events based on searchQuery
   const filteredEvents = events.filter((event) =>
     event.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
   const handleEventPress = (event) => {
     navigation.navigate("EventScreen", {
       image: event.image,
@@ -82,7 +82,7 @@ const StudyGroupsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
       <Text style={styles.title}>Study Groups</Text>
       <SearchBarComponent
@@ -100,6 +100,7 @@ const StudyGroupsScreen = () => {
               />
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.location}>{item.location}</Text>
+              <Text style={styles.time}>Time: {item.time}</Text>
               <Text style={styles.group}>Group: {item.group}</Text>
             </View>
           </TouchableOpacity>
@@ -120,6 +121,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     margin: 10,
+  },
+  time: {
+    fontSize: 16,
+    color: "gray",
+    marginTop: 5,
   },
   card: {
     flex: 1,

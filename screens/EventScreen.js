@@ -23,7 +23,9 @@ const EventScreen = ({ route }) => {
 
   //added uri
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
+    >
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
         <Text style={styles.title}>Event</Text>

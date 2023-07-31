@@ -48,7 +48,12 @@ const Card = ({ name, location, image, navigation }) => {
 
 const ExploreScreen = ({ navigation }) => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+      }}
+    >
       <StatusBar barStyle="dark-content" />
       <Text style={styles.title}>Explore Groups</Text>
       <FlatList
