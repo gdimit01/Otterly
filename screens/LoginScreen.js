@@ -1,7 +1,6 @@
 import { useNavigation } from "@react-navigation/core";
 import Dialog from "react-native-dialog";
 import React, { useEffect, useState } from "react";
-import { signInWithEmailAndPassword } from "@firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
@@ -22,13 +21,27 @@ import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { sendPasswordResetEmail } from "firebase/auth"; //the key
+
+// Firebase
+import {
+  getFirestore,
+  setDoc,
+  doc,
+  serverTimestamp,
+} from "@firebase/firestore";
+import {
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "@firebase/auth";
+
 const LoginScreen = () => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const firestore = getFirestore();
 
   const navigation = useNavigation();
 
@@ -47,7 +60,6 @@ const LoginScreen = () => {
   //new additions
   const handleLogin = () => {
     setLoading(true);
-
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredentials) => {
         const user = userCredentials.user;
@@ -56,6 +68,15 @@ const LoginScreen = () => {
 
         // Store user ID in AsyncStorage
         await AsyncStorage.setItem("userID", user.uid);
+
+        // Update lastAuth field in Firestore
+        await setDoc(
+          doc(firestore, "users", user.uid),
+          {
+            lastAuth: serverTimestamp(),
+          },
+          { merge: true }
+        );
 
         setLoading(false);
       })

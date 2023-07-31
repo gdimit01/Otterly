@@ -10,6 +10,10 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import FormButton from "../components/FormButton";
+import LabelInput from "../components/LabelInput";
+
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import {
   getFirestore,
@@ -17,6 +21,7 @@ import {
   getDoc,
   setDoc,
   deleteDoc,
+  serverTimestamp,
 } from "@firebase/firestore";
 import {
   signInWithEmailAndPassword,
@@ -24,15 +29,11 @@ import {
   reauthenticateWithCredential,
 } from "firebase/auth";
 
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
-import FormButton from "../components/FormButton"; // import the FormButton component
-
-import LabelInput from "../components/LabelInput";
-
 const SettingsScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [interests, setInterests] = useState("");
+  const firestore = getFirestore();
 
   const loadName = async () => {
     const storedName = await AsyncStorage.getItem("name");
@@ -48,19 +49,17 @@ const SettingsScreen = ({ navigation }) => {
         const db = getFirestore();
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
           setName(docSnap.data().firstName);
-          setEmail(user.email);
-          // Rest of your Firestore queries and onSnapshot functions...
+          setEmail(user.email); // Rest of your Firestore queries and onSnapshot functions...
         } else {
           console.log("No such document!");
         }
       }
     });
 
-    loadName();
-
-    // Cleanup subscription on unmount
+    loadName(); // Cleanup subscription on unmount
     return unsubscribe;
   }, []);
 
@@ -73,7 +72,14 @@ const SettingsScreen = ({ navigation }) => {
         const docRef = doc(db, "users", user.uid);
 
         // Set the "firstName" field of the user's document
-        await setDoc(docRef, { firstName: name }, { merge: true });
+        await setDoc(
+          docRef,
+          {
+            firstName: name,
+            lastUpdated: serverTimestamp(),
+          },
+          { merge: true }
+        );
 
         // Store the user's name in AsyncStorage
         await AsyncStorage.setItem("name", name);
@@ -90,89 +96,114 @@ const SettingsScreen = ({ navigation }) => {
     let email = "";
     let password = "";
 
-    // Prompt the user for their email
-    Alert.prompt(
-      "Reauthenticate Account",
-      "Please enter your email to continue.",
-      [
-        { text: "Cancel" },
-        {
-          text: "OK",
-          onPress: async (inputEmail) => {
-            email = inputEmail;
+    // Get currently signed-in user
+    const user = auth.currentUser;
 
-            // Prompt the user for their password
-            Alert.prompt(
-              "Reauthenticate Account",
-              "Please enter your password to continue.",
-              [
-                { text: "Cancel" },
-                {
-                  text: "OK",
-                  onPress: async (inputPassword) => {
-                    password = inputPassword;
+    if (user) {
+      const docRef = doc(firestore, "users", user.uid);
+      const docSnap = await getDoc(docRef);
 
-                    // Get currently signed-in user
-                    const user = auth.currentUser;
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const timeSinceLastAuth =
+          new Date().getTime() - data.lastAuth.toDate().getTime();
 
-                    if (user) {
-                      const db = getFirestore();
-                      const docRef = doc(db, "users", user.uid);
+        if (timeSinceLastAuth > 5 * 60 * 1000) {
+          // More than 5 minutes
+          // Prompt the user for their email
+          Alert.prompt(
+            "Reauthenticate Account",
+            "Please enter your email to continue.",
+            [
+              { text: "Cancel" },
+              {
+                text: "OK",
+                onPress: async (inputEmail) => {
+                  email = inputEmail;
 
-                      // Create a credential
-                      const credential = EmailAuthProvider.credential(
-                        email,
-                        password
-                      );
+                  // Prompt the user for their password
+                  Alert.prompt(
+                    "Reauthenticate Account",
+                    "Please enter your password to continue.",
+                    [
+                      { text: "Cancel" },
+                      {
+                        text: "OK",
+                        onPress: async (inputPassword) => {
+                          password = inputPassword;
 
-                      // Reauthenticate the user
-                      try {
-                        await reauthenticateWithCredential(user, credential);
-                      } catch (error) {
-                        console.error("Error reauthenticating user:", error);
-                        Alert.alert("Sorry, credentials did not match.");
-                        return;
-                      }
-
-                      // Delete the user's document from Firestore
-                      await deleteDoc(docRef);
-
-                      // Delete the user's info from AsyncStorage
-                      await AsyncStorage.removeItem("name");
-
-                      // Delete the user's account from Firebase Auth
-                      user
-                        .delete()
-                        .then(() => {
-                          Alert.alert(
-                            "Account Deleted",
-                            "Your account has been deleted. Press OK to return to the Welcome screen.",
-                            [
-                              {
-                                text: "OK",
-                                onPress: () => {
-                                  navigation.popToTop(); // clear the navigation stack
-                                  navigation.navigate("Welcome"); // navigate to "Main"
-                                },
-                              },
-                            ],
-                            { cancelable: false }
+                          // Create a credential
+                          const credential = EmailAuthProvider.credential(
+                            email,
+                            password
                           );
-                        })
-                        .catch((error) => {
-                          console.error("Error deleting user:", error);
-                        });
-                    }
-                  },
+
+                          // Reauthenticate the user
+                          try {
+                            await reauthenticateWithCredential(
+                              user,
+                              credential
+                            );
+                          } catch (error) {
+                            console.error(
+                              "Error reauthenticating user:",
+                              error
+                            );
+                            Alert.alert("Sorry, credentials did not match.");
+                            return;
+                          }
+
+                          // Proceed with account deletion
+                          deleteAccount(user, docRef);
+                        },
+                      },
+                    ],
+                    "secure-text"
+                  );
                 },
-              ],
-              "secure-text"
-            );
-          },
-        },
-      ],
-      "plain-text"
-    );
+              },
+            ],
+            "plain-text"
+          );
+        } else {
+          // If the user is recently authenticated, you can proceed to delete their account without reauthentication.
+          deleteAccount(user, docRef);
+        }
+      } else {
+        console.log("No such document!");
+      }
+    }
+  };
+
+  const deleteAccount = async (user, docRef) => {
+    // Delete the user's document from Firestore
+    await deleteDoc(docRef);
+
+    // Delete the user's info from AsyncStorage
+    await AsyncStorage.removeItem("name");
+
+    // Delete the user's account from Firebase Auth
+    user
+      .delete()
+      .then(() => {
+        Alert.alert(
+          "Account Deleted",
+          "Your account has been deleted. Press OK to return to the Welcome screen.",
+          [
+            {
+              text: "OK",
+              onPress: () => {
+                navigation.popToTop(); // clear the navigation stack
+                navigation.navigate("Welcome"); // navigate to "Main"
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      })
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+      });
   };
 
   return (
