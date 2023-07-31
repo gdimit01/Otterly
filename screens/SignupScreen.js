@@ -125,15 +125,16 @@ const SignupScreen = (props) => {
           <FormInput
             value={password}
             placeholder="Password"
-            secureTextEntry={true}
+            secure={true}
             onChangeText={setPassword}
           />
           <FormInput
             value={confirmPassword}
             placeholder="Confirm Password"
-            secureTextEntry={true}
+            secure={true}
             onChangeText={setConfirmPassword}
           />
+
           {loading ? (
             <ActivityIndicator size="large" color="#f64060" />
           ) : (
