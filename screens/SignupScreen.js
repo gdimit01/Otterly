@@ -11,17 +11,22 @@ import {
   Keyboard,
   TouchableOpacity,
   ScrollView,
+  Platform,
+  Alert,
 } from "react-native";
-import { FIREBASE_AUTH } from "../firebaseConfig";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  reload,
+} from "firebase/auth";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore, doc, setDoc } from "@firebase/firestore";
-import { createUserWithEmailAndPassword } from "@firebase/auth";
-import { useNavigation } from "@react-navigation/native";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-const SignupScreen = (props) => {
+const SignupScreen = ({ navigation }) => {
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -29,24 +34,26 @@ const SignupScreen = (props) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const auth = FIREBASE_AUTH;
-  const navigation = useNavigation();
+
+  const auth = getAuth();
 
   const handleBack = () => {
     navigation.goBack();
   };
-  //new additions
+
   const handleSignUp = async () => {
     setLoading(true);
     try {
       // Validate form data
       if (email !== confirmEmail) {
         alert("Email does not match.");
+        setLoading(false);
         return;
       }
 
       if (password !== confirmPassword) {
         alert("Password does not match.");
+        setLoading(false);
         return;
       }
 
@@ -66,18 +73,50 @@ const SignupScreen = (props) => {
         // Store user ID in AsyncStorage
         await AsyncStorage.setItem("userID", response.user.uid);
 
-        // Get Firestore instance
+        // Create a document for the new user
         const db = getFirestore();
-
-        // Add user details to Firestore
         await setDoc(doc(db, "users", response.user.uid), {
           firstName: firstName,
           surname: surname,
-          email: email,
+          email: response.user.email,
         });
 
-        alert("User created successfully!");
-        navigation.navigate("HomeStack"); // navigate to HomeScreen after successful signup
+        // Send email verification
+        try {
+          await sendEmailVerification(response.user);
+          console.log("Verification Email Sent");
+
+          // Alert to verify email
+          const verifyAlert = () =>
+            Alert.alert(
+              "Email Sent",
+              "Verification Email Sent! Please check your inbox and verify your email.",
+              [
+                {
+                  text: "I've Verified",
+                  onPress: async () => {
+                    // Wait for the user to press "I've Verified"
+                    // then reload the user's information from Firebase
+                    await reload(response.user);
+
+                    if (response.user.emailVerified) {
+                      // If the email is verified, navigate to the home screen
+                      navigation.navigate("HomeStack");
+                    } else {
+                      // If the email isn't verified, show the alert again
+                      verifyAlert();
+                    }
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
+
+          verifyAlert();
+        } catch (error) {
+          console.error("Failed to Send Verification Email: ", error);
+          alert("Failed to Send Verification Email: " + error.message);
+        }
       } else {
         // User creation failed
         alert("User creation failed.");
