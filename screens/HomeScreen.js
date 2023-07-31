@@ -89,8 +89,9 @@ export const HomeScreen = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
+      <Text style={styles.title}>Home</Text>
       <ScrollView contentContainerStyle={styles.container}>
         {user ? (
           <View style={styles.userInfoContainer}>
@@ -137,6 +138,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
   activitiesContainer: {
     height: 150, // Adjust this value as needed
