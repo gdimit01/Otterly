@@ -35,23 +35,21 @@ export const HomeScreen = () => {
       const unsubscribe = auth.onAuthStateChanged(async (user) => {
         console.log("Auth state changed:", user);
         setUser(user);
-
         if (user) {
           const db = getFirestore();
           const docRef = doc(db, "users", user.uid);
           const docSnap = await getDoc(docRef);
-
           if (docSnap.exists()) {
-            setFirstName(docSnap.data().firstName);
-            setSurname(docSnap.data().surname);
+            const userData = docSnap.data();
+            const firstName = userData.firstName || "";
+            const surname = userData.surname || "";
+            setFirstName(firstName);
+            setSurname(surname);
             // Save user data to AsyncStorage
             try {
               await AsyncStorage.setItem("user", JSON.stringify(user));
-              await AsyncStorage.setItem("firstName", docSnap.data().firstName);
-              // Check if surname is not undefined before saving
-              if (docSnap.data().surname) {
-                await AsyncStorage.setItem("surname", docSnap.data().surname);
-              }
+              await AsyncStorage.setItem("firstName", firstName);
+              await AsyncStorage.setItem("surname", surname);
             } catch (err) {
               console.error(err);
             }
@@ -60,7 +58,6 @@ export const HomeScreen = () => {
           }
         }
       });
-
       return unsubscribe;
     }
   }, [isFocused]);
