@@ -47,6 +47,7 @@ const LoginScreen = () => {
   //new additions
   const handleLogin = () => {
     setLoading(true);
+
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredentials) => {
         const user = userCredentials.user;

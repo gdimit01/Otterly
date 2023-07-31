@@ -55,7 +55,7 @@ const ProfileScreen = ({ navigation }) => {
         // Subscribe to real-time updates for the user document
         const unsubscribeUserDoc = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
-            setName(docSnap.data().firstName);
+            setName(docSnap.data().firstName + " " + docSnap.data().surname);
             setEmail(user.email);
           } else {
             console.log("No such document!");
