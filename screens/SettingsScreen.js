@@ -18,6 +18,12 @@ import {
   setDoc,
   deleteDoc,
 } from "@firebase/firestore";
+import {
+  signInWithEmailAndPassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+} from "firebase/auth";
+
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import FormButton from "../components/FormButton"; // import the FormButton component
 
@@ -81,40 +87,92 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   const handleDeleteAccount = async () => {
-    const user = auth.currentUser;
-    if (user) {
-      const db = getFirestore();
-      const docRef = doc(db, "users", user.uid);
+    let email = "";
+    let password = "";
 
-      // Delete the user's document from Firestore
-      await deleteDoc(docRef);
+    // Prompt the user for their email
+    Alert.prompt(
+      "Reauthenticate Account",
+      "Please enter your email to continue.",
+      [
+        { text: "Cancel" },
+        {
+          text: "OK",
+          onPress: async (inputEmail) => {
+            email = inputEmail;
 
-      // Delete the user's info from AsyncStorage
-      await AsyncStorage.removeItem("name");
+            // Prompt the user for their password
+            Alert.prompt(
+              "Reauthenticate Account",
+              "Please enter your password to continue.",
+              [
+                { text: "Cancel" },
+                {
+                  text: "OK",
+                  onPress: async (inputPassword) => {
+                    password = inputPassword;
 
-      // Delete the user's account from Firebase Auth
-      user
-        .delete()
-        .then(() => {
-          Alert.alert(
-            "Account Deleted",
-            "Your account has been deleted. Press OK to return to the Welcome screen.",
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                  navigation.popToTop(); // clear the navigation stack
-                  navigation.navigate("Welcome"); // navigate to "Main"
+                    // Get currently signed-in user
+                    const user = auth.currentUser;
+
+                    if (user) {
+                      const db = getFirestore();
+                      const docRef = doc(db, "users", user.uid);
+
+                      // Create a credential
+                      const credential = EmailAuthProvider.credential(
+                        email,
+                        password
+                      );
+
+                      // Reauthenticate the user
+                      try {
+                        await reauthenticateWithCredential(user, credential);
+                      } catch (error) {
+                        console.error("Error reauthenticating user:", error);
+                        Alert.alert("Sorry, credentials did not match.");
+                        return;
+                      }
+
+                      // Delete the user's document from Firestore
+                      await deleteDoc(docRef);
+
+                      // Delete the user's info from AsyncStorage
+                      await AsyncStorage.removeItem("name");
+
+                      // Delete the user's account from Firebase Auth
+                      user
+                        .delete()
+                        .then(() => {
+                          Alert.alert(
+                            "Account Deleted",
+                            "Your account has been deleted. Press OK to return to the Welcome screen.",
+                            [
+                              {
+                                text: "OK",
+                                onPress: () => {
+                                  navigation.popToTop(); // clear the navigation stack
+                                  navigation.navigate("Welcome"); // navigate to "Main"
+                                },
+                              },
+                            ],
+                            { cancelable: false }
+                          );
+                        })
+                        .catch((error) => {
+                          console.error("Error deleting user:", error);
+                        });
+                    }
+                  },
                 },
-              },
-            ],
-            { cancelable: false }
-          );
-        })
-        .catch((error) => {
-          console.error("Error deleting user:", error);
-        });
-    }
+              ],
+              "secure-text"
+            );
+          },
+        },
+      ],
+      "plain-text"
+    );
   };
 
   return (
