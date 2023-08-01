@@ -59,6 +59,7 @@ const CreateEventScreen = () => {
     console.log("Events updated:", events);
   }, [events]);
 
+  //TO DO: recheck this as the creator field comes up empty
   const createEvent = async () => {
     try {
       const user = auth.currentUser; // Get the currently logged-in user
@@ -91,6 +92,24 @@ const CreateEventScreen = () => {
         console.log(
           "Notification document written with ID: ",
           notificationRef.id
+        );
+
+        // Create a studygroups for the new event
+        const studygroupsRef = await addDoc(collection(db, "studygroups"), {
+          title: `New Event Created: ${eventName}`,
+          description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
+          image: "https://via.placeholder.com/150", // Replace with the actual image URL
+          time: new Date().toLocaleString([], { timeZoneName: "short" }), // Current time with timezone abbreviation
+          userId: user.uid, // Add the user's ID to the notification document
+          eventId: eventRef.id, // Add the event's ID to the notification document
+          tag: tag, // Set as string
+          group: group, // Set as string
+          creator: { uid: user.uid }, // Add creator field with uid sub-field
+        });
+
+        console.log(
+          "StudyGroups document written with ID: ",
+          studygroupsRef.id
         );
         console.log("Events before:", events);
         // Add the new event to the context
