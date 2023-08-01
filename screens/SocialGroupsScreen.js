@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,120 +8,145 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableOpacity,
-  ActivityIndicator,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { EventContext } from "../screens/EventContext";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import {
   getFirestore,
   collection,
-  getDocs,
+  onSnapshot,
   query,
   where,
+  doc,
+  deleteDoc,
 } from "@firebase/firestore";
-import SearchBarComponent from "../components/SearchBarComponent";
 
-const SocialGroupsScreen = () => {
+const SocialGroupsCard = ({
+  id,
+  title,
+  description,
+  image,
+  time,
+  group,
+  tag,
+}) => {
   const navigation = useNavigation();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [events, setEvents] = useContext(EventContext);
-  const [searchQuery, setSearchQuery] = useState(""); // Add this
 
-  useEffect(() => {
-    setLoading(true);
+  // Function to delete study group
+  const deleteStudyGroup = async () => {
     const db = getFirestore();
-    const fetchEvents = async () => {
-      try {
-        const q = query(
-          collection(db, "events"),
-          where("group", "==", "Social Group")
-        );
-        const querySnapshot = await getDocs(q);
-        let eventsData = [];
-        querySnapshot.forEach((doc) => {
-          eventsData.push({ id: doc.id, ...doc.data() });
-        });
-        setEvents(eventsData);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, []);
-
-  // Filter events based on searchQuery
-  const filteredEvents = events.filter((event) =>
-    event.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleEventPress = (event) => {
-    navigation.navigate("EventScreen", {
-      image: event.image,
-      title: event.name,
-      description: event.description,
-      time: event.time,
-      location: event.location,
-      tag: event.tag,
-      group: event.group,
-    });
+    await deleteDoc(doc(db, "studygroups", id));
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
+  return (
+    <View style={styles.card}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => {
+          navigation.navigate("EventScreen", {
+            id,
+            title,
+            description,
+            image,
+            time,
+            group,
+            tag,
+          });
+        }}
+      >
+        <Image source={{ uri: image }} style={styles.image} />
+        <View style={styles.text}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.description}>{description}</Text>
+          <Text style={styles.time}>{time}</Text>
+          <Text style={styles.group}>{group}</Text>
+          <Text style={styles.tag}>#{tag}</Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={deleteStudyGroup}
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteText}>Delete</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 
-  if (error) {
-    return <Text>Error: {error}</Text>;
-  }
+const SocialGroupsScreen = () => {
+  const isFocused = useIsFocused();
+  const [socialgroups, setStudyGroups] = useState([]);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    if (isFocused) {
+      const db = getFirestore();
+      const q = query(
+        collection(db, "socialgroups"),
+        where("group", "==", "Social Group")
+      );
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        let socialGroupsData = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          let formattedTime = "";
+          if (typeof data.time === "string") {
+            let parts = data.time.split(/[\s/:,]+/);
+            let date = new Date(
+              Date.UTC(
+                parts[2],
+                parts[1] - 1,
+                parts[0],
+                parts[3],
+                parts[4],
+                parts[5]
+              )
+            );
+            if (isNaN(date)) {
+              console.error("Could not parse date string:", data.time);
+            } else {
+              formattedTime = date.toLocaleString();
+            }
+          }
+
+          socialGroupsData.push({ id: doc.id, ...data, time: formattedTime });
+        });
+        setStudyGroups(socialGroupsData);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [isFocused]);
+
+  const renderItem = ({ item }) => (
+    <SocialGroupsCard
+      id={item.id}
+      title={item.name} // Pass the name property for title
+      description={item.description}
+      image={item.image}
+      time={item.time}
+      group={item.group} // Pass the group property
+      tag={item.tag} // Pass the tag property
+    />
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
-      <Text style={styles.title}>Social Groups</Text>
-      <SearchBarComponent
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
-      <FlatList
-        data={filteredEvents}
-        renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleEventPress(item)}>
-            <View style={styles.card}>
-              <Image
-                style={styles.image}
-                source={{ uri: "https://via.placeholder.com/150" }}
-              />
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.location}>{item.location}</Text>
-              <Text style={styles.group}>Group: {item.group}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.id}
-      />
+      <View style={styles.content}>
+        <Text style={styles.title}>Study Groups</Text>
+        <FlatList
+          data={socialgroups}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        />
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    margin: 10,
-  },
   card: {
     flex: 1,
     margin: 10,
@@ -143,10 +168,61 @@ const styles = StyleSheet.create({
     color: "gray",
     marginTop: 5,
   },
-  group: {
+  deleteAction: {
+    backgroundColor: "#dd2c00",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 70,
+    height: "100%",
+    flexDirection: "row",
+  },
+  actionText: {
+    color: "#fff",
+    fontWeight: "600",
+    padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    margin: 10,
+  },
+  text: {
+    flex: 1,
+  },
+  description: {
     fontSize: 16,
-    color: "blue",
     marginTop: 5,
+  },
+  time: {
+    fontSize: 14,
+    marginTop: 5,
+    color: "#888",
+  },
+  group: {
+    color: "#0000FF", // Default blue color
+    fontSize: 12,
+    fontWeight: "bold",
+    position: "absolute", // Position it absolutely
+  },
+  tag: {
+    color: "#0000FF", // Default blue color
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  deleteButton: {
+    backgroundColor: "#ff0000",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  deleteText: {
+    color: "#ffffff",
+    textAlign: "center",
   },
 });
 
