@@ -1,7 +1,7 @@
 import React from "react";
+import Icon from "react-native-vector-icons/Ionicons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/Ionicons";
 
 import HomeNavigator from "./HomeNavigator";
 import MeetUpsNavigator from "./MeetUpsNavigator";
