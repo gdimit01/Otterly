@@ -22,7 +22,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import FormButton from "../components/FormButton";
 import LabelInput from "../components/LabelInput";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import Icon from "react-native-vector-icons/Ionicons";
+import { Ionicons } from "@expo/vector-icons";
 
 const ProfileScreen = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -113,7 +113,7 @@ const ProfileScreen = ({ navigation }) => {
         style={styles.settingsIcon}
         onPress={navigateToSettings}
       >
-        <Icon name="settings" size={30} color="#000" />
+        <Ionicons name="ios-settings" size={30} color="#000" />
       </TouchableOpacity>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={true}>
         <View style={styles.content}>
