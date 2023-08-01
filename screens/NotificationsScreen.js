@@ -5,7 +5,7 @@
  * @returns The code is exporting the `NotificationScreen` component as the default export.
  */
 import React, { useState, useEffect, useContext } from "react"; // Import useContext
-import { EventContext } from "../screens/EventContext"; // Import EventContext
+import { EventContext } from "..//screens/EventContext"; // Import EventContext
 import Icon from "react-native-vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig"; // Import auth from Firebase
@@ -236,7 +236,7 @@ const NotificationScreen = () => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
         <Text style={styles.title}>Notifications</Text>
