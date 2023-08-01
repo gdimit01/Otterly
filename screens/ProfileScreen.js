@@ -69,6 +69,7 @@ const ProfileScreen = ({ navigation }) => {
           where("group", "==", "Study Group")
         );
 
+        //This is useful to remember that you are engaging real time with the db
         const unsubscribeStudyGroups = onSnapshot(
           studyGroupQuery,
           (snapshot) => {
