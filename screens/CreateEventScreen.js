@@ -7,6 +7,7 @@ import {
   Keyboard,
   StyleSheet,
   Alert,
+  visibility,
 } from "react-native";
 import { EventContext } from "../screens/EventContext"; // Import EventContext
 
@@ -29,6 +30,7 @@ const CreateEventScreen = () => {
   const [tag, setTag] = useState(null); // Initialize as null
   const [group, setGroup] = useState(null); // Initialize as null
   const [events, setEvents] = useContext(EventContext);
+  const [visibility, setVisibility] = useState(true); // Set the initial value to true
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -74,7 +76,23 @@ const CreateEventScreen = () => {
           userId: user.uid, // Add the user's ID to the event document
           tag: tag, // Set as string
           group: group, // Set as string
+          visibility: visibility, // Set the visibility field in the document
+
+          invites: invites
+            .split(",")
+            .map((email) => ({ email: email.trim(), status: "pending" })), // Add inviteStatus field
         });
+        // Create an invites collection in each event document
+        invites.split(",").map(async (email) => {
+          const inviteRef = await addDoc(
+            collection(db, `events/${eventRef.id}/invites`),
+            {
+              email: email.trim(),
+              status: "pending",
+            }
+          );
+        });
+
         console.log("Event document written with ID: ", eventRef.id);
 
         // Create a notification for the new event
@@ -96,6 +114,19 @@ const CreateEventScreen = () => {
 
         // Create a studygroups for the new event
         const studygroupsRef = await addDoc(collection(db, "studygroups"), {
+          title: `New Event Created: ${eventName}`,
+          description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
+          image: "https://via.placeholder.com/150", // Replace with the actual image URL
+          time: new Date().toLocaleString([], { timeZoneName: "short" }), // Current time with timezone abbreviation
+          userId: user.uid, // Add the user's ID to the notification document
+          eventId: eventRef.id, // Add the event's ID to the notification document
+          tag: tag, // Set as string
+          group: group, // Set as string
+          creator: { uid: user.uid }, // Add creator field with uid sub-field
+        });
+
+        // Create a studygroups for the new event
+        const socialgroupsRef = await addDoc(collection(db, "socialgroups"), {
           title: `New Event Created: ${eventName}`,
           description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
           image: "https://via.placeholder.com/150", // Replace with the actual image URL
