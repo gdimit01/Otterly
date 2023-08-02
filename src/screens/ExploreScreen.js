@@ -14,12 +14,12 @@ const DATA = [
   {
     id: "1",
     name: "Study Groups",
-    image: "https://via.placeholder.com/150",
+    image: "https://loremflickr.com/150/150?random=50",
   },
   {
     id: "2",
     name: "Social Groups",
-    image: "https://via.placeholder.com/150",
+    image: "https://loremflickr.com/150/150?random=9000",
   },
   // Add more groups here...
 ];

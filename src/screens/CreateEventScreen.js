@@ -163,7 +163,7 @@ const CreateEventScreen = () => {
         const socialgroupsRef = await addDoc(collection(db, "socialgroups"), {
           title: `New Event Created: ${eventName}`,
           description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
-          image: "https://via.placeholder.com/150", // Replace with the actual image URL
+          image: "https://loremflickr.com/150/150?random=9000", // Replace with the actual image URL
           time: new Date().toLocaleString([], { timeZoneName: "short" }), // Current time with timezone abbreviation
           userId: user.uid, // Add the user's ID to the notification document
           eventId: eventRef.id, // Add the event's ID to the notification document

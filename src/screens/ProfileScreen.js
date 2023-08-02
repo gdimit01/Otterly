@@ -121,7 +121,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.content}>
           <Image
             style={styles.profileImage}
-            source={{ uri: "https://via.placeholder.com/150" }}
+            source={{ uri: "https://placebear.com/159/150" }}
           />
           <Text style={styles.userName}>{name}</Text>
           <Text style={styles.userEmail}>{email}</Text>
