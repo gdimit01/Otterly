@@ -8,9 +8,14 @@ import {
   StyleSheet,
   FlatList,
   StatusBar,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment"; // Import moment.js
+
+// Import Firestore methods and the auth object
+import { getFirestore, doc, setDoc } from "@firebase/firestore";
+import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 
 const EventScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -21,7 +26,64 @@ const EventScreen = ({ route }) => {
   // Retrieve the selected tag and group from the navigation parameters
   const { tag, group } = event;
 
-  //added uri
+  const handleInvitationResponse = async (response) => {
+    try {
+      const db = getFirestore();
+      const user = auth.currentUser; // Get the currently logged-in user
+      const eventRef = doc(db, "events", event.id);
+
+      if (response === "accepted") {
+        // Check if the attendees list exists
+        if (event.attendees) {
+          // Add the user's ID to the attendees list
+          await setDoc(
+            eventRef,
+            {
+              attendees: [...event.attendees, user.uid],
+            },
+            { merge: true }
+          );
+        } else {
+          // If the attendees list doesn't exist, create it
+          await setDoc(
+            eventRef,
+            {
+              attendees: [user.uid],
+            },
+            { merge: true }
+          );
+        }
+
+        // Update invite status in Firestore
+        const inviteRef = doc(db, `events/${event.id}/invites`, user.uid);
+        await setDoc(
+          inviteRef,
+          {
+            status: "accepted",
+          },
+          { merge: true }
+        );
+
+        Alert.alert("Success", "You have accepted the invitation!"); // Show success message
+      } else if (response === "declined") {
+        // Update invite status in Firestore
+        const inviteRef = doc(db, `events/${event.id}/invites`, user.uid);
+        await setDoc(
+          inviteRef,
+          {
+            status: "declined",
+          },
+          { merge: true }
+        );
+
+        Alert.alert("Success", "You have declined the invitation."); // Show success message
+      }
+
+      navigation.goBack(); // Go back to the previous screen
+    } catch (e) {
+      console.error("Error updating document: ", e);
+    }
+  };
   return (
     <SafeAreaView
       style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
@@ -47,6 +109,20 @@ const EventScreen = ({ route }) => {
         <Text style={styles.tag}>Tag: {tag}</Text>
         <Text style={styles.group}>Group: {group}</Text>
 
+        {/* Accept and Decline buttons */}
+        <TouchableOpacity
+          onPress={() => handleInvitationResponse("accepted")}
+          style={styles.responseButton}
+        >
+          <Text style={styles.responseButtonText}>Accept</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleInvitationResponse("declined")}
+          style={styles.responseButton}
+        >
+          <Text style={styles.responseButtonText}>Decline</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}
@@ -59,6 +135,17 @@ const EventScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
+  // Other styles...
+  responseButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  responseButtonText: {
+    color: "#FFF",
+    textAlign: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
