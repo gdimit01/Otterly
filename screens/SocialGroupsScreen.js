@@ -31,10 +31,10 @@ const SocialGroupsCard = ({
 }) => {
   const navigation = useNavigation();
 
-  // Function to delete study group
-  const deleteStudyGroup = async () => {
+  // Function to delete social group
+  const deleteSocialGroup = async () => {
     const db = getFirestore();
-    await deleteDoc(doc(db, "studygroups", id));
+    await deleteDoc(doc(db, "socialgroups", id));
   };
 
   return (
@@ -64,7 +64,7 @@ const SocialGroupsCard = ({
       </TouchableOpacity>
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={deleteStudyGroup}
+        onPress={deleteSocialGroup}
         style={styles.deleteButton}
       >
         <Text style={styles.deleteText}>Delete</Text>
@@ -75,7 +75,7 @@ const SocialGroupsCard = ({
 
 const SocialGroupsScreen = () => {
   const isFocused = useIsFocused();
-  const [socialgroups, setStudyGroups] = useState([]);
+  const [socialgroups, setSocialGroups] = useState([]);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -111,7 +111,7 @@ const SocialGroupsScreen = () => {
 
           socialGroupsData.push({ id: doc.id, ...data, time: formattedTime });
         });
-        setStudyGroups(socialGroupsData);
+        setSocialGroups(socialGroupsData);
       });
 
       return () => unsubscribe();
@@ -134,7 +134,7 @@ const SocialGroupsScreen = () => {
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
-        <Text style={styles.title}>Study Groups</Text>
+        <Text style={styles.title}>Social Groups</Text>
         <FlatList
           data={socialgroups}
           renderItem={renderItem}
