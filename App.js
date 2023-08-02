@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { EventProvider, EventContext } from "./screens/EventContext";
+import { EventProvider, EventContext } from "./src/context/EventContext";
 import { AppNavigator } from "./infrastructure/navigation/app.navigator";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 

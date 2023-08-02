@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import { getFirestore, doc, onSnapshot } from "@firebase/firestore";
 
 export const useUserData = () => {

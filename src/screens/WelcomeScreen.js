@@ -10,7 +10,7 @@ import {
   StatusBar, // Import StatusBar
   Platform, // Import Platform to identify if the device is Android
 } from "react-native";
-import styles from "./WelcomeScreen.styles.js";
+import styles from "../assets/WelcomeScreen.styles.js";
 
 const WelcomeScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -41,7 +41,7 @@ const WelcomeScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require("../assets/space.png")}
+      source={require("../../src/assets/space.png")}
       style={styles.container}
     >
       {Platform.OS === "android" && (
@@ -53,7 +53,10 @@ const WelcomeScreen = ({ navigation }) => {
       )}
       {/* Add StatusBar for Android */}
       <View style={styles.logoContainer}>
-        <Image source={require("../assets/icon.png")} style={styles.logo} />
+        <Image
+          source={require("../../src/assets/icon.png")}
+          style={styles.logo}
+        />
         <Text style={styles.slogan}>What do you love?</Text>
       </View>
       <View style={styles.bottomContainer}>

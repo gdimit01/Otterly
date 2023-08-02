@@ -23,7 +23,7 @@ import {
   updateDoc,
   getDoc,
 } from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
 const SocialGroupsCard = ({
   id,

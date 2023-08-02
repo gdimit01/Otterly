@@ -22,8 +22,8 @@ import {
 } from "firebase/auth";
 import { getFirestore, setDoc, doc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FormButton from "../components/FormButton";
-import FormInput from "../components/FormInput";
+import FormButton from "../../components/FormButton";
+import FormInput from "../../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const SignupScreen = ({ navigation }) => {

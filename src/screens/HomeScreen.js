@@ -11,7 +11,7 @@ import {
   View,
   StatusBar,
 } from "react-native";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import { getFirestore, doc, getDoc } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 

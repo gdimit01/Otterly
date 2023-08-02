@@ -10,7 +10,7 @@ import {
   Text,
   StatusBar,
 } from "react-native";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import {
   getFirestore,
   doc,
@@ -20,8 +20,8 @@ import {
   where,
 } from "@firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FormButton from "../components/FormButton";
-import LabelInput from "../components/LabelInput";
+import FormButton from "../../components/FormButton";
+import LabelInput from "../../components/LabelInput";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
 

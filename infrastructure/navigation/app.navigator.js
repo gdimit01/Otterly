@@ -1,14 +1,14 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import WelcomeScreen from "../../screens/WelcomeScreen";
-import LoginScreen from "../../screens/LoginScreen";
-import SignupScreen from "../../screens/SignupScreen";
+import WelcomeScreen from "../../src/screens/WelcomeScreen";
+import LoginScreen from "../../src/screens/LoginScreen";
+import SignupScreen from "../../src/screens/SignupScreen";
 import { HomeNavigator } from "./home.navigator";
-import EventScreen from "../../screens/EventScreen";
-import StudyGroupsScreen from "../../screens/StudyGroupsScreen";
-import SocialGroupsScreen from "../../screens/SocialGroupsScreen";
-import SettingsScreen from "../../screens/SettingsScreen";
+import EventScreen from "../../src/screens/EventScreen";
+import StudyGroupsScreen from "../../src/screens/StudyGroupsScreen";
+import SocialGroupsScreen from "../../src/screens/SocialGroupsScreen";
+import SettingsScreen from "../../src/screens/SettingsScreen";
 
 const Stack = createNativeStackNavigator();
 

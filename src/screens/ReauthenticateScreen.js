@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Linking, // Import Linking from react-native
 } from "react-native";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import { sendSignInLinkToEmail } from "@firebase/auth"; // Update the import statement
 
 const ReauthenticateScreen = ({ route, navigation }) => {

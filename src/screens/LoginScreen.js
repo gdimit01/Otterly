@@ -17,9 +17,9 @@ import {
   StatusBar,
   Platform,
 } from "react-native";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
-import FormButton from "../components/FormButton";
-import FormInput from "../components/FormInput";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
+import FormButton from "../../components/FormButton";
+import FormInput from "../../components/FormInput";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 // Firebase

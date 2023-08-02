@@ -15,10 +15,10 @@ import moment from "moment"; // Import moment.js
 
 // Import Firestore methods and the auth object
 import { getFirestore, doc, setDoc } from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
 // Import the EventContext
-import { EventContext } from "../screens/EventContext";
+import { EventContext } from "../context/EventContext";
 
 const EventScreen = ({ route }) => {
   const navigation = useNavigation();

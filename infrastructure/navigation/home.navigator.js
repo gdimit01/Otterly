@@ -1,10 +1,10 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import HomeScreen from "../../screens/HomeScreen";
-import ExploreScreen from "../../screens/ExploreScreen";
-import CreateEventScreen from "../../screens/CreateEventScreen";
-import ProfileScreen from "../../screens/ProfileScreen";
-import NotificationsScreen from "../../screens/NotificationsScreen";
+import HomeScreen from "../../src/screens/HomeScreen";
+import ExploreScreen from "../../src/screens/ExploreScreen";
+import CreateEventScreen from "../../src/screens/CreateEventScreen";
+import ProfileScreen from "../../src/screens/ProfileScreen";
+import NotificationsScreen from "../../src/screens/NotificationsScreen";
 import { Ionicons } from "@expo/vector-icons"; // make sure to install this package
 
 const Tab = createBottomTabNavigator();

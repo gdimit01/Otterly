@@ -8,14 +8,14 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import { EventContext } from "../screens/EventContext"; // Import EventContext
+import { EventContext } from "../context/EventContext"; // Import EventContext
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import FormButton from "../components/FormButton";
-import FormInput from "../components/FormInput";
-import FormPicker from "../components/FormPicker";
+import FormButton from "../../components/FormButton";
+import FormInput from "../../components/FormInput";
+import FormPicker from "../../components/FormPicker";
 //import FormSwitch from "../components/FormSwitch"; // Import FormSwitch
 import { getFirestore, collection, addDoc } from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import { doc, getDoc, onSnapshot } from "@firebase/firestore";
 
 // Create an instance of Firestore at the top of your component
