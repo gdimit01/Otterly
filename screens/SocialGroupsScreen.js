@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
+  Alert,
   View,
   Text,
   FlatList,
@@ -8,6 +9,7 @@ import {
   StatusBar,
   SafeAreaView,
   TouchableOpacity,
+  visibility,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import {
@@ -18,7 +20,10 @@ import {
   where,
   doc,
   deleteDoc,
+  updateDoc,
+  getDoc,
 } from "@firebase/firestore";
+import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 
 const SocialGroupsCard = ({
   id,
@@ -28,6 +33,7 @@ const SocialGroupsCard = ({
   time,
   group,
   tag,
+  visibility, // Add visibility prop
 }) => {
   const navigation = useNavigation();
 
@@ -35,6 +41,28 @@ const SocialGroupsCard = ({
   const deleteSocialGroup = async () => {
     const db = getFirestore();
     await deleteDoc(doc(db, "socialgroups", id));
+  };
+
+  // Function to toggle visibility of the event
+  const toggleVisibility = async () => {
+    const db = getFirestore();
+    const socialGroupRef = doc(db, "socialgroups", id);
+    const socialGroupSnapshot = await getDoc(socialGroupRef);
+    const currentUser = auth.currentUser;
+
+    if (socialGroupSnapshot.exists() && currentUser) {
+      const data = socialGroupSnapshot.data();
+      if (data.creator.uid === currentUser.uid) {
+        // Only allow the creator to change visibility
+        const newVisibility = !data.visibility;
+        await updateDoc(socialGroupRef, { visibility: newVisibility });
+      } else {
+        Alert.alert(
+          "Error",
+          "Only the creator can change the event visibility."
+        );
+      }
+    }
   };
 
   return (
@@ -50,6 +78,7 @@ const SocialGroupsCard = ({
             time,
             group,
             tag,
+            visibility, // Pass the visibility property so this is how props are passed
           });
         }}
       >
@@ -61,6 +90,15 @@ const SocialGroupsCard = ({
           <Text style={styles.group}>{group}</Text>
           <Text style={styles.tag}>#{tag}</Text>
         </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={toggleVisibility}
+        style={styles.toggleButton}
+      >
+        <Text style={styles.toggleText}>
+          {visibility ? "Public" : "Private"}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         activeOpacity={0.7}
@@ -121,12 +159,13 @@ const SocialGroupsScreen = () => {
   const renderItem = ({ item }) => (
     <SocialGroupsCard
       id={item.id}
-      title={item.name} // Pass the name property for title
+      title={item.name}
       description={item.description}
       image={item.image}
       time={item.time}
-      group={item.group} // Pass the group property
-      tag={item.tag} // Pass the tag property
+      group={item.group}
+      tag={item.tag}
+      visibility={item.visibility} // Pass the visibility property
     />
   );
 
