@@ -8,6 +8,7 @@ import {
   ScrollView,
   Alert,
   Text,
+  StatusBar,
 } from "react-native";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 import {
@@ -109,7 +110,7 @@ const ProfileScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <TouchableOpacity
         style={styles.settingsIcon}
         onPress={navigateToSettings}

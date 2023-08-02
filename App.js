@@ -1,22 +1,29 @@
-import React from "react";
-import { EventProvider } from "./screens/EventContext";
-import { AppNavigator } from "./infrastructure/navigation/app.navigator"; // Import the AppNavigator
+import React, { useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { EventProvider, EventContext } from "./screens/EventContext";
+import { AppNavigator } from "./infrastructure/navigation/app.navigator";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// import * as Device from "expo-device";
-
-// console.log(Device.modelName);
-
 import { LogBox } from "react-native";
+
+// Initialize a QueryClient
+const queryClient = new QueryClient();
 
 LogBox.ignoreLogs(["Constants.platform.ios.model has been deprecated"]);
 
 export default function App() {
+  // Declare events state
+  const [events, setEvents] = useState([]);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <EventProvider>
-        <AppNavigator />
-      </EventProvider>
+      <QueryClientProvider client={queryClient}>
+        <EventProvider>
+          <EventContext.Provider value={[events, setEvents]}>
+            <AppNavigator />
+          </EventContext.Provider>
+        </EventProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }

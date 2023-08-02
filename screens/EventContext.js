@@ -1,36 +1,67 @@
 import React, { createContext, useState, useEffect } from "react";
-import { getFirestore, collection, onSnapshot } from "@firebase/firestore"; // Import Firestore functions
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+} from "@firebase/firestore"; // Import Firestore functions
 
 export const EventContext = createContext();
+export const InviteContext = createContext();
 
 export const EventProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
+  const [invites, setInvites] = useState([]);
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const db = getFirestore();
-      const eventsCollection = collection(db, "events"); // Replace "events" with your actual collection name
+    const db = getFirestore();
+    const eventsCollection = collection(db, "events");
+    const invitesCollection = collection(db, "invitations");
 
-      // Subscribe to the events collection
-      const unsubscribe = onSnapshot(eventsCollection, (snapshot) => {
-        let eventsData = [];
-        snapshot.forEach((doc) => {
-          eventsData.push({ id: doc.id, ...doc.data() });
-        });
-        console.log(eventsData); // Log events
-        setEvents(eventsData);
+    // Subscribe to the events collection
+    const unsubscribeEvents = onSnapshot(eventsCollection, (snapshot) => {
+      let eventsData = [];
+      snapshot.forEach((doc) => {
+        eventsData.push({ id: doc.id, ...doc.data() });
       });
+      console.log(eventsData); // Log events
+      setEvents(eventsData);
+    });
 
-      // Cleanup subscription on unmount
-      return () => unsubscribe();
+    // Subscribe to the invitations collection
+    const unsubscribeInvites = onSnapshot(invitesCollection, (snapshot) => {
+      let invitesData = [];
+      snapshot.forEach((doc) => {
+        invitesData.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(invitesData); // Log invites
+      setInvites(invitesData);
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribeEvents();
+      unsubscribeInvites();
     };
-
-    fetchEvents();
   }, []);
 
+  // Function to update event visibility
+  const updateEventVisibility = async (eventId, visibility) => {
+    try {
+      const db = getFirestore();
+      const eventRef = doc(db, "events", eventId);
+      await updateDoc(eventRef, { visibility });
+    } catch (error) {
+      console.error("Error updating event visibility: ", error);
+    }
+  };
+
   return (
-    <EventContext.Provider value={[events, setEvents]}>
-      {children}
+    <EventContext.Provider value={{ events, setEvents, updateEventVisibility }}>
+      <InviteContext.Provider value={invites}>
+        {children}
+      </InviteContext.Provider>
     </EventContext.Provider>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   View,
   Text,
@@ -17,8 +17,12 @@ import moment from "moment"; // Import moment.js
 import { getFirestore, doc, setDoc } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
 
+// Import the EventContext
+import { EventContext } from "../screens/EventContext";
+
 const EventScreen = ({ route }) => {
   const navigation = useNavigation();
+  const { events, updateEventVisibility } = useContext(EventContext);
 
   // Data from the NotificationCard
   const event = route.params;
@@ -84,6 +88,10 @@ const EventScreen = ({ route }) => {
       console.error("Error updating document: ", e);
     }
   };
+
+  // Use the visibility property from the event to display the current visibility
+  const visibilityText = event.visibility ? "Public" : "Private";
+
   return (
     <SafeAreaView
       style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
@@ -108,6 +116,9 @@ const EventScreen = ({ route }) => {
         {/* Display the tag and group */}
         <Text style={styles.tag}>Tag: {tag}</Text>
         <Text style={styles.group}>Group: {group}</Text>
+
+        {/* Display the visibility */}
+        <Text style={styles.visibility}>Visibility: {visibilityText}</Text>
 
         {/* Accept and Decline buttons */}
         <TouchableOpacity
@@ -136,6 +147,10 @@ const EventScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   // Other styles...
+  visibility: {
+    fontSize: 14,
+    marginBottom: 10,
+  },
   responseButton: {
     backgroundColor: "#007BFF",
     padding: 10,

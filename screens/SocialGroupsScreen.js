@@ -156,18 +156,29 @@ const SocialGroupsScreen = () => {
     }
   }, [isFocused]);
 
-  const renderItem = ({ item }) => (
-    <SocialGroupsCard
-      id={item.id}
-      title={item.name}
-      description={item.description}
-      image={item.image}
-      time={item.time}
-      group={item.group}
-      tag={item.tag}
-      visibility={item.visibility} // Pass the visibility property
-    />
-  );
+  const renderItem = ({ item }) => {
+    // Only render the card if the current user is the creator or an invitee or if the event is public
+    if (
+      item.visibility ||
+      item.creator.uid === auth.currentUser.uid ||
+      (item.invitees && item.invitees.includes(auth.currentUser.uid))
+    ) {
+      return (
+        <SocialGroupsCard
+          id={item.id}
+          title={item.name}
+          description={item.description}
+          image={item.image}
+          time={item.time}
+          group={item.group}
+          tag={item.tag}
+          visibility={item.visibility}
+        />
+      );
+    } else {
+      return null;
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>

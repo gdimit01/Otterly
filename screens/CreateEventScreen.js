@@ -7,20 +7,19 @@ import {
   Keyboard,
   StyleSheet,
   Alert,
-  visibility,
 } from "react-native";
 import { EventContext } from "../screens/EventContext"; // Import EventContext
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FormButton from "../components/FormButton";
 import FormInput from "../components/FormInput";
 import FormPicker from "../components/FormPicker";
-import RNPickerSelect from "react-native-picker-select";
-
+//import FormSwitch from "../components/FormSwitch"; // Import FormSwitch
 import { getFirestore, collection, addDoc } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig";
-import { doc, getDoc } from "@firebase/firestore";
+import { doc, getDoc, onSnapshot } from "@firebase/firestore";
 
+// Create an instance of Firestore at the top of your component
+const db = getFirestore();
 const CreateEventScreen = () => {
   const [creator, setCreator] = useState("");
   const [invites, setInvites] = useState("");
@@ -30,7 +29,36 @@ const CreateEventScreen = () => {
   const [tag, setTag] = useState(null); // Initialize as null
   const [group, setGroup] = useState(null); // Initialize as null
   const [events, setEvents] = useContext(EventContext);
-  const [visibility, setVisibility] = useState(true); // Set the initial value to true
+
+  // const [visibility, setVisibility] = useState(true); // Set the initial value to true
+
+  useEffect(() => {
+    const docRef = doc(db, "events", "eventId"); // Replace 'eventId' with your actual event id
+
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setVisibility(docSnap.data().visibility);
+      } else {
+        console.log("No such document!");
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const collectionRef = collection(db, "events");
+
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+      });
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe;
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -54,8 +82,12 @@ const CreateEventScreen = () => {
     });
 
     // Cleanup subscription on unmount
-    return unsubscribe;
+    return () => unsubscribe;
   }, []);
+
+  //   // Cleanup subscription on unmount
+  //   return unsubscribe;
+  // }, []);
 
   useEffect(() => {
     console.log("Events updated:", events);
@@ -76,22 +108,24 @@ const CreateEventScreen = () => {
           userId: user.uid, // Add the user's ID to the event document
           tag: tag, // Set as string
           group: group, // Set as string
-          visibility: visibility, // Set the visibility field in the document
+          //visibility: visibility, // Set the visibility field in the document
 
           invites: invites
             .split(",")
             .map((email) => ({ email: email.trim(), status: "pending" })), // Add inviteStatus field
         });
         // Create an invites collection in each event document
-        invites.split(",").map(async (email) => {
-          const inviteRef = await addDoc(
-            collection(db, `events/${eventRef.id}/invites`),
-            {
-              email: email.trim(),
-              status: "pending",
-            }
-          );
-        });
+        await Promise.all(
+          invites.split(",").map(async (email) => {
+            const inviteRef = await addDoc(
+              collection(db, "events", eventRef.id, "invites"),
+              {
+                email: email.trim(),
+                status: "pending",
+              }
+            );
+          })
+        );
 
         console.log("Event document written with ID: ", eventRef.id);
 
@@ -144,21 +178,26 @@ const CreateEventScreen = () => {
         );
         console.log("Events before:", events);
         // Add the new event to the context
+        console.log("Events before:", events);
+        let newEvent = {
+          id: eventRef.id,
+          name: eventName,
+          location: eventLocation,
+          description: eventDescription,
+          creator: creator,
+          invites: invites.split(",").map((email) => email.trim()),
+          userId: user.uid,
+          tag: tag,
+          group: group,
+        };
+        console.log("setEvents function:", setEvents);
         setEvents((prevEvents) => [
-          ...prevEvents,
-          {
-            id: eventRef.id,
-            name: eventName,
-            location: eventLocation,
-            description: eventDescription,
-            creator: creator,
-            invites: invites.split(",").map((email) => email.trim()),
-            userId: user.uid,
-            tag: tag, // Set as string
-            group: group, // Set as string
-          },
+          ...(prevEvents || []), // Here, if prevEvents is undefined, an empty array will be used
+          newEvent,
         ]);
+
         console.log("Events after:", events);
+
         // Save the event ID to AsyncStorage
         await AsyncStorage.setItem("lastCreatedEventId", eventRef.id);
 
@@ -216,7 +255,11 @@ const CreateEventScreen = () => {
               ]}
               placeholder={{ label: "Select a group...", value: null }}
             />
-
+            {/* <FormSwitch
+              title="Event Visibility"
+              value={visibility}
+              onValueChange={setVisibility}
+            /> */}
             <FormButton title="Create Event" onPress={createEvent} />
           </>
         </View>

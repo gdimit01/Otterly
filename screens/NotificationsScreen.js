@@ -5,7 +5,7 @@
  * @returns The code is exporting the `NotificationScreen` component as the default export.
  */
 import React, { useState, useEffect, useContext } from "react"; // Import useContext
-import { EventContext } from "..//screens/EventContext"; // Import EventContext
+import { EventContext, InviteContext } from "..//screens/EventContext"; // Import EventContext
 import Icon from "react-native-vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { FIREBASE_AUTH as auth } from "../firebaseConfig"; // Import auth from Firebase
@@ -157,7 +157,7 @@ const NotificationCard = ({
 const NotificationScreen = () => {
   const isFocused = useIsFocused();
   const [notifications, setNotifications] = useState([]);
-  const [events, setEvents] = useContext(EventContext); // Use the EventContext
+  const [events, setEvents] = useContext(EventContext);
 
   // In NotificationScreen.js
 
@@ -186,6 +186,13 @@ const NotificationScreen = () => {
 
   const deleteNotification = async (id) => {
     const db = getFirestore();
+
+    console.log("getDoc:", getDoc);
+    console.log("deleteDoc:", deleteDoc);
+    console.log("doc:", doc);
+    console.log("setEvents:", setEvents);
+    console.log("setNotifications:", setNotifications);
+
     try {
       // Fetch the notification
       const notificationDoc = await getDoc(doc(db, "notifications", id));
@@ -207,7 +214,9 @@ const NotificationScreen = () => {
 
         // Remove the deleted event from the context
         setEvents(
-          events.filter((event) => event.id !== notificationData.eventId)
+          (events || []).filter(
+            (event) => event.id !== notificationData.eventId
+          )
         );
       }
 
@@ -215,7 +224,7 @@ const NotificationScreen = () => {
 
       // Remove the deleted notification from the state
       setNotifications(
-        notifications.filter((notification) => notification.id !== id)
+        (notifications || []).filter((notification) => notification.id !== id)
       );
     } catch (error) {
       console.error("Error deleting document: ", error);
