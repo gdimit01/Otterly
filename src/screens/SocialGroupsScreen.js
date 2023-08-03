@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/native";
 import {
+  addDoc,
+  getDocs,
   getFirestore,
   collection,
   onSnapshot,
@@ -42,6 +44,73 @@ const SocialGroupsCard = ({
     const db = getFirestore();
     await deleteDoc(doc(db, "socialgroups", id));
   };
+
+  const [likes, setLikes] = useState(0); // State to track likes
+
+  // Initialize a state to track if the current user has liked the post
+  const [userLiked, setUserLiked] = useState(false);
+
+  // Function to handle likes
+  const handleLikes = async () => {
+    const db = getFirestore();
+    const socialGroupRef = doc(db, "socialgroups", id);
+    const socialGroupSnapshot = await getDoc(socialGroupRef);
+    const currentUser = auth.currentUser;
+
+    if (socialGroupSnapshot.exists() && currentUser) {
+      const data = socialGroupSnapshot.data();
+
+      if (data.creator.uid === currentUser.uid) {
+        // Prevent the creator from liking their own post
+        Alert.alert("Error", "You can't like your own post.");
+        return;
+      }
+
+      const likesRef = collection(db, "socialgroups", id, "likes");
+      const userLikeSnapshot = await getDoc(doc(likesRef, currentUser.uid));
+
+      if (!userLikeSnapshot.exists()) {
+        // User hasn't liked yet, let's add a like
+        await setDoc(doc(likesRef, currentUser.uid), { uid: currentUser.uid });
+        setUserLiked(true);
+      } else {
+        // User already liked, remove like
+        await deleteDoc(doc(likesRef, currentUser.uid));
+        setUserLiked(false);
+      }
+
+      const newLikesSnapshot = await getDocs(likesRef);
+      setLikes(newLikesSnapshot.size);
+    }
+  };
+
+  // Function to reset likes
+  const resetLikes = async () => {
+    const db = getFirestore();
+    const likesRef = collection(db, "socialgroups", id, "likes");
+    const likesSnapshot = await getDocs(likesRef);
+
+    likesSnapshot.docs.forEach(async (docSnapshot) => {
+      await deleteDoc(doc(db, "socialgroups", id, "likes", docSnapshot.id));
+    });
+
+    setLikes(0);
+  };
+
+  useEffect(() => {
+    // Add a listener for changes in the number of likes
+    const db = getFirestore();
+    const likesRef = collection(db, "socialgroups", id, "likes");
+    const unsubscribe = onSnapshot(likesRef, (snapshot) => {
+      setLikes(snapshot.size);
+      setUserLiked(
+        snapshot.docs.map((doc) => doc.id).includes(auth.currentUser.uid)
+      );
+    });
+
+    // Cleanup the listener on component unmount
+    return () => unsubscribe();
+  }, [id]);
 
   // Function to toggle visibility of the event
   const toggleVisibility = async () => {
@@ -93,9 +162,24 @@ const SocialGroupsCard = ({
       </TouchableOpacity>
       <TouchableOpacity
         activeOpacity={0.7}
+        onPress={handleLikes}
+        style={styles.likeButton}
+      >
+        <Text style={styles.likeText}>Like {likes}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.7}
         onPress={toggleVisibility}
         style={styles.toggleButton}
       >
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={resetLikes}
+          style={styles.resetButton}
+        >
+          <Text style={styles.resetText}>Reset Likes</Text>
+        </TouchableOpacity>
         <Text style={styles.toggleText}>
           {visibility ? "Public" : "Private"}
         </Text>
@@ -204,6 +288,18 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
   },
+
+  likeButton: {
+    backgroundColor: "#3498db",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  likeText: {
+    color: "#ffffff",
+    textAlign: "center",
+  },
+
   image: {
     width: "100%",
     height: 150,
