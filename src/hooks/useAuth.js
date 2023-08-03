@@ -12,31 +12,33 @@ export const useAuth = () => {
   const [surname, setSurname] = useState("");
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      setUser(user);
-      if (user && isFocused) {
-        const db = getFirestore();
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          const firstName = userData.firstName || "";
-          const surname = userData.surname || "";
-          setFirstName(firstName);
-          setSurname(surname);
-          try {
-            await AsyncStorage.setItem("user", JSON.stringify(user));
-            await AsyncStorage.setItem("firstName", firstName);
-            await AsyncStorage.setItem("surname", surname);
-          } catch (err) {
-            console.error(err);
+    if (isFocused) {
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
+        setUser(user);
+        if (user) {
+          const db = getFirestore();
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            const firstName = userData.firstName || "";
+            const surname = userData.surname || "";
+            setFirstName(firstName);
+            setSurname(surname);
+            try {
+              await AsyncStorage.setItem("user", JSON.stringify(user));
+              await AsyncStorage.setItem("firstName", firstName);
+              await AsyncStorage.setItem("surname", surname);
+            } catch (err) {
+              console.error(err);
+            }
+          } else {
+            console.log("No such document!");
           }
-        } else {
-          console.log("No such document!");
         }
-      }
-    });
-    return unsubscribe;
+      });
+      return unsubscribe;
+    }
   }, [isFocused]);
 
   const handleSignOut = () => {

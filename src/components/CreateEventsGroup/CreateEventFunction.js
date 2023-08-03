@@ -7,6 +7,7 @@ import {
   getDoc,
   doc,
   onSnapshot,
+  setDoc,
 } from "@firebase/firestore";
 import { Alert } from "react-native";
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
@@ -30,11 +31,14 @@ const CreateEventFunction = ({
     try {
       const user = auth.currentUser; // Get the currently logged-in user
       if (user) {
-        const eventRef = await addDoc(collection(db, "events"), {
+        const creatorData = creator || {}; // if creator is undefined, use an empty object
+
+        const eventRef = doc(collection(db, "events")); // Create a new document reference with an auto-generated ID
+        await setDoc(eventRef, {
           name: eventName,
           location: eventLocation,
           description: eventDescription,
-          creator: creator,
+          creator: creatorData,
           invites: invites
             .split(",")
             .map((email) => ({ email: email.trim(), status: "pending" })),
@@ -46,17 +50,24 @@ const CreateEventFunction = ({
         // Create an invites collection in each event document
         await Promise.all(
           invites.split(",").map(async (email) => {
-            await addDoc(collection(db, "events", eventRef.id, "invites"), {
-              email: email.trim(),
-              status: "pending",
-            });
+            await setDoc(
+              doc(collection(db, "events", eventRef.id, "invites")),
+              {
+                email: email.trim(),
+                status: "pending",
+              }
+            );
           })
         );
 
         // Create a notification for the new event
-        await addDoc(collection(db, "notifications"), {
+        const notificationRef = doc(collection(db, "notifications")); // Create a new document reference with an auto-generated ID
+        await setDoc(notificationRef, {
           title: `New Event Created: ${eventName}`,
-          description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
+          description: `Created by ${creatorData.firstName || ""} ${
+            creatorData.surname || ""
+          } (${creatorData.email || ""})`,
+
           image: "https://via.placeholder.com/150", // Replace with the actual image URL
           time: new Date().toLocaleString([], { timeZoneName: "short" }), // Current time with timezone abbreviation
           userId: user.uid, // Add the user's ID to the notification document
@@ -66,7 +77,8 @@ const CreateEventFunction = ({
         });
 
         // Create a studygroups for the new event
-        await addDoc(collection(db, "studygroups"), {
+        const studyGroupRef = doc(collection(db, "studygroups")); // Create a new document reference with an auto-generated ID
+        await setDoc(studyGroupRef, {
           title: `New Event Created: ${eventName}`,
           description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
           image: "https://via.placeholder.com/150", // Replace with the actual image URL
@@ -79,7 +91,8 @@ const CreateEventFunction = ({
         });
 
         // Create a socialgroups for the new event
-        await addDoc(collection(db, "socialgroups"), {
+        const socialGroupRef = doc(collection(db, "socialgroups")); // Create a new document reference with an auto-generated ID
+        await setDoc(socialGroupRef, {
           title: `New Event Created: ${eventName}`,
           description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
           image: "https://loremflickr.com/150/150?random=9000", // Replace with the actual image URL
@@ -97,7 +110,7 @@ const CreateEventFunction = ({
           name: eventName,
           location: eventLocation,
           description: eventDescription,
-          creator: creator,
+          creator: creatorData,
           invites: invites.split(",").map((email) => email.trim()),
           userId: user.uid,
           tag: tag,
