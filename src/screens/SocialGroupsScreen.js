@@ -107,66 +107,10 @@ const SocialGroupsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    margin: 10,
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-  },
-  rsvpButton: {
-    backgroundColor: "#27ae60",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  rsvpText: {
-    color: "#ffffff",
-    textAlign: "center",
-  },
-
-  likeButton: {
-    backgroundColor: "#3498db",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  likeText: {
-    color: "#ffffff",
-    textAlign: "center",
-  },
-
-  image: {
-    width: "100%",
-    height: 150,
-  },
-  name: {
-    fontSize: 20,
+  content: {
+    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 10,
-  },
-  location: {
-    fontSize: 16,
-    color: "gray",
-    marginTop: 5,
-  },
-  deleteAction: {
-    backgroundColor: "#dd2c00",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 70,
-    height: "100%",
-    flexDirection: "row",
-  },
-  actionText: {
-    color: "#fff",
-    fontWeight: "600",
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    margin: 10,
   },
   title: {
     fontSize: 24,
