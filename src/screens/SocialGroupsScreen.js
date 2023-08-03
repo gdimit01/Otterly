@@ -37,7 +37,27 @@ const SocialGroupsScreen = () => {
         let socialGroupsData = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
-          socialGroupsData.push({ id: doc.id, ...data });
+          let formattedTime = "";
+          if (typeof data.time === "string") {
+            let parts = data.time.split(/[\s/:,]+/);
+            let date = new Date(
+              Date.UTC(
+                parts[2],
+                parts[1] - 1,
+                parts[0],
+                parts[3],
+                parts[4],
+                parts[5]
+              )
+            );
+            if (isNaN(date)) {
+              console.error("Could not parse date string:", data.time);
+            } else {
+              formattedTime = date.toLocaleString();
+            }
+          }
+
+          socialGroupsData.push({ id: doc.id, ...data, time: formattedTime });
         });
         setSocialGroups(socialGroupsData);
       });
@@ -47,22 +67,31 @@ const SocialGroupsScreen = () => {
   }, [isFocused]);
 
   const renderItem = ({ item }) => {
-    return (
-      <SocialGroupsCard
-        id={item.id}
-        title={item.name}
-        description={item.description}
-        image={item.image}
-        time={item.time}
-        group={item.group}
-        tag={item.tag}
-        visibility={item.visibility}
-      />
-    );
+    // Only render the card if the current user is the creator or an invitee or if the event is public
+    if (
+      item.visibility ||
+      item.creator.uid === auth.currentUser.uid ||
+      (item.invitees && item.invitees.includes(auth.currentUser.uid))
+    ) {
+      return (
+        <SocialGroupsCard
+          id={item.id}
+          title={item.name}
+          description={item.description}
+          image={item.image}
+          time={item.time}
+          group={item.group}
+          tag={item.tag}
+          visibility={item.visibility}
+        />
+      );
+    } else {
+      return null;
+    }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
         <Text style={styles.title}>Social Groups</Text>
@@ -78,19 +107,15 @@ const SocialGroupsScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight,
-    backgroundColor: "#fff",
-  },
   content: {
-    padding: 10,
+    fontSize: 24,
+    fontWeight: "bold",
+    margin: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
+    margin: 10,
   },
   text: {
     flex: 1,
@@ -105,12 +130,13 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   group: {
-    color: "#0000FF",
+    color: "#0000FF", // Default blue color
     fontSize: 12,
     fontWeight: "bold",
+    position: "absolute", // Position it absolutely
   },
   tag: {
-    color: "#0000FF",
+    color: "#0000FF", // Default blue color
     fontSize: 12,
     fontWeight: "bold",
   },
