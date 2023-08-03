@@ -24,6 +24,7 @@ import {
   deleteDoc,
   updateDoc,
   getDoc,
+  setDoc,
 } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
@@ -37,6 +38,7 @@ const SocialGroupsCard = ({
   tag,
   visibility, // Add visibility prop
 }) => {
+  const [UserRSVP, setUserRSVP] = useState(false);
   const navigation = useNavigation();
 
   // Function to delete social group
@@ -112,6 +114,53 @@ const SocialGroupsCard = ({
     return () => unsubscribe();
   }, [id]);
 
+  // Function to handle RSVP
+  // Inside SocialGroupsCard component
+  const handleRSVP = async () => {
+    const db = getFirestore();
+    const socialGroupRef = doc(db, "socialgroups", id);
+    const currentUser = auth.currentUser;
+
+    if (currentUser) {
+      const rsvpRef = collection(db, "socialgroups", id, "rsvps");
+      const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.uid));
+
+      if (!userRsvpSnapshot.exists()) {
+        // User hasn't RSVPed yet, let's add an RSVP
+        await setDoc(doc(rsvpRef, currentUser.uid), { uid: currentUser.uid });
+      } else {
+        // User already RSVPed, remove RSVP
+        await deleteDoc(doc(rsvpRef, currentUser.uid));
+      }
+    }
+  };
+  // Inside SocialGroupsCard component
+  useEffect(() => {
+    const db = getFirestore();
+    const likesRef = collection(db, "socialgroups", id, "likes");
+    const rsvpRef = collection(db, "socialgroups", id, "rsvps");
+    const unsubscribeLikes = onSnapshot(likesRef, (snapshot) => {
+      setLikes(snapshot.size);
+    });
+
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const unsubscribeRSVP = onSnapshot(
+        doc(rsvpRef, currentUser.uid),
+        (snapshot) => {
+          setUserRSVP(snapshot.exists());
+        }
+      );
+      return () => {
+        unsubscribeRSVP();
+      };
+    }
+
+    return () => {
+      unsubscribeLikes();
+    };
+  }, [id]);
+
   // Function to toggle visibility of the event
   const toggleVisibility = async () => {
     const db = getFirestore();
@@ -160,6 +209,14 @@ const SocialGroupsCard = ({
           <Text style={styles.tag}>#{tag}</Text>
         </View>
       </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={handleRSVP}
+        style={styles.rsvpButton}
+      >
+        <Text style={styles.rsvpText}>RSVP</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={handleLikes}
@@ -287,6 +344,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
+  },
+  rsvpButton: {
+    backgroundColor: "#27ae60",
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  rsvpText: {
+    color: "#ffffff",
+    textAlign: "center",
   },
 
   likeButton: {
