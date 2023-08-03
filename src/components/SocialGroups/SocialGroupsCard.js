@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  Alert,
+  Alert, // Add this line
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
