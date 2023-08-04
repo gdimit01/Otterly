@@ -7,7 +7,6 @@ import {
   getDoc,
   doc,
   onSnapshot,
-  query,
 } from "@firebase/firestore";
 import { Alert } from "react-native";
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
@@ -31,12 +30,6 @@ const CreateEventFunction = ({
     try {
       const user = auth.currentUser; // Get the currently logged-in user
       if (user) {
-        console.log("Creating event for user:", user.email); // Log the user's email
-
-        const invitesArray = invites
-          .split(",")
-          .map((email) => ({ email: email.trim(), status: "pending" }));
-        console.log("Invites array:", invitesArray); // Log the invites array
         const eventRef = await addDoc(collection(db, "events"), {
           name: eventName,
           location: eventLocation,
@@ -50,8 +43,6 @@ const CreateEventFunction = ({
           group: group, // Set as string
         });
 
-        console.log("Event created with ID:", eventRef.id); // Log the event ID
-
         // Create an invites collection in each event document
         await Promise.all(
           invites.split(",").map(async (email) => {
@@ -61,8 +52,6 @@ const CreateEventFunction = ({
             });
           })
         );
-
-        console.log("Invites collection created for event:", eventRef.id); // Log the event ID
 
         // Create a notification for the new event
         await addDoc(collection(db, "notifications"), {

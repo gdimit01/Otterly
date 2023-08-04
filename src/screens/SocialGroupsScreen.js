@@ -33,7 +33,6 @@ const SocialGroupsScreen = () => {
         collection(db, "socialgroups"),
         where("group", "==", "Social Group")
       );
-
       const unsubscribe = onSnapshot(q, (snapshot) => {
         let socialGroupsData = [];
         snapshot.forEach((doc) => {
@@ -72,10 +71,7 @@ const SocialGroupsScreen = () => {
     if (
       item.visibility ||
       item.creator.uid === auth.currentUser.uid ||
-      (item.invitees &&
-        item.invitees.some(
-          (invitee) => invitee.email === auth.currentUser.email
-        ))
+      (item.invitees && item.invitees.includes(auth.currentUser.uid))
     ) {
       return (
         <SocialGroupsCard
