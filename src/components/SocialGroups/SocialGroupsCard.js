@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  navigation,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -31,14 +32,17 @@ const SocialGroupsCard = ({
   tag,
   visibility,
 }) => {
+  const navigation = useNavigation();
   const [UserRSVP, setUserRSVP] = useState(false);
   const [likes, setLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
-  const navigation = useNavigation();
+  const [attendees, setAttendees] = useState(0); // New state variable for attendees
 
   useEffect(() => {
     const db = getFirestore();
     const likesRef = collection(db, "socialgroups", id, "likes");
+    const rsvpRef = collection(db, "socialgroups", id, "rsvps");
+
     const unsubscribeLikes = onSnapshot(likesRef, (snapshot) => {
       setLikes(snapshot.size);
       setUserLiked(
@@ -46,24 +50,16 @@ const SocialGroupsCard = ({
       );
     });
 
-    const rsvpRef = collection(db, "socialgroups", id, "rsvps");
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const unsubscribeRSVP = onSnapshot(
-        doc(rsvpRef, currentUser.uid),
-        (snapshot) => {
-          setUserRSVP(snapshot.exists());
-        }
-      );
-
-      return () => {
-        unsubscribeLikes();
-        unsubscribeRSVP();
-      };
-    }
+    const unsubscribeRSVPs = onSnapshot(rsvpRef, (snapshot) => {
+      const attendees = snapshot.docs.filter(
+        (doc) => doc.data().status === "accepted"
+      ).length;
+      setAttendees(attendees);
+    });
 
     return () => {
       unsubscribeLikes();
+      unsubscribeRSVPs();
     };
   }, [id]);
 
@@ -99,19 +95,36 @@ const SocialGroupsCard = ({
     }
   };
 
+  // In your RSVP function
   const handleRSVP = async () => {
     const db = getFirestore();
     const socialGroupRef = doc(db, "socialgroups", id);
     const currentUser = auth.currentUser;
-
     if (currentUser) {
       const rsvpRef = collection(db, "socialgroups", id, "rsvps");
       const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.uid));
-
-      if (!userRsvpSnapshot.exists()) {
-        await setDoc(doc(rsvpRef, currentUser.uid), { uid: currentUser.uid });
+      const socialGroupSnapshot = await getDoc(socialGroupRef);
+      if (socialGroupSnapshot.exists()) {
+        const data = socialGroupSnapshot.data();
+        if (!userRsvpSnapshot.exists()) {
+          if (data.attendees.length < data.attendeeLimit) {
+            await setDoc(doc(rsvpRef, currentUser.uid), {
+              uid: currentUser.uid,
+            });
+            await updateDoc(socialGroupRef, {
+              attendees: [...data.attendees, currentUser.uid],
+            });
+          } else {
+            Alert.alert("Error", "This event is full.");
+          }
+        } else {
+          await deleteDoc(doc(rsvpRef, currentUser.uid));
+          await updateDoc(socialGroupRef, {
+            attendees: data.attendees.filter((uid) => uid !== currentUser.uid),
+          });
+        }
       } else {
-        await deleteDoc(doc(rsvpRef, currentUser.uid));
+        console.error("Social group does not exist:", id);
       }
     }
   };
@@ -160,11 +173,21 @@ const SocialGroupsCard = ({
           <Text style={styles.time}>{time}</Text>
           <Text style={styles.group}>{group}</Text>
           <Text style={styles.tag}>#{tag}</Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={toggleVisibility}
+            style={styles.toggleButton}
+          >
+            <Text style={styles.toggleText}>
+              {visibility ? "Make Private" : "Make Public"}
+            </Text>
+          </TouchableOpacity>
           <Text style={styles.visibility}>
             {visibility ? "Public" : "Private"}
           </Text>
         </View>
       </TouchableOpacity>
+      <Text style={styles.attendeesText}>Attendees: {attendees}</Text>
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={handleRSVP}
@@ -178,15 +201,6 @@ const SocialGroupsCard = ({
         style={styles.likeButton}
       >
         <Text style={styles.likeText}>Like {likes}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={toggleVisibility}
-        style={styles.toggleButton}
-      >
-        <Text style={styles.toggleText}>
-          {visibility ? "Make Private" : "Make Public"}
-        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         activeOpacity={0.7}

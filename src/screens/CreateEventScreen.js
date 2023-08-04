@@ -1,4 +1,3 @@
-// CreateEventScreen.js
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -10,16 +9,18 @@ import {
   Alert,
 } from "react-native";
 import { getFirestore, getDoc, doc, onSnapshot } from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import CreateEventFunction from "../../src/components/CreateEventsGroup/CreateEventFunction"; // Import CreateEventFunction
 import FormButton from "../../components/FormButton";
 import FormInput from "../../components/FormInput";
 import FormPicker from "../../components/FormPicker";
-
-const db = getFirestore();
+import { useAuth } from "../../src/hooks/useAuth"; // replace with your actual path to the useAuth file
 
 const CreateEventScreen = () => {
-  const [creator, setCreator] = useState("");
+  const { user, firstName, surname } = useAuth();
+  console.log(`User: ${firstName} ${surname}`);
+  console.log(`Email: ${user?.email}`);
+
+  const [creator, setCreator] = useState(null);
   const [invites, setInvites] = useState("");
   const [eventName, setEventName] = useState("");
   const [eventLocation, setEventLocation] = useState("");
@@ -28,29 +29,15 @@ const CreateEventScreen = () => {
   const [group, setGroup] = useState(null); // Initialize as null
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      console.log("Auth state changed:", user);
-
-      if (user) {
-        const db = getFirestore();
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setCreator({
-            email: docSnap.data().email,
-            firstName: docSnap.data().firstName,
-            surname: docSnap.data().surname,
-          });
-        } else {
-          console.log("No such document!");
-        }
-      }
-    });
-
-    // Cleanup subscription on unmount
-    return () => unsubscribe;
-  }, []);
+    if (user && !creator) {
+      // If user is logged in and creator is null
+      setCreator({
+        email: user.email,
+        firstName: firstName,
+        surname: surname,
+      });
+    }
+  }, [user, firstName, surname]);
 
   const createEvent = CreateEventFunction({
     eventName,
@@ -61,6 +48,8 @@ const CreateEventScreen = () => {
     tag,
     group,
   });
+
+  // rest of the code...
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
