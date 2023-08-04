@@ -4,11 +4,11 @@
  * swiping them.
  * @returns The code is exporting the `NotificationScreen` component as the default export.
  */
-import React, { useState, useEffect, useContext } from "react"; // Import useContext
-import { EventContext, InviteContext } from "../context/EventContext"; // Import EventContext
+import React, { useState, useEffect, useContext } from "react";
+import { EventContext, InviteContext } from "../context/EventContext";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Import auth from Firebase
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import {
   getFirestore,
   collection,
@@ -32,6 +32,7 @@ import {
   Image,
   Alert,
   Animated,
+  Button,
 } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
@@ -40,8 +41,6 @@ import {
   PanGestureHandler,
   State,
 } from "react-native-gesture-handler";
-
-// ... rest of your code
 
 const NotificationCard = ({
   id,
@@ -53,8 +52,8 @@ const NotificationCard = ({
   tag,
   onDelete,
 }) => {
-  const navigation = useNavigation(); // Initialize navigation
-  const [events, setEvents] = useContext(EventContext); // Use the EventContext
+  const navigation = useNavigation();
+  const [events, setEvents] = useContext(EventContext);
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({
@@ -159,8 +158,6 @@ const NotificationScreen = () => {
   const [notifications, setNotifications] = useState([]);
   const [events, setEvents] = useContext(EventContext);
 
-  // In NotificationScreen.js
-
   useEffect(() => {
     if (isFocused) {
       const db = getFirestore();
@@ -178,7 +175,6 @@ const NotificationScreen = () => {
           setNotifications(notificationsData);
         });
 
-        // Cleanup subscription on unmount
         return () => unsubscribe();
       }
     }
@@ -187,47 +183,27 @@ const NotificationScreen = () => {
   const deleteNotification = async (id) => {
     const db = getFirestore();
 
-    console.log("getDoc:", getDoc);
-    console.log("deleteDoc:", deleteDoc);
-    console.log("doc:", doc);
-    console.log("setEvents:", setEvents);
-    console.log("setNotifications:", setNotifications);
-
     try {
-      // Fetch the notification
-      const notificationDoc = await getDoc(doc(db, "notifications", id));
-      const notificationData = notificationDoc.data();
-
-      console.log("Notification data:", notificationData); // Log the notification data
-
-      // Delete the notification
       await deleteDoc(doc(db, "notifications", id));
-
-      // Delete the corresponding event using the event ID stored in the notification data
-      if (notificationData.eventId) {
-        const eventDoc = await getDoc(
-          doc(db, "events", notificationData.eventId)
-        ); // Fetch the event
-        console.log("Event data:", eventDoc.data()); // Log the event data
-
-        await deleteDoc(doc(db, "events", notificationData.eventId));
-
-        // Remove the deleted event from the context
-        setEvents(
-          (events || []).filter(
-            (event) => event.id !== notificationData.eventId
-          )
-        );
-      }
-
-      Alert.alert("Success", "Notification and event deleted!");
-
-      // Remove the deleted notification from the state
       setNotifications(
         (notifications || []).filter((notification) => notification.id !== id)
       );
     } catch (error) {
       console.error("Error deleting document: ", error);
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    const db = getFirestore();
+
+    try {
+      notifications.forEach(async (notification) => {
+        await deleteDoc(doc(db, "notifications", notification.id));
+      });
+      setNotifications([]);
+      Alert.alert("Success", "All notifications deleted!");
+    } catch (error) {
+      console.error("Error deleting documents: ", error);
     }
   };
 
@@ -238,17 +214,53 @@ const NotificationScreen = () => {
       description={item.description}
       image={item.image}
       time={item.time}
-      group={item.group} // Pass the group property
-      tag={item.tag} // Pass the tag property
+      group={item.group}
+      tag={item.tag}
       onDelete={() => deleteNotification(item.id)}
     />
+  );
+
+  const renderHeaderRight = () => (
+    <View style={{ marginRight: 10 }}>
+      <Button
+        onPress={() => console.log("Edit button pressed")}
+        title="Edit"
+        color="#000"
+      />
+    </View>
+  );
+
+  const renderHeaderLeft = () => (
+    <View style={{ marginLeft: 10 }}>
+      <Button
+        onPress={() =>
+          Alert.alert("Delete All", "Are you sure you want to delete all?", [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            {
+              text: "OK",
+              onPress: deleteAllNotifications,
+            },
+          ])
+        }
+        title="Delete All"
+        color="#000"
+      />
+    </View>
   );
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
-        <Text style={styles.title}>Notifications</Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Notifications</Text>
+          {renderHeaderRight()}
+          {renderHeaderLeft()}
+        </View>
         <FlatList
           data={notifications}
           renderItem={renderItem}
