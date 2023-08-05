@@ -20,8 +20,8 @@ import {
   where,
 } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
-import NotificationCard from "../../src/components/NotificationGroup/NotificationCard";
-import NotificationStyles from "../../src/assets/NotificationStyles";
+import NotificationCard from "../components/NotificationGroup/NotificationCard";
+import NotificationStyles from "../assets/NotificationStyles";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 const Tab = createMaterialTopTabNavigator();
