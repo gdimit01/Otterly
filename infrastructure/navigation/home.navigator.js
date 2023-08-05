@@ -4,7 +4,7 @@ import HomeScreen from "../../src/screens/HomeScreen";
 import ExploreScreen from "../../src/screens/ExploreScreen";
 import CreateEventScreen from "../../src/screens/CreateEventScreen";
 import ProfileScreen from "../../src/screens/ProfileScreen";
-import NotificationsScreen from "../../src/screens/NotificationsScreen";
+import NotificationsScreen from "../../src/screens/NotificationsScreenOLD";
 import { Ionicons } from "@expo/vector-icons"; // make sure to install this package
 
 const Tab = createBottomTabNavigator();

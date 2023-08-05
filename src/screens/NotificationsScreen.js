@@ -1,5 +1,27 @@
-import React from "react";
-import { SafeAreaView, View, Text, StatusBar } from "react-native";
+import React, { useState, useEffect, useContext } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  FlatList,
+  StatusBar,
+  Alert,
+} from "react-native";
+import { useIsFocused } from "@react-navigation/native";
+import { EventContext } from "../context/EventContext";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  doc,
+  getDoc,
+  deleteDoc,
+  query,
+  where,
+} from "@firebase/firestore";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
+import NotificationCard from "../../src/components/NotificationGroup/NotificationCard";
+import NotificationStyles from "../../src/assets/NotificationStyles";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import NotificationStyles from "../../src/assets/NotificationStyles";
 import { ActivityScreen } from "../screens/ActivityScreen";
