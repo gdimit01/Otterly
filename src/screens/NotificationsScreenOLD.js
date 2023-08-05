@@ -22,8 +22,11 @@ import {
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import NotificationCard from "../components/NotificationGroup/NotificationCard";
 import NotificationStyles from "../assets/NotificationStyles";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-export const ActivityScreen = () => {
+const Tab = createMaterialTopTabNavigator();
+
+const ActivityScreen = () => {
   const isFocused = useIsFocused();
   const [notifications, setNotifications] = useState([]);
   const [events, setEvents] = useContext(EventContext);
@@ -111,3 +114,48 @@ export const ActivityScreen = () => {
     </SafeAreaView>
   );
 };
+
+const InvitesScreen = () => {
+  // Your existing code for Invites Screen
+  return (
+    <View>
+      <Text>Invites Screen</Text>
+    </View>
+  );
+};
+
+const MessagesScreen = () => {
+  // Your existing code for Messages Screen
+  return (
+    <View>
+      <Text>Messages Screen</Text>
+    </View>
+  );
+};
+
+const NotificationScreen = () => {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" />
+      <View style={NotificationStyles.content}>
+        <Text style={NotificationStyles.title}>Notifications</Text>
+      </View>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: "tomato",
+          tabBarInactiveTintColor: "gray",
+          tabBarIndicatorStyle: {
+            borderBottomColor: "tomato",
+            borderBottomWidth: 2,
+          },
+        }}
+      >
+        <Tab.Screen name="Activity" component={ActivityScreen} />
+        <Tab.Screen name="Invites" component={InvitesScreen} />
+        <Tab.Screen name="Messages" component={MessagesScreen} />
+      </Tab.Navigator>
+    </SafeAreaView>
+  );
+};
+
+export default NotificationScreen;
