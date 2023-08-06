@@ -2,9 +2,9 @@ import React from "react";
 import { SafeAreaView, StatusBar, View, Text } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import NotificationStyles from "../assets/NotificationStyles";
-import ActivityScreen from "../src/screens/ActivityScreen";
-import InvitesScreen from "../src/screens/InvitesScreen";
-import MessagesScreen from "../src/screens/MessagesScreen";
+import ActivityScreen from "./ActivityScreen";
+import InvitesScreen from "./InvitesScreen";
+import MessagesScreen from "./MessagesScreen";
 
 const Tab = createMaterialTopTabNavigator();
 
