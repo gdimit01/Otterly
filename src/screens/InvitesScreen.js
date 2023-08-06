@@ -1,8 +1,12 @@
+import React from "react";
+import { View, Text } from "react-native";
+
 const InvitesScreen = () => {
-  // Your existing code for Invites Screen
   return (
     <View>
       <Text>Invites Screen</Text>
     </View>
   );
 };
+
+export default InvitesScreen;

@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { EventContext } from "../../../src/context/EventContext";
+import { EventContext } from "../../context/EventContext";
 import NotificationStyles from "../../../src/assets/NotificationStyles";
 
 const NotificationCard = ({
