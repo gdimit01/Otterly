@@ -1,23 +1,64 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
+import { EventContext } from "../context/EventContext";
+import { collection, onSnapshot } from "@firebase/firestore";
+import { FIREBASE_DB, FIREBASE_AUTH } from "../../firebaseConfig";
 
 const InvitesScreen = () => {
-  // Dummy data for sent and received invites (replace with actual data)
-  const sentInvites = [
-    { id: "1", status: "Accepted", user: "User A" },
-    { id: "2", status: "Pending", user: "User B" },
-    { id: "3", status: "Declined", user: "User C" },
-  ];
+  const [sentInvites, setSentInvites] = useState([]);
+  const [receivedInvites, setReceivedInvites] = useState([]);
 
-  const receivedInvites = [
-    { id: "1", status: "Accepted", user: "User X" },
-    { id: "2", status: "Pending", user: "User Y" },
-    { id: "3", status: "Pending", user: "User Z" },
-  ];
+  const { events } = useContext(EventContext);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      collection(FIREBASE_DB, "events"),
+      (snapshot) => {
+        const updatedSentInvites = [];
+        const updatedReceivedInvites = [];
+
+        snapshot.forEach((doc) => {
+          const { invites, name, creator } = doc.data();
+
+          if (invites && invites.length > 0) {
+            const sent = invites.filter(
+              () => creator.email === FIREBASE_AUTH.currentUser.email
+            );
+            const received = invites.filter(
+              () => creator.email !== FIREBASE_AUTH.currentUser.email
+            );
+
+            updatedSentInvites.push(
+              ...sent.map((invite) => ({
+                ...invite,
+                name,
+                creator,
+              }))
+            );
+            updatedReceivedInvites.push(
+              ...received.map((invite) => ({
+                ...invite,
+                name,
+                creator,
+              }))
+            );
+          }
+        });
+
+        setSentInvites(updatedSentInvites);
+        setReceivedInvites(updatedReceivedInvites);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [events]);
 
   const renderItem = ({ item }) => (
     <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.user}</Text>
+      <Text style={styles.itemText}>{item.name}</Text>
+      <Text style={styles.itemText}>
+        C: {item.creator.firstName} {item.creator.surname}
+      </Text>
       <Text style={styles.statusText}>{item.status}</Text>
     </View>
   );
@@ -28,14 +69,14 @@ const InvitesScreen = () => {
       <FlatList
         data={sentInvites}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
       />
 
       <Text style={styles.heading}>Received Invites</Text>
       <FlatList
         data={receivedInvites}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item, index) => index.toString()}
       />
     </View>
   );
