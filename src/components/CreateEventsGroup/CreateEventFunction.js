@@ -23,6 +23,7 @@ const CreateEventFunction = ({
   invites,
   tag,
   group,
+  onSuccess, // Add onSuccess callback
 }) => {
   const [events, setEvents] = useContext(EventContext);
 
@@ -112,6 +113,8 @@ const CreateEventFunction = ({
         await AsyncStorage.setItem("lastCreatedEventId", eventRef.id);
 
         Alert.alert("Success", "Event successfully created"); // Show success message
+
+        onSuccess(); // Call the onSuccess callback
       }
     } catch (e) {
       console.error("Error adding document: ", e);
