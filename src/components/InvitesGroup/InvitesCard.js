@@ -1,12 +1,24 @@
 import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
 import InvitesStyles from "../../../src/assets/InvitesStyles";
 
-const InvitesCard = ({ name, creator, status }) => {
+const InvitesCard = ({
+  id,
+  title,
+  description,
+  image,
+  time,
+  group,
+  tag,
+  visibility,
+  name,
+  creator,
+  status,
+}) => {
   const navigation = useNavigation();
   const [events, setEvents] = useContext(EventContext);
 
@@ -76,15 +88,36 @@ const InvitesCard = ({ name, creator, status }) => {
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.7}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => {
+        navigation.navigate("EventScreen", {
+          id,
+          title,
+          description,
+          image,
+          time,
+          group,
+          tag,
+          visibility,
+        });
+      }}
+    >
       <Swipeable renderRightActions={renderRightActions}>
         <View style={InvitesStyles.invitesCard}>
+          <Image source={{ uri: image }} style={InvitesStyles.invitesImage} />
           <View style={InvitesStyles.invitesTextContainer}>
             <Text style={InvitesStyles.invitesTitle}>{name}</Text>
             <Text style={InvitesStyles.invitesDescription}>
               C: {creator.firstName} {creator.surname}
             </Text>
+            <Text style={InvitesStyles.invitesTime}>{time}</Text>
+            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
+            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
             <Text style={InvitesStyles.invitesStatus}>{status}</Text>
+            <Text style={InvitesStyles.invitesVisibility}>
+              {visibility ? "Public" : "Private"}
+            </Text>
           </View>
         </View>
       </Swipeable>
