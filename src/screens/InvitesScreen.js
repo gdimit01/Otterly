@@ -1,12 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { EventContext } from "../context/EventContext";
 import { collection, onSnapshot } from "@firebase/firestore";
 import { FIREBASE_DB, FIREBASE_AUTH } from "../../firebaseConfig";
+import InvitesCard from "../../src/components/InvitesGroup/InvitesCard";
+import InvitesStyle from "../../src/assets/InvitesStyles";
 
 const InvitesScreen = () => {
   const [sentInvites, setSentInvites] = useState([]);
   const [receivedInvites, setReceivedInvites] = useState([]);
+  const [sentInvitesExpanded, setSentInvitesExpanded] = useState(false);
+  const [receivedInvitesExpanded, setReceivedInvitesExpanded] = useState(false);
 
   const { events } = useContext(EventContext);
 
@@ -22,10 +26,10 @@ const InvitesScreen = () => {
 
           if (invites && invites.length > 0) {
             const sent = invites.filter(
-              () => creator.email === FIREBASE_AUTH.currentUser.email
+              (invite) => creator.email === FIREBASE_AUTH.currentUser.email
             );
             const received = invites.filter(
-              () => creator.email !== FIREBASE_AUTH.currentUser.email
+              (invite) => creator.email !== FIREBASE_AUTH.currentUser.email
             );
 
             updatedSentInvites.push(
@@ -54,61 +58,43 @@ const InvitesScreen = () => {
   }, [events]);
 
   const renderItem = ({ item }) => (
-    <View style={styles.itemContainer}>
-      <Text style={styles.itemText}>{item.name}</Text>
-      <Text style={styles.itemText}>
-        C: {item.creator.firstName} {item.creator.surname}
-      </Text>
-      <Text style={styles.statusText}>{item.status}</Text>
-    </View>
+    <InvitesCard
+      name={item.name}
+      creator={item.creator}
+      status={item.status}
+      onDelete={() => console.log("Delete invite")}
+    />
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Sent Invites</Text>
-      <FlatList
-        data={sentInvites}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+    <View style={InvitesStyle.container}>
+      <TouchableOpacity
+        onPress={() => setSentInvitesExpanded(!sentInvitesExpanded)}
+      >
+        <Text style={InvitesStyle.heading}>Sent Invites</Text>
+      </TouchableOpacity>
+      {sentInvitesExpanded && (
+        <FlatList
+          data={sentInvites}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
 
-      <Text style={styles.heading}>Received Invites</Text>
-      <FlatList
-        data={receivedInvites}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      <TouchableOpacity
+        onPress={() => setReceivedInvitesExpanded(!receivedInvitesExpanded)}
+      >
+        <Text style={InvitesStyle.heading}>Received Invites</Text>
+      </TouchableOpacity>
+      {receivedInvitesExpanded && (
+        <FlatList
+          data={receivedInvites}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  itemContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  itemText: {
-    fontSize: 16,
-  },
-  statusText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#007bff",
-  },
-});
 
 export default InvitesScreen;
