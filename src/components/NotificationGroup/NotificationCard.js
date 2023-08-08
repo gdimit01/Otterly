@@ -82,7 +82,7 @@ const NotificationCard = ({
     );
   };
 
-  const eventName = title.replace("New Event Created: ", "");
+  const eventName = title.replace("Event Name: ", "");
 
   return (
     <TouchableOpacity

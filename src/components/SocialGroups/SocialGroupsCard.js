@@ -1,3 +1,4 @@
+// SocialGroupsCard.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -6,7 +7,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  navigation,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -17,7 +17,6 @@ import {
   doc,
   getFirestore,
   onSnapshot,
-  getDocs,
   updateDoc,
 } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
@@ -31,30 +30,32 @@ const SocialGroupsCard = ({
   group,
   tag,
   visibility,
+  creator,
 }) => {
   const navigation = useNavigation();
   const [UserRSVP, setUserRSVP] = useState(false);
   const [likes, setLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
-  const [attendees, setAttendees] = useState(0); // New state variable for attendees
+  const [attendees, setAttendees] = useState(0); // Define the state variable for attendees
 
   useEffect(() => {
     const db = getFirestore();
-    const likesRef = collection(db, "socialgroups", id, "likes");
-    const rsvpRef = collection(db, "socialgroups", id, "rsvps");
+    const likesRef = collection(db, "events", id, "likes");
+    const socialGroupRef = doc(db, "events", id); // Reference to the event document
 
     const unsubscribeLikes = onSnapshot(likesRef, (snapshot) => {
       setLikes(snapshot.size);
       setUserLiked(
-        snapshot.docs.map((doc) => doc.id).includes(auth.currentUser.uid)
+        snapshot.docs
+          .map((doc) => doc.data().email)
+          .includes(auth.currentUser.email) // Use email instead of UID
       );
     });
 
-    const unsubscribeRSVPs = onSnapshot(rsvpRef, (snapshot) => {
-      const attendees = snapshot.docs.filter(
-        (doc) => doc.data().status === "accepted"
-      ).length;
-      setAttendees(attendees);
+    // Listen to changes in the event document to get the attendee count
+    const unsubscribeRSVPs = onSnapshot(socialGroupRef, (snapshot) => {
+      const data = snapshot.data();
+      setAttendees(data.attendees); // Update the state with the attendee count
     });
 
     return () => {
@@ -65,31 +66,39 @@ const SocialGroupsCard = ({
 
   const deleteSocialGroup = async () => {
     const db = getFirestore();
-    await deleteDoc(doc(db, "socialgroups", id));
+    await deleteDoc(doc(db, "events", id));
   };
 
   const handleLikes = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "socialgroups", id);
+    const socialGroupRef = doc(db, "events", id);
     const socialGroupSnapshot = await getDoc(socialGroupRef);
     const currentUser = auth.currentUser;
 
     if (socialGroupSnapshot.exists() && currentUser) {
       const data = socialGroupSnapshot.data();
 
-      if (data.creator.uid === currentUser.uid) {
+      if (data.creator.email === currentUser.email) {
         Alert.alert("Error", "You can't like your own post.");
         return;
       }
 
-      const likesRef = collection(db, "socialgroups", id, "likes");
-      const userLikeSnapshot = await getDoc(doc(likesRef, currentUser.uid));
+      const likesRef = collection(db, "events", id, "likes");
+      const userLikeSnapshot = await getDoc(doc(likesRef, currentUser.email)); // Use email instead of UID
 
       if (!userLikeSnapshot.exists()) {
-        await setDoc(doc(likesRef, currentUser.uid), { uid: currentUser.uid });
+        await setDoc(doc(likesRef, currentUser.email), {
+          email: currentUser.email,
+        }); // Use email instead of UID
+        await updateDoc(socialGroupRef, {
+          likes: (data.likes || 0) + 1, // Increment likes
+        });
         setUserLiked(true);
       } else {
-        await deleteDoc(doc(likesRef, currentUser.uid));
+        await deleteDoc(doc(likesRef, currentUser.email)); // Use email instead of UID
+        await updateDoc(socialGroupRef, {
+          likes: (data.likes || 0) - 1, // Decrement likes
+        });
         setUserLiked(false);
       }
     }
@@ -98,29 +107,25 @@ const SocialGroupsCard = ({
   // In your RSVP function
   const handleRSVP = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "socialgroups", id);
+    const socialGroupRef = doc(db, "events", id);
     const currentUser = auth.currentUser;
     if (currentUser) {
-      const rsvpRef = collection(db, "socialgroups", id, "rsvps");
-      const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.uid));
+      const rsvpRef = collection(db, "events", id, "rsvps");
+      const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
       const socialGroupSnapshot = await getDoc(socialGroupRef);
       if (socialGroupSnapshot.exists()) {
         const data = socialGroupSnapshot.data();
         if (!userRsvpSnapshot.exists()) {
-          if (data.attendees.length < data.attendeeLimit) {
-            await setDoc(doc(rsvpRef, currentUser.uid), {
-              uid: currentUser.uid,
-            });
-            await updateDoc(socialGroupRef, {
-              attendees: [...data.attendees, currentUser.uid],
-            });
-          } else {
-            Alert.alert("Error", "This event is full.");
-          }
-        } else {
-          await deleteDoc(doc(rsvpRef, currentUser.uid));
+          await setDoc(doc(rsvpRef, currentUser.email), {
+            email: currentUser.email,
+          });
           await updateDoc(socialGroupRef, {
-            attendees: data.attendees.filter((uid) => uid !== currentUser.uid),
+            attendees: (data.attendees || 0) + 1, // Increment attendees
+          });
+        } else {
+          await deleteDoc(doc(rsvpRef, currentUser.email));
+          await updateDoc(socialGroupRef, {
+            attendees: (data.attendees || 0) - 1, // Decrement attendees
           });
         }
       } else {
@@ -131,13 +136,14 @@ const SocialGroupsCard = ({
 
   const toggleVisibility = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "socialgroups", id);
+    const socialGroupRef = doc(db, "events", id);
     const socialGroupSnapshot = await getDoc(socialGroupRef);
     const currentUser = auth.currentUser;
 
     if (socialGroupSnapshot.exists() && currentUser) {
       const data = socialGroupSnapshot.data();
-      if (data.creator.uid === currentUser.uid) {
+      if (data.creator.email === currentUser.email) {
+        // Compare emails instead of UIDs
         const newVisibility = !data.visibility;
         await updateDoc(socialGroupRef, { visibility: newVisibility });
       } else {
@@ -163,12 +169,17 @@ const SocialGroupsCard = ({
             group,
             tag,
             visibility,
+            creator,
           });
         }}
       >
         <Image source={{ uri: image }} style={styles.image} />
         <View style={styles.text}>
           <Text style={styles.title}>{title}</Text>
+          <Text style={styles.creatorName}>
+            {creator.firstName} {creator.surname}
+          </Text>
+
           <Text style={styles.description}>{description}</Text>
           <Text style={styles.time}>{time}</Text>
           <Text style={styles.group}>{group}</Text>
@@ -220,6 +231,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
+  },
+  creatorName: {
+    fontSize: 16,
+    color: "gray",
   },
   rsvpButton: {
     backgroundColor: "#27ae60",

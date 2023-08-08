@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 import {
-  Alert,
   View,
   Text,
   FlatList,
-  Image,
   StyleSheet,
   StatusBar,
   SafeAreaView,
-  TouchableOpacity,
 } from "react-native";
-import { useNavigation, useIsFocused } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 import {
   getFirestore,
   collection,
@@ -18,48 +15,31 @@ import {
   query,
   where,
 } from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Import auth
 import SocialGroupsCard from "../../src/components/SocialGroups/SocialGroupsCard";
 
 const SocialGroupsScreen = () => {
   const isFocused = useIsFocused();
-  const [socialgroups, setSocialGroups] = useState([]);
-  const navigation = useNavigation();
+  const [events, setEvents] = useState([]);
+  const currentUser = auth.currentUser; // Get the current user
 
   useEffect(() => {
     if (isFocused) {
       const db = getFirestore();
       const q = query(
-        collection(db, "socialgroups"),
+        collection(db, "events"),
         where("group", "==", "Social Group")
       );
       const unsubscribe = onSnapshot(q, (snapshot) => {
         let socialGroupsData = [];
         snapshot.forEach((doc) => {
           const data = doc.data();
-          let formattedTime = "";
-          if (typeof data.time === "string") {
-            let parts = data.time.split(/[\s/:,]+/);
-            let date = new Date(
-              Date.UTC(
-                parts[2],
-                parts[1] - 1,
-                parts[0],
-                parts[3],
-                parts[4],
-                parts[5]
-              )
-            );
-            if (isNaN(date)) {
-              console.error("Could not parse date string:", data.time);
-            } else {
-              formattedTime = date.toLocaleString();
-            }
+          // Check if the event is public or the current user is invited
+          if (data.visibility || data.creator.email === currentUser.email) {
+            socialGroupsData.push({ id: doc.id, ...data });
           }
-
-          socialGroupsData.push({ id: doc.id, ...data, time: formattedTime });
         });
-        setSocialGroups(socialGroupsData);
+        setEvents(socialGroupsData);
       });
 
       return () => unsubscribe();
@@ -67,15 +47,13 @@ const SocialGroupsScreen = () => {
   }, [isFocused]);
 
   const renderItem = ({ item }) => {
-    // Only render the card if the current user is the creator or an invitee or if the event is public
-    if (
-      item.visibility ||
-      item.creator.uid === auth.currentUser.uid ||
-      (item.invitees && item.invitees.includes(auth.currentUser.uid))
-    ) {
+    const currentUserEmail = auth.currentUser.email; // Assuming you have access to the auth object
+    // Check if the event is public or the current user is the creator
+    if (item.visibility || item.creator.email === currentUserEmail) {
       return (
         <SocialGroupsCard
           id={item.id}
+          creator={item.creator} // Pass the creator object
           title={item.name}
           description={item.description}
           image={item.image}
@@ -83,11 +61,11 @@ const SocialGroupsScreen = () => {
           group={item.group}
           tag={item.tag}
           visibility={item.visibility}
+          attendees={item.attendees} // Pass the attendees count
         />
       );
-    } else {
-      return null;
     }
+    return null; // Return null if the current user should not see the event
   };
 
   return (
@@ -96,7 +74,7 @@ const SocialGroupsScreen = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Social Groups</Text>
         <FlatList
-          data={socialgroups}
+          data={events}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 40 }}
@@ -105,7 +83,6 @@ const SocialGroupsScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   content: {
     fontSize: 24,
