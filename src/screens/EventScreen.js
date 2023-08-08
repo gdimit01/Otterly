@@ -111,11 +111,11 @@ const EventScreen = ({ route }) => {
           )}
         </Text>
 
-        <Text style={styles.location}>{event.location}</Text>
+        <Text style={styles.location}>Event Location{event.location}</Text>
 
         {/* Display the tag and group */}
-        <Text style={styles.tag}>Tag: {tag}</Text>
-        <Text style={styles.group}>Group: {group}</Text>
+        <Text style={styles.tag}>Tag: A{tag}</Text>
+        <Text style={styles.group}>Group: B{group}</Text>
 
         {/* Display the visibility */}
         <Text style={styles.visibility}>Visibility: {visibilityText}</Text>

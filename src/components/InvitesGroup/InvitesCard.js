@@ -109,11 +109,13 @@ const InvitesCard = ({
           <View style={InvitesStyles.invitesTextContainer}>
             <Text style={InvitesStyles.invitesTitle}>{name}</Text>
             <Text style={InvitesStyles.invitesDescription}>
-              C: {creator.firstName} {creator.surname}
+              Creator: {creator.firstName} {creator.surname}
             </Text>
-            <Text style={InvitesStyles.invitesTime}>{time}</Text>
-            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
-            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
+            <Text style={InvitesStyles.invitesTime}>This is a time{time}</Text>
+            <Text style={InvitesStyles.invitesGroup}>
+              This is a group{group}
+            </Text>
+            <Text style={InvitesStyles.invitesTag}>Tag#{tag}</Text>
             <Text style={InvitesStyles.invitesStatus}>{status}</Text>
             <Text style={InvitesStyles.invitesVisibility}>
               {visibility ? "Public" : "Private"}
