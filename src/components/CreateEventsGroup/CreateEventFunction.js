@@ -44,21 +44,6 @@ const CreateEventFunction = ({
           group: group, // Set as string
         });
 
-        // Get the newly created event's ID
-        const eventId = eventRef.id;
-
-        // Split the invites string into an array of emails
-        const inviteEmails = invites.split(",");
-
-        // Create invites for each email
-        inviteEmails.forEach(async (email) => {
-          await addDoc(collection(db, "invites"), {
-            eventId,
-            senderId: creator.email,
-            receiverEmail: email.trim(),
-            status: "pending",
-          });
-        });
         // Create an invites collection in each event document
         await Promise.all(
           invites.split(",").map(async (email) => {

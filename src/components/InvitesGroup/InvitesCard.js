@@ -3,7 +3,7 @@ import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
-//import { EventContext } from "../../context/EventContext";
+import { EventContext } from "../../context/EventContext";
 import InvitesStyles from "../../../src/assets/InvitesStyles";
 
 const InvitesCard = ({
@@ -20,7 +20,7 @@ const InvitesCard = ({
   status,
 }) => {
   const navigation = useNavigation();
-  //const [events, setEvents] = useContext(EventContext);
+  const [events, setEvents] = useContext(EventContext);
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({
