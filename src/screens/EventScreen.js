@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,29 +6,63 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StyleSheet,
-  FlatList,
   StatusBar,
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment"; // Import moment.js
-
-// Import Firestore methods and the auth object
-import { getFirestore, doc, setDoc } from "@firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  onSnapshot,
+  collection,
+} from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
-
-// Import the EventContext
 import { EventContext } from "../context/EventContext";
 
 const EventScreen = ({ route }) => {
   const navigation = useNavigation();
   const { events, updateEventVisibility } = useContext(EventContext);
-
-  // Data from the NotificationCard
   const event = route.params;
-
-  // Retrieve the selected tag and group from the navigation parameters
   const { tag, group } = event;
+
+  const [invites, setInvites] = useState([]); // State to hold the invites
+
+  // State to hold the attendees
+  const [attendees, setAttendees] = useState([]);
+
+  useEffect(() => {
+    const db = getFirestore();
+    const invitesRef = collection(db, "events", event.id, "invites");
+
+    // Subscribe to the invites collection
+    const unsubscribeInvites = onSnapshot(invitesRef, (snapshot) => {
+      const invitesData = snapshot.docs.map((doc) => doc.data());
+      setInvites(invitesData);
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribeInvites();
+    };
+  }, [event.id]);
+
+  useEffect(() => {
+    const db = getFirestore();
+    const eventRef = doc(db, "events", event.id);
+
+    // Subscribe to the event document
+    const unsubscribe = onSnapshot(eventRef, (snapshot) => {
+      const eventData = snapshot.data();
+      setAttendees(eventData?.attendees || []);
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [event.id]);
 
   const handleInvitationResponse = async (response) => {
     try {
@@ -39,11 +73,11 @@ const EventScreen = ({ route }) => {
       if (response === "accepted") {
         // Check if the attendees list exists
         if (event.attendees) {
-          // Add the user's ID to the attendees list
+          // Add the user's email to the attendees list
           await setDoc(
             eventRef,
             {
-              attendees: [...event.attendees, user.uid],
+              attendees: [...event.attendees, user.email],
             },
             { merge: true }
           );
@@ -52,14 +86,14 @@ const EventScreen = ({ route }) => {
           await setDoc(
             eventRef,
             {
-              attendees: [user.uid],
+              attendees: [user.email],
             },
             { merge: true }
           );
         }
 
         // Update invite status in Firestore
-        const inviteRef = doc(db, `events/${event.id}/invites`, user.uid);
+        const inviteRef = doc(db, `events/${event.id}/invites`, user.email);
         await setDoc(
           inviteRef,
           {
@@ -71,7 +105,7 @@ const EventScreen = ({ route }) => {
         Alert.alert("Success", "You have accepted the invitation!"); // Show success message
       } else if (response === "declined") {
         // Update invite status in Firestore
-        const inviteRef = doc(db, `events/${event.id}/invites`, user.uid);
+        const inviteRef = doc(db, `events/${event.id}/invites`, user.email);
         await setDoc(
           inviteRef,
           {
@@ -88,6 +122,16 @@ const EventScreen = ({ route }) => {
       console.error("Error updating document: ", e);
     }
   };
+
+  // Convert the attendees array to a string
+  const attendeesText = attendees.length
+    ? attendees.join(", ")
+    : "No attendees yet";
+
+  // Convert the invites array to a string or render them as needed
+  const invitesText = invites.length
+    ? invites.join(", ") // or render them differently
+    : "No invites yet";
 
   // Use the visibility property from the event to display the current visibility
   const visibilityText = event.visibility ? "Public" : "Private";
@@ -110,17 +154,12 @@ const EventScreen = ({ route }) => {
             "MMMM Do YYYY, h:mm a"
           )}
         </Text>
-
         <Text style={styles.location}>Event Location{event.location}</Text>
-
-        {/* Display the tag and group */}
         <Text style={styles.tag}>Tag: A{tag}</Text>
         <Text style={styles.group}>Group: B{group}</Text>
-
-        {/* Display the visibility */}
         <Text style={styles.visibility}>Visibility: {visibilityText}</Text>
-
-        {/* Accept and Decline buttons */}
+        <Text style={styles.attendees}>Attendees: {attendeesText}</Text>
+        <Text style={styles.invites}>Invites: {invitesText}</Text>
         <TouchableOpacity
           onPress={() => handleInvitationResponse("accepted")}
           style={styles.responseButton}
@@ -133,7 +172,6 @@ const EventScreen = ({ route }) => {
         >
           <Text style={styles.responseButtonText}>Decline</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           style={styles.backButton}

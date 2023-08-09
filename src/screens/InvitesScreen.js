@@ -3,10 +3,12 @@ import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { EventContext } from "../context/EventContext";
 import { collection, onSnapshot } from "@firebase/firestore";
 import { FIREBASE_DB, FIREBASE_AUTH } from "../../firebaseConfig";
-import InvitesCard from "../../src/components/InvitesGroup/InvitesCard";
-import InvitesStyle from "../../src/assets/InvitesStyles";
+import InvitesCard from "../components/InvitesGroup/InvitesCard";
+import InvitesStyle from "../assets/InvitesStyles";
+import { useNavigation } from "@react-navigation/native";
 
 const InvitesScreen = () => {
+  const navigation = useNavigation();
   const [sentInvites, setSentInvites] = useState([]);
   const [receivedInvites, setReceivedInvites] = useState([]);
   const [sentInvitesExpanded, setSentInvitesExpanded] = useState(false);

@@ -31,6 +31,7 @@ const SocialGroupsCard = ({
   tag,
   visibility,
   creator,
+  invites,
 }) => {
   const navigation = useNavigation();
   const [UserRSVP, setUserRSVP] = useState(false);
@@ -170,6 +171,7 @@ const SocialGroupsCard = ({
             tag,
             visibility,
             creator,
+            invites,
           });
         }}
       >
@@ -196,6 +198,7 @@ const SocialGroupsCard = ({
           <Text style={styles.visibility}>
             {visibility ? "Public" : "Private"}
           </Text>
+          <Text style={styles.invitesText}>Invites: {invites}</Text>
         </View>
       </TouchableOpacity>
       <Text style={styles.attendeesText}>Attendees: {attendees}</Text>

@@ -5,7 +5,7 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-} from "@firebase/firestore"; // Import Firestore functions
+} from "@firebase/firestore";
 
 export const EventContext = createContext();
 
@@ -32,19 +32,19 @@ export const EventProvider = ({ children }) => {
     };
   }, []);
 
-  // Function to update event visibility
-  const updateEventVisibility = async (eventId, visibility) => {
+  // Function to update an event
+  const updateEvent = async (eventId, updatedEvent) => {
     try {
       const db = getFirestore();
       const eventRef = doc(db, "events", eventId);
-      await updateDoc(eventRef, { visibility });
+      await updateDoc(eventRef, updatedEvent);
     } catch (error) {
-      console.error("Error updating event visibility: ", error);
+      console.error("Error updating event: ", error);
     }
   };
 
   return (
-    <EventContext.Provider value={{ events, setEvents, updateEventVisibility }}>
+    <EventContext.Provider value={{ events, setEvents, updateEvent }}>
       {children}
     </EventContext.Provider>
   );
