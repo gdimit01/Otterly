@@ -84,6 +84,9 @@ const InvitesCard = ({ name, creator, status }) => {
             <Text style={InvitesStyles.invitesDescription}>
               C: {creator.firstName} {creator.surname}
             </Text>
+            <Text style={InvitesStyles.invitesTime}>{time}</Text>
+            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
+            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
             <Text style={InvitesStyles.invitesStatus}>{status}</Text>
           </View>
         </View>
