@@ -1,24 +1,12 @@
 import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, Image, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
 import NotificationStyles from "../../../src/assets/NotificationStyles";
 
-const InvitesCard = ({
-  id,
-  title,
-  description,
-  image,
-  time,
-  group,
-  tag,
-  visibility,
-  name,
-  creator,
-  status,
-}) => {
+const InvitesCard = ({ name, creator, status }) => {
   const navigation = useNavigation();
   const [events, setEvents] = useContext(EventContext);
 
@@ -93,7 +81,7 @@ const InvitesCard = ({
       onPress={() => {
         navigation.navigate("EventScreen", {
           id,
-          title: name,
+          title,
           description,
           image,
           time,
@@ -104,23 +92,19 @@ const InvitesCard = ({
       }}
     >
       <Swipeable renderRightActions={renderRightActions}>
-        <View style={NotificationStyles.notificationCard}>
-          <Image
-            source={{ uri: image }}
-            style={NotificationStyles.notificationImage}
-          />
-          <View style={NotificationStyles.notificationTextContainer}>
-            <Text style={NotificationStyles.notificationTitle}>{name}</Text>
-            <Text style={NotificationStyles.notificationDescription}>
-              Creator: {creator.firstName} {creator.surname}
+        <View style={InvitesStyles.invitesCard}>
+          <View style={InvitesStyles.invitesTextContainer}>
+            <Text style={InvitesStyles.invitesTitle}>{name}</Text>
+            <Text style={InvitesStyles.invitesDescription}>
+              C: {creator.firstName} {creator.surname}
             </Text>
-            <Text style={NotificationStyles.notificationTime}>{time}</Text>
-            <Text style={NotificationStyles.notificationGroup}>{group}</Text>
-            <Text style={NotificationStyles.notificationTag}>#{tag}</Text>
-            <Text style={NotificationStyles.notificationTag}>
+            <Text style={InvitesStyles.invitesTime}>{time}</Text>
+            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
+            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
+            <Text style={InvitesStyles.invitesStatus}>{status}</Text>
+            <Text style={InvitesStyles.invitesVisibility}>
               {visibility ? "Public" : "Private"}
             </Text>
-            <Text style={NotificationStyles.notificationTag}>{status}</Text>
           </View>
         </View>
       </Swipeable>

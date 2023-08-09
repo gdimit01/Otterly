@@ -60,29 +60,12 @@ const InvitesScreen = () => {
   }, [events]);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => {
-        // Navigate to the EventScreen with all the required parameters
-        navigation.navigate("EventScreen", {
-          id: item.id,
-          title: item.name,
-          description: item.description,
-          image: item.image,
-          time: item.time,
-          group: item.group,
-          tag: item.tag,
-          visibility: item.visibility,
-          // Include any other required parameters
-        });
-      }}
-    >
-      <InvitesCard
-        name={item.name}
-        creator={item.creator}
-        status={item.status}
-        onDelete={() => console.log("Delete invite")}
-      />
-    </TouchableOpacity>
+    <InvitesCard
+      name={item.name}
+      creator={item.creator}
+      status={item.status}
+      onDelete={() => console.log("Delete invite")}
+    />
   );
 
   return (
