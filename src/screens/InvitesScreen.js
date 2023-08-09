@@ -64,6 +64,13 @@ const InvitesScreen = () => {
       name={item.name}
       creator={item.creator}
       status={item.status}
+      id={item.id}
+      title={item.title}
+      description={item.description}
+      image={item.image}
+      time={item.time}
+      group={item.group}
+      tag={item.tag}
       onDelete={() => console.log("Delete invite")}
     />
   );

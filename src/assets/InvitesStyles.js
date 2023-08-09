@@ -10,6 +10,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 8,
   },
+  invitesTime: {
+    fontSize: 14,
+    marginTop: 5,
+    color: "#888",
+  },
   itemContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

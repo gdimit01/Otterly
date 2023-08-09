@@ -1,12 +1,24 @@
 import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, Animated } from "react-native";
+import { View, Text, TouchableOpacity, Animated, Image } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
 import InvitesStyles from "../../../src/assets/InvitesStyles";
 
-const InvitesCard = ({ name, creator, status }) => {
+const InvitesCard = ({
+  id,
+  title,
+  description,
+  image,
+  time,
+  group,
+  tag,
+  visibility,
+  name,
+  creator,
+  status,
+}) => {
   const navigation = useNavigation();
   const [events, setEvents] = useContext(EventContext);
 

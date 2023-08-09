@@ -38,7 +38,7 @@ const EventScreen = ({ route }) => {
 
     // Subscribe to the invites collection
     const unsubscribeInvites = onSnapshot(invitesRef, (snapshot) => {
-      const invitesData = snapshot.docs.map((doc) => doc.data());
+      const invitesData = snapshot.docs.map((doc) => doc.data().email); // Extract email from each invite
       setInvites(invitesData);
     });
 
@@ -128,9 +128,9 @@ const EventScreen = ({ route }) => {
     ? attendees.join(", ")
     : "No attendees yet";
 
-  // Convert the invites array to a string or render them as needed
+  // Convert the invites array to a string
   const invitesText = invites.length
-    ? invites.join(", ") // or render them differently
+    ? invites.join(", ") // Join the emails into a string
     : "No invites yet";
 
   // Use the visibility property from the event to display the current visibility

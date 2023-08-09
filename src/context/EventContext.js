@@ -11,6 +11,7 @@ export const EventContext = createContext();
 
 export const EventProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null); // For storing a selected event
 
   useEffect(() => {
     const db = getFirestore();
@@ -22,7 +23,6 @@ export const EventProvider = ({ children }) => {
       snapshot.forEach((doc) => {
         eventsData.push({ id: doc.id, ...doc.data() });
       });
-      console.log(eventsData); // Log events
       setEvents(eventsData);
     });
 
@@ -43,8 +43,16 @@ export const EventProvider = ({ children }) => {
     }
   };
 
+  // Function to select an event
+  const selectEvent = (eventId) => {
+    const event = events.find((event) => event.id === eventId);
+    setSelectedEvent(event);
+  };
+
   return (
-    <EventContext.Provider value={{ events, setEvents, updateEvent }}>
+    <EventContext.Provider
+      value={{ events, setEvents, updateEvent, selectedEvent, selectEvent }}
+    >
       {children}
     </EventContext.Provider>
   );
