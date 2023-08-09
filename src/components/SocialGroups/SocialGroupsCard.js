@@ -1,5 +1,4 @@
-// SocialGroupsCard.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -9,6 +8,7 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { EventContext } from "../../../src/context/EventContext";
 import {
   deleteDoc,
   getDoc,
@@ -20,24 +20,39 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
+import moment from "moment";
 
-const SocialGroupsCard = ({
-  id,
-  title,
-  description,
-  image,
-  time,
-  group,
-  tag,
-  visibility,
-  creator,
-  invites,
-}) => {
+const SocialGroupsCard = ({ id }) => {
   const navigation = useNavigation();
-  const [UserRSVP, setUserRSVP] = useState(false);
+  const { events } = useContext(EventContext); // Use EventContext
+  const event = events.find((e) => e.id === id); // Find the event by ID
+
+  // Declare state variables here
   const [likes, setLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
-  const [attendees, setAttendees] = useState(0); // Define the state variable for attendees
+  const [attendees, setAttendees] = useState(0);
+
+  // Use event properties directly from the event object
+  if (!event) {
+    console.error("Event not found for ID:", id);
+    return null;
+  }
+  const {
+    title,
+    description,
+    image,
+    // Format the time using moment.js if needed
+    // Directly access the time from the event object
+    time = moment(event.time, "DD/MM/YYYY, HH:mm:ss ZZ").format(
+      "MMMM Do YYYY, h:mm:ss a"
+    ),
+
+    group,
+    tag,
+    visibility,
+    creator,
+    invites,
+  } = event;
 
   useEffect(() => {
     const db = getFirestore();
@@ -54,10 +69,12 @@ const SocialGroupsCard = ({
     });
 
     // Listen to changes in the event document to get the attendee count
-    const unsubscribeRSVPs = onSnapshot(socialGroupRef, (snapshot) => {
-      const data = snapshot.data();
-      setAttendees(data.attendees); // Update the state with the attendee count
-    });
+    const unsubscribeRSVPs = onSnapshot(
+      collection(db, "events", id, "attendees"),
+      (snapshot) => {
+        setAttendees(snapshot.docs.map((doc) => doc.data())); // Update the state with the attendee objects
+      }
+    );
 
     return () => {
       unsubscribeLikes();
@@ -166,7 +183,10 @@ const SocialGroupsCard = ({
             title,
             description,
             image,
-            time,
+            time: moment(event.time, "DD/MM/YYYY, HH:mm:ss ZZ").format(
+              "MMMM Do YYYY, h:mm:ss a"
+            ),
+
             group,
             tag,
             visibility,
@@ -179,11 +199,17 @@ const SocialGroupsCard = ({
         <View style={styles.text}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.creatorName}>
-            {creator.firstName} {creator.surname}
+            {creator.firstName} {creator.surname} ({creator.email})
+          </Text>
+          <Text style={styles.invitesText}>
+            Invite Email: {invites.email} - Status: {invites.status}
+          </Text>
+          <Text style={styles.attendeesText}>
+            Attendees: {attendees.length}
           </Text>
 
-          <Text style={styles.description}>{description}</Text>
-          <Text style={styles.time}>{time}</Text>
+          <Text style={styles.description}>Description: {description}</Text>
+          <Text style={styles.time}>Time: {time}</Text>
           <Text style={styles.group}>{group}</Text>
           <Text style={styles.tag}>#{tag}</Text>
           <TouchableOpacity
@@ -198,10 +224,8 @@ const SocialGroupsCard = ({
           <Text style={styles.visibility}>
             {visibility ? "Public" : "Private"}
           </Text>
-          <Text style={styles.invitesText}>Invites: {invites}</Text>
         </View>
       </TouchableOpacity>
-      <Text style={styles.attendeesText}>Attendees: {attendees}</Text>
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={handleRSVP}

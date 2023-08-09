@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { EventProvider, EventContext } from "./src/context/EventContext";
+import { EventProvider } from "./src/context/EventContext"; // Import EventProvider
 import { AppNavigator } from "./infrastructure/navigation/app.navigator";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Font from "expo-font";
 import { FontAwesome } from "@expo/vector-icons";
-import { UserProvider } from "./src/context/UserContext"; // Import UserProvider from UserContext
+import { UserProvider } from "./src/context/UserContext";
 
 import { LogBox } from "react-native";
 
@@ -15,8 +15,6 @@ const queryClient = new QueryClient();
 LogBox.ignoreLogs(["Constants.platform.ios.model has been deprecated"]);
 
 export default function App() {
-  // Declare events state
-  const [events, setEvents] = useState([]);
   const [fontLoaded, setFontLoaded] = useState(false);
 
   useEffect(() => {
@@ -39,11 +37,10 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <EventProvider>
-          <EventContext.Provider value={[events, setEvents]}>
-            <UserProvider>
-              <AppNavigator />
-            </UserProvider>
-          </EventContext.Provider>
+          {/* Use EventProvider directly */}
+          <UserProvider>
+            <AppNavigator />
+          </UserProvider>
         </EventProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>

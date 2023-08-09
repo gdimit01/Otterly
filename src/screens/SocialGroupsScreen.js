@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,65 +7,44 @@ import {
   StatusBar,
   SafeAreaView,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
-import {
-  getFirestore,
-  collection,
-  onSnapshot,
-  query,
-  where,
-} from "@firebase/firestore";
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Import auth
-import SocialGroupsCard from "../../src/components/SocialGroups/SocialGroupsCard";
+import { EventContext } from "../../src/context/EventContext"; // Import EventContext
+import SocialGroupsCard from "../components/SocialGroups/SocialGroupsCard"; // Import SocialGroupsCard
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Adjust the path as needed
 
 const SocialGroupsScreen = () => {
-  const isFocused = useIsFocused();
-  const [events, setEvents] = useState([]);
-  const currentUser = auth.currentUser; // Get the current user
+  const { events = [] } = useContext(EventContext); // Get events from context
+
+  const filteredEvents = events.filter(
+    (event) => event.group === "Social Group"
+  ); // Filter events
+
+  console.log("Filtered events:", filteredEvents); // Log the filtered events
 
   useEffect(() => {
-    if (isFocused) {
-      const db = getFirestore();
-      const q = query(
-        collection(db, "events"),
-        where("group", "==", "Social Group")
-      );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        let socialGroupsData = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          // Check if the event is public or the current user is invited
-          if (data.visibility || data.creator.email === currentUser.email) {
-            socialGroupsData.push({ id: doc.id, ...data });
-          }
-        });
-        setEvents(socialGroupsData);
-      });
+    console.log("Social Groups Events:", filteredEvents); // Log the events for debugging
+  }, [filteredEvents]);
 
-      return () => unsubscribe();
-    }
-  }, [isFocused]);
+  useEffect(() => {
+    console.log("All Events:", events);
+  }, [events]);
+  console.log("Filtered events:", filteredEvents); // Log the filtered events
+
+  useEffect(() => {
+    console.log("Social Groups Events:", filteredEvents); // Log the events for debugging
+  }, [filteredEvents]);
+
+  useEffect(() => {
+    console.log("All Events:", events);
+  }, [events]);
 
   const renderItem = ({ item }) => {
-    const currentUserEmail = auth.currentUser.email; // Assuming you have access to the auth object
-    // Check if the event is public or the current user is the creator
+    const currentUserEmail = auth.currentUser.email;
     if (item.visibility || item.creator.email === currentUserEmail) {
-      return (
-        <SocialGroupsCard
-          id={item.id}
-          creator={item.creator} // Pass the creator object
-          title={item.name}
-          description={item.description}
-          image={item.image}
-          time={item.time}
-          group={item.group}
-          tag={item.tag}
-          visibility={item.visibility}
-          attendees={item.attendees} // Pass the attendees count
-        />
-      );
+      console.log("Rendering Event:", item.id);
+      return <SocialGroupsCard id={item.id} /* other props */ />;
     }
-    return null; // Return null if the current user should not see the event
+    console.log("Skipping Event:", item.id);
+    return null;
   };
 
   return (
@@ -74,7 +53,7 @@ const SocialGroupsScreen = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Social Groups</Text>
         <FlatList
-          data={events}
+          data={filteredEvents} // Use filteredEvents
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 40 }}
@@ -101,11 +80,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  time: {
-    fontSize: 14,
-    marginTop: 5,
-    color: "#888",
-  },
+  // time: {
+  //   fontSize: 14,
+  //   marginTop: 5,
+  //   color: "#888",
+  // },
   group: {
     color: "#0000FF", // Default blue color
     fontSize: 12,

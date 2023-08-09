@@ -3,9 +3,12 @@ import {
   getFirestore,
   collection,
   onSnapshot,
+  query,
+  where,
   doc,
   updateDoc,
 } from "@firebase/firestore";
+import moment from "moment-timezone"; // Import moment-timezone
 
 export const EventContext = createContext();
 
@@ -17,12 +20,26 @@ export const EventProvider = ({ children }) => {
     const db = getFirestore();
     const eventsCollection = collection(db, "events");
 
+    // Query to get events where group is either "Study Group" or "Social Group"
+    const q = query(
+      eventsCollection,
+      where("group", "in", ["Study Group", "Social Group"])
+    );
+
     // Subscribe to the events collection
-    const unsubscribeEvents = onSnapshot(eventsCollection, (snapshot) => {
+    const unsubscribeEvents = onSnapshot(q, (snapshot) => {
       let eventsData = [];
       snapshot.forEach((doc) => {
-        eventsData.push({ id: doc.id, ...doc.data() });
+        const eventData = { id: doc.id, ...doc.data() };
+        console.log("Raw time:", eventData.time); // Log the raw time
+        eventData.time = moment(
+          eventData.time,
+          "DD/MM/YYYY, HH:mm:ss ZZ"
+        ).format("MMMM Do YYYY, h:mm:ss a");
+        eventsData.push(eventData);
       });
+
+      console.log("Fetched EventContext:", eventsData); // Log the fetched EventContext
       setEvents(eventsData);
     });
 
@@ -38,6 +55,7 @@ export const EventProvider = ({ children }) => {
       const db = getFirestore();
       const eventRef = doc(db, "events", eventId);
       await updateDoc(eventRef, updatedEvent);
+      console.log("Updated Event:", updatedEvent); // Log the updated event
     } catch (error) {
       console.error("Error updating event: ", error);
     }
@@ -46,6 +64,7 @@ export const EventProvider = ({ children }) => {
   // Function to select an event
   const selectEvent = (eventId) => {
     const event = events.find((event) => event.id === eventId);
+    console.log("Selected Event:", event); // Log the selected event
     setSelectedEvent(event);
   };
 
