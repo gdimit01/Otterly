@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, Animated } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
-import NotificationStyles from "../../../src/assets/NotificationStyles";
+import InvitesStyles from "../../../src/assets/InvitesStyles";
 
 const InvitesCard = ({ name, creator, status }) => {
   const navigation = useNavigation();
@@ -28,19 +28,19 @@ const InvitesCard = ({ name, creator, status }) => {
     });
 
     return (
-      <View style={NotificationStyles.rightActionContainer}>
+      <View style={InvitesStyles.rightActionContainer}>
         <TouchableOpacity
           activeOpacity={0.6}
           onPress={() => console.log("More pressed")}
         >
           <Animated.View
             style={[
-              NotificationStyles.moreAction,
+              InvitesStyles.moreAction,
               { transform: [{ translateX: translateMore }] },
             ]}
           >
             <Icon name="ellipsis-h" size={20} color="#fff" />
-            <Text style={NotificationStyles.actionText}>More</Text>
+            <Text style={InvitesStyles.actionText}>More</Text>
           </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -49,12 +49,12 @@ const InvitesCard = ({ name, creator, status }) => {
         >
           <Animated.View
             style={[
-              NotificationStyles.flagAction,
+              InvitesStyles.flagAction,
               { transform: [{ translateX: translateFlag }] },
             ]}
           >
             <Icon name="flag" size={20} color="#fff" />
-            <Text style={NotificationStyles.actionText}>Flag</Text>
+            <Text style={InvitesStyles.actionText}>Flag</Text>
           </Animated.View>
         </TouchableOpacity>
         <TouchableOpacity
@@ -63,12 +63,12 @@ const InvitesCard = ({ name, creator, status }) => {
         >
           <Animated.View
             style={[
-              NotificationStyles.deleteAction,
+              InvitesStyles.deleteAction,
               { transform: [{ translateX: translateDelete }] },
             ]}
           >
             <Icon name="trash" size={20} color="#fff" />
-            <Text style={NotificationStyles.actionText}>Delete</Text>
+            <Text style={InvitesStyles.actionText}>Delete</Text>
           </Animated.View>
         </TouchableOpacity>
       </View>
@@ -76,18 +76,38 @@ const InvitesCard = ({ name, creator, status }) => {
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.7}>
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => {
+        navigation.navigate("EventScreen", {
+          id,
+          title,
+          description,
+          image,
+          time,
+          group,
+          tag,
+          visibility,
+        });
+      }}
+    >
       <Swipeable renderRightActions={renderRightActions}>
         <View style={InvitesStyles.invitesCard}>
+          <Image source={{ uri: image }} style={InvitesStyles.invitesImage} />
           <View style={InvitesStyles.invitesTextContainer}>
             <Text style={InvitesStyles.invitesTitle}>{name}</Text>
             <Text style={InvitesStyles.invitesDescription}>
-              C: {creator.firstName} {creator.surname}
+              Creator: {creator.firstName} {creator.surname}
             </Text>
-            <Text style={InvitesStyles.invitesTime}>{time}</Text>
-            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
-            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
+            <Text style={InvitesStyles.invitesTime}>This is a time{time}</Text>
+            <Text style={InvitesStyles.invitesGroup}>
+              This is a group{group}
+            </Text>
+            <Text style={InvitesStyles.invitesTag}>Tag#{tag}</Text>
             <Text style={InvitesStyles.invitesStatus}>{status}</Text>
+            <Text style={InvitesStyles.invitesVisibility}>
+              {visibility ? "Public" : "Private"}
+            </Text>
           </View>
         </View>
       </Swipeable>
