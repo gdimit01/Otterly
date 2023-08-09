@@ -31,7 +31,7 @@ const Tab = createMaterialTopTabNavigator();
 const ActivityScreen = () => {
   const isFocused = useIsFocused();
   const [notifications, setNotifications] = useState([]);
-  const [events, setEvents] = useContext(EventContext);
+  const { events, setEvents } = useContext(EventContext);
 
   useEffect(() => {
     if (isFocused) {

@@ -17,8 +17,7 @@ const NotificationCard = ({
   onDelete,
 }) => {
   const navigation = useNavigation();
-  const [events, setEvents] = useContext(EventContext);
-  //const [firstName, setFirstName] = useState("");
+  const { events, setEvents } = useContext(EventContext);
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({

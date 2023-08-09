@@ -58,12 +58,25 @@ const EventScreen = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.content}>
         <Text style={styles.title}>Event</Text>
-        <Image
-          source={{ uri: "https://via.placeholder.com/150" }}
-          style={styles.mainImage}
-        />
-        <Text style={styles.title}>{event.title}</Text>
-        <Text style={styles.description}>{event.description}</Text>
+        {event.group === "Social Group" ? (
+          <Image
+            source={{
+              uri: "https://loremflickr.com/150/150?random=9000", // Add the URL for Social Group image
+            }}
+            style={styles.mainImage}
+          />
+        ) : (
+          <Image
+            source={{
+              uri: "https://via.placeholder.com/150", // Add the URL for Study Group image
+            }}
+            style={styles.mainImage}
+          />
+        )}
+        <Text style={styles.name}>Event Name: {event.name}</Text>
+        <Text style={styles.description}>
+          Event Description: {event.description}
+        </Text>
         <Text style={styles.time}>Time: {time}</Text>
         <Text style={styles.location}>Event Location: {event.location}</Text>
         <Text style={styles.tag}>Tag: {event.tag}</Text>
@@ -72,7 +85,9 @@ const EventScreen = () => {
           Visibility: {event.visibility ? "Public" : "Private"}
         </Text>
         <Text style={styles.attendees}>Attendees: {attendees.join(", ")}</Text>
-        <Text style={styles.invites}>Invites: {event.invites.join(", ")}</Text>
+        <Text style={styles.invites}>
+          Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
+        </Text>
         {/* Additional JSX can be added here */}
       </View>
     </SafeAreaView>

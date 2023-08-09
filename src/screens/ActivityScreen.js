@@ -7,7 +7,8 @@ import {
   StatusBar,
   Alert,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+
+import { useIsFocused } from "@react-navigation/core";
 import { EventContext } from "../context/EventContext";
 import {
   getFirestore,
@@ -26,7 +27,7 @@ import NotificationStyles from "../assets/NotificationStyles";
 export const ActivityScreen = () => {
   const isFocused = useIsFocused();
   const [notifications, setNotifications] = useState([]);
-  const [events, setEvents] = useContext(EventContext);
+  const { events, setEvents } = useContext(EventContext);
 
   useEffect(() => {
     if (isFocused) {

@@ -14,7 +14,7 @@ const InvitesScreen = () => {
   const [sentInvitesExpanded, setSentInvitesExpanded] = useState(false);
   const [receivedInvitesExpanded, setReceivedInvitesExpanded] = useState(false);
 
-  const { events } = useContext(EventContext);
+  const { events, setEvents } = useContext(EventContext);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
