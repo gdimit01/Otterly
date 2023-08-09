@@ -76,21 +76,7 @@ const InvitesCard = ({ name, creator, status }) => {
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={() => {
-        navigation.navigate("EventScreen", {
-          id,
-          title,
-          description,
-          image,
-          time,
-          group,
-          tag,
-          visibility,
-        });
-      }}
-    >
+    <TouchableOpacity activeOpacity={0.7}>
       <Swipeable renderRightActions={renderRightActions}>
         <View style={InvitesStyles.invitesCard}>
           <View style={InvitesStyles.invitesTextContainer}>
@@ -98,13 +84,7 @@ const InvitesCard = ({ name, creator, status }) => {
             <Text style={InvitesStyles.invitesDescription}>
               C: {creator.firstName} {creator.surname}
             </Text>
-            <Text style={InvitesStyles.invitesTime}>{time}</Text>
-            <Text style={InvitesStyles.invitesGroup}>{group}</Text>
-            <Text style={InvitesStyles.invitesTag}>#{tag}</Text>
             <Text style={InvitesStyles.invitesStatus}>{status}</Text>
-            <Text style={InvitesStyles.invitesVisibility}>
-              {visibility ? "Public" : "Private"}
-            </Text>
           </View>
         </View>
       </Swipeable>
