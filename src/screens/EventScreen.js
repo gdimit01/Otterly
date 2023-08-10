@@ -13,12 +13,14 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import moment from "moment"; // Import moment.js
 import { EventContext } from "../context/EventContext";
 import {
+  onSnapshot,
   getFirestore,
   collection,
   doc,
   getDocs,
   updateDoc,
 } from "@firebase/firestore";
+import InvitesActions from "../../src/components/InvitesGroup/InvitesActions"; // Adjust the path as needed
 
 const EventScreen = () => {
   const navigation = useNavigation();
@@ -26,10 +28,28 @@ const EventScreen = () => {
   const { events } = useContext(EventContext);
   const eventId = route.params.id;
   const event = events.find((e) => e.id === eventId);
+  const [eventData, setEventData] = useState(event);
 
   // Directly access the time from the event object
   const time = event.time;
   const [attendees, setAttendees] = useState([]); // State variable to hold attendees
+
+  useEffect(() => {
+    const db = getFirestore();
+    const eventRef = doc(db, "events", eventId);
+
+    // Subscribe to changes in the event document
+    const unsubscribe = onSnapshot(eventRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        setEventData(docSnapshot.data());
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [eventId]);
 
   useEffect(() => {
     const fetchAttendees = async () => {
@@ -115,6 +135,7 @@ const EventScreen = () => {
           Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
         </Text>
         {/* Additional JSX can be added here */}
+        <InvitesActions event={eventData} eventId={eventId} />
         <TouchableOpacity
           style={styles.notificationButton}
           onPress={toggleNotification}
