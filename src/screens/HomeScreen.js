@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import {
   Image,
@@ -14,19 +14,22 @@ import { useNavigation, useIsFocused } from "@react-navigation/core";
 import { useAuth } from "../../src/hooks/useAuth";
 import styles from "../../src/assets/HomeScreen.styles";
 import { ActivityItem } from "../../src/components/ActivityItem";
+import { EventContext } from "../../src/context/EventContext";
+import SocialGroupsCard from "../../src/components/SocialGroups/SocialGroupsCard";
+import StudyGroupsCard from "../../src/components/StudyGroups/StudyGroupsCard";
+import { Calendar } from "react-native-calendars";
 
 export const HomeScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { user, firstName, surname, handleSignOut } = useAuth();
 
-  const activities = [
-    { id: "1", title: "Activity 1", image: "https://via.placeholder.com/150" },
-    { id: "2", title: "Activity 2", image: "https://via.placeholder.com/150" },
-    { id: "3", title: "Activity 3", image: "https://via.placeholder.com/150" },
-    { id: "4", title: "Activity 4", image: "https://via.placeholder.com/150" },
-    { id: "5", title: "Activity 5", image: "https://via.placeholder.com/150" },
-  ];
+  const { events = [] } = useContext(EventContext); // Get events from context
+
+  // Combine social and study group events
+  const combinedEvents = events.filter(
+    (event) => event.group === "Social Group" || event.group === "Study Group"
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
@@ -43,22 +46,51 @@ export const HomeScreen = () => {
         ) : (
           <Text>No user is signed in.</Text>
         )}
-        <View style={styles.card}>
-          <Text style={styles.cardText}>Explore more upcoming events</Text>
-        </View>
-        <View style={styles.activitiesContainer}>
-          <FlatList
-            horizontal
-            data={activities}
-            renderItem={({ item }) => <ActivityItem item={item} />}
-            keyExtractor={(item) => item.id}
-          />
-        </View>
+        <Text style={styles.title}>Social and Study Groups</Text>
+        <FlatList
+          horizontal // Enable horizontal scrolling
+          data={combinedEvents}
+          renderItem={({ item }) => (
+            <View style={styles.groupCard}>
+              {item.group === "Social Group" ? (
+                <SocialGroupsCard id={item.id} />
+              ) : (
+                <StudyGroupsCard id={item.id} />
+              )}
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 40 }}
+        />
+
         <View style={styles.calendarCard}>
           <Text style={styles.cardText}>Calendar</Text>
-          <Image
-            source={{ uri: "https://via.placeholder.com/300" }}
-            style={styles.calendarImage}
+          <Calendar
+            style={styles.calendar}
+            current={"2022-08-16"}
+            minDate={"2022-05-10"}
+            maxDate={"2022-06-30"}
+            onDayPress={(day) => {
+              console.log("selected day", day);
+            }}
+            monthFormat={"yyyy MM"}
+            onMonthChange={(month) => {
+              console.log("month changed", month);
+            }}
+            hideArrows={false}
+            renderArrow={(direction) => (
+              <FontAwesome
+                name={direction === "left" ? "arrow-left" : "arrow-right"}
+                size={24}
+              />
+            )}
+            hideExtraDays={false}
+            disableMonthChange={false}
+            firstDay={1}
+            hideDayNames={false}
+            showWeekNumbers={false}
+            onPressArrowLeft={(subtractMonth) => subtractMonth()}
+            onPressArrowRight={(addMonth) => addMonth()}
           />
         </View>
         <TouchableOpacity onPress={handleSignOut} style={styles.button}>

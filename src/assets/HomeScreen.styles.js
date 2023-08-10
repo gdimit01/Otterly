@@ -39,19 +39,31 @@ const styles = StyleSheet.create({
     fontWeight: "bold", // Adjust as needed
   },
   calendarCard: {
-    width: "100%", // Adjust as needed
-    padding: 20, // Adjust as needed
-    marginBottom: 20, // Adjust as needed
-    backgroundColor: "#f8f8f8", // Adjust as needed
-    borderRadius: 10, // Adjust as needed
+    width: "100%",
+    padding: 10,
+    marginBottom: 20,
+    backgroundColor: "#f8f8f8",
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  calendar: {
+    // Add this style
+    width: "100%", // This will make the calendar fit the card
+    borderRadius: 10, // You can adjust this value as needed
   },
   calendarImage: {
     width: "100%", // Adjust as needed
     height: 100, // Adjust as needed
     resizeMode: "cover", // Adjust as needed
   },
+  groupCard: {
+    flex: 1,
+    width: 200, // Adjust the width as needed
+    height: 250, // Adjust the height as needed
+    paddingBottom: 100,
+  },
+
   userInfoContainer: {
     alignItems: "center",
     marginBottom: 20,
