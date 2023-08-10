@@ -1,134 +1,65 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   View,
   Text,
   FlatList,
-  Image,
   StyleSheet,
   StatusBar,
   SafeAreaView,
-  TouchableOpacity,
 } from "react-native";
-import { useNavigation, useIsFocused } from "@react-navigation/native";
-import {
-  getFirestore,
-  collection,
-  onSnapshot,
-  query,
-  where,
-  doc,
-  deleteDoc,
-} from "@firebase/firestore";
-
-const StudyGroupsCard = ({
-  id,
-  title,
-  description,
-  image,
-  time,
-  group,
-  tag,
-}) => {
-  const navigation = useNavigation();
-
-  // Function to delete study group
-  const deleteStudyGroup = async () => {
-    const db = getFirestore();
-    await deleteDoc(doc(db, "studygroups", id));
-  };
-
-  return (
-    <View style={styles.card}>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={() => {
-          navigation.navigate("EventScreen", {
-            id,
-            title,
-            description,
-            image,
-            time,
-            group,
-            tag,
-          });
-        }}
-      >
-        <Image source={{ uri: image }} style={styles.image} />
-        <View style={styles.text}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.description}>{description}</Text>
-          <Text style={styles.time}>{time}</Text>
-          <Text style={styles.group}>{group}</Text>
-          <Text style={styles.tag}>#{tag}</Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={deleteStudyGroup}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+import { EventContext } from "../../src/context/EventContext"; // Import EventContext
+import StudyGroupsCard from "../components/StudyGroups/StudyGroupsCard"; // Import StudyGroupsCard
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Adjust the path as needed
 
 const StudyGroupsScreen = () => {
-  const isFocused = useIsFocused();
-  const [studygroups, setStudyGroups] = useState([]);
-  const navigation = useNavigation();
+  const { events = [] } = useContext(EventContext); // Get events from context
+
+  const filteredEvents = events.filter(
+    (event) => event.group === "Study Group"
+  ); // Filter events
+
+  console.log("Filtered events:", filteredEvents); // Log the filtered events
 
   useEffect(() => {
-    if (isFocused) {
-      const db = getFirestore();
-      const q = query(
-        collection(db, "studygroups"),
-        where("group", "==", "Study Group")
-      );
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        let studyGroupsData = [];
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          let formattedTime = "";
-          if (typeof data.time === "string") {
-            let parts = data.time.split(/[\s/:,]+/);
-            let date = new Date(
-              Date.UTC(
-                parts[2],
-                parts[1] - 1,
-                parts[0],
-                parts[3],
-                parts[4],
-                parts[5]
-              )
-            );
-            if (isNaN(date)) {
-              console.error("Could not parse date string:", data.time);
-            } else {
-              formattedTime = date.toLocaleString();
-            }
-          }
+    console.log("Study Groups Events:", filteredEvents); // Log the events for debugging
+  }, [filteredEvents]);
 
-          studyGroupsData.push({ id: doc.id, ...data, time: formattedTime });
-        });
-        setStudyGroups(studyGroupsData);
-      });
+  useEffect(() => {
+    console.log("All Events:", events);
+  }, [events]);
+  console.log("Filtered events:", filteredEvents); // Log the filtered events
 
-      return () => unsubscribe();
+  useEffect(() => {
+    console.log("Study Groups Events:", filteredEvents); // Log the events for debugging
+  }, [filteredEvents]);
+
+  useEffect(() => {
+    console.log("All Events:", events);
+  }, [events]);
+
+  /**
+   * The function `renderItem` checks if the current user has permission to view an item and renders a
+   * component if they do.
+   * @returns The function `renderItem` returns either a `<StudyGroupsCard>` component or `null`.
+   */
+  const renderItem = ({ item }) => {
+    const currentUserEmail = auth.currentUser.email;
+    const hasAcceptedInvite = item.invites.some(
+      (invite) =>
+        invite.email === currentUserEmail && invite.status === "accepted"
+    );
+
+    if (
+      item.visibility ||
+      item.creator.email === currentUserEmail ||
+      hasAcceptedInvite
+    ) {
+      console.log("Rendering Event:", item.id);
+      return <StudyGroupsCard id={item.id} /* other props */ />;
     }
-  }, [isFocused]);
-
-  const renderItem = ({ item }) => (
-    <StudyGroupsCard
-      id={item.id}
-      title={item.name} // Pass the name property for title
-      description={item.description}
-      image={item.image}
-      time={item.time}
-      group={item.group} // Pass the group property
-      tag={item.tag} // Pass the tag property
-    />
-  );
+    console.log("Skipping Event:", item.id);
+    return null;
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
@@ -136,55 +67,20 @@ const StudyGroupsScreen = () => {
       <View style={styles.content}>
         <Text style={styles.title}>Study Groups</Text>
         <FlatList
-          data={studygroups}
+          data={filteredEvents} // Use filteredEvents
           renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(_, index) => index.toString()} // Use the index as the key
           contentContainerStyle={{ paddingBottom: 40 }}
         />
       </View>
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    margin: 10,
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-  },
-  image: {
-    width: "100%",
-    height: 150,
-  },
-  name: {
-    fontSize: 20,
+  content: {
+    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 10,
-  },
-  location: {
-    fontSize: 16,
-    color: "gray",
-    marginTop: 5,
-  },
-  deleteAction: {
-    backgroundColor: "#dd2c00",
-    justifyContent: "center",
-    alignItems: "center",
-    width: 70,
-    height: "100%",
-    flexDirection: "row",
-  },
-  actionText: {
-    color: "#fff",
-    fontWeight: "600",
-    padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    margin: 10,
   },
   title: {
     fontSize: 24,
@@ -198,11 +94,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  time: {
-    fontSize: 14,
-    marginTop: 5,
-    color: "#888",
-  },
+  // time: {
+  //   fontSize: 14,
+  //   marginTop: 5,
+  //   color: "#888",
+  // },
   group: {
     color: "#0000FF", // Default blue color
     fontSize: 12,

@@ -31,12 +31,14 @@ export const EventProvider = ({ children }) => {
       let eventsData = [];
       snapshot.forEach((doc) => {
         const eventData = { id: doc.id, ...doc.data() };
-        console.log("Raw time:", eventData.time); // Log the raw time
-        eventData.time = moment(
-          eventData.time,
-          "DD/MM/YYYY, HH:mm:ss ZZ"
-        ).format("MMMM Do YYYY, h:mm:ss a");
-        eventsData.push(eventData);
+        // Check if the event with the same id already exists in the eventsData array
+        if (!eventsData.some((event) => event.id === eventData.id)) {
+          eventData.time = moment(
+            eventData.time,
+            "DD/MM/YYYY, HH:mm:ss ZZ"
+          ).format("MMMM Do YYYY, h:mm:ss a");
+          eventsData.push(eventData);
+        }
       });
 
       console.log("Fetched EventContext:", eventsData); // Log the fetched EventContext

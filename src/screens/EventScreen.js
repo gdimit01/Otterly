@@ -114,7 +114,7 @@ const EventScreen = () => {
         ) : (
           <Image
             source={{
-              uri: "https://via.placeholder.com/150", // Add the URL for Study Group image
+              uri: "https://via.placeholder.com/155", // Add the URL for Study Group image
             }}
             style={styles.mainImage}
           />
