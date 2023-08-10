@@ -37,9 +37,23 @@ const SocialGroupsScreen = () => {
     console.log("All Events:", events);
   }, [events]);
 
+  /**
+   * The function `renderItem` checks if the current user has permission to view an item and renders a
+   * component if they do.
+   * @returns The function `renderItem` returns either a `<SocialGroupsCard>` component or `null`.
+   */
   const renderItem = ({ item }) => {
     const currentUserEmail = auth.currentUser.email;
-    if (item.visibility || item.creator.email === currentUserEmail) {
+    const hasAcceptedInvite = item.invites.some(
+      (invite) =>
+        invite.email === currentUserEmail && invite.status === "accepted"
+    );
+
+    if (
+      item.visibility ||
+      item.creator.email === currentUserEmail ||
+      hasAcceptedInvite
+    ) {
       console.log("Rendering Event:", item.id);
       return <SocialGroupsCard id={item.id} /* other props */ />;
     }
