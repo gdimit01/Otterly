@@ -39,8 +39,9 @@ const ActivityScreen = () => {
       const user = auth.currentUser;
       if (user) {
         const q = query(
-          collection(db, "notifications"),
-          where("userId", "==", user.uid)
+          collection(db, "events"),
+          where("userId", "==", user.uid),
+          where("notification", "==", true)
         );
         const unsubscribe = onSnapshot(q, (snapshot) => {
           let notificationsData = [];
@@ -49,7 +50,6 @@ const ActivityScreen = () => {
           });
           setNotifications(notificationsData);
         });
-
         return () => unsubscribe();
       }
     }

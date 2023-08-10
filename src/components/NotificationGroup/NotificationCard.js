@@ -81,7 +81,8 @@ const NotificationCard = ({
     );
   };
 
-  const eventName = title.replace("Event Name: ", "");
+  // Check if title is defined before calling replace
+  const eventName = title ? title.replace("Event Name: ", "") : "";
 
   return (
     <TouchableOpacity

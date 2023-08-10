@@ -71,17 +71,20 @@ const CreateEventFunction = ({
         );
         // You can add attendees to this subcollection as needed
 
-        // Create a notification for the new event
-        await addDoc(collection(db, "notifications"), {
-          title: `New Event Created: ${eventName}`,
-          description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
-          image: "https://via.placeholder.com/150", // Replace with the actual image URL
-          time: moment().format(), // Consider using moment.js for date formatting
-          userId: user.uid,
-          eventId: eventRef.id,
-          tag: tag,
-          group: group,
-        });
+        // Create a notification for the new event within the event's subcollection
+        await addDoc(
+          collection(doc(db, "events", eventRef.id), "notifications"),
+          {
+            title: `New Event Created: ${eventName}`,
+            description: `Created by ${creator.firstName} ${creator.surname} (${creator.email})`,
+            image: "https://via.placeholder.com/150", // Replace with the actual image URL
+            time: moment().format(), // Consider using moment.js for date formatting
+            userId: user.uid,
+            eventId: eventRef.id,
+            tag: tag,
+            group: group,
+          }
+        );
 
         // Construct the new event object
         let newEvent = {

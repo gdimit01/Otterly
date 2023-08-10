@@ -12,7 +12,13 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import moment from "moment"; // Import moment.js
 import { EventContext } from "../context/EventContext";
-import { getFirestore, collection, doc, getDocs } from "@firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+} from "@firebase/firestore";
 
 const EventScreen = () => {
   const navigation = useNavigation();
@@ -38,6 +44,26 @@ const EventScreen = () => {
 
     fetchAttendees();
   }, [eventId]);
+
+  const toggleNotification = async () => {
+    try {
+      const db = getFirestore();
+      const eventRef = doc(db, "events", eventId);
+      // Toggle the notification field
+      await updateDoc(eventRef, {
+        notification: !event.notification,
+      });
+      Alert.alert(
+        "Success",
+        `Notification ${
+          event.notification ? "removed" : "added"
+        } for this event`
+      );
+    } catch (error) {
+      console.error("Error updating notification:", error);
+      Alert.alert("Error", "Failed to update notification. Please try again.");
+    }
+  };
 
   useEffect(() => {
     console.log("Event from EventContext:", event); // Log the event for debugging
@@ -89,6 +115,16 @@ const EventScreen = () => {
           Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
         </Text>
         {/* Additional JSX can be added here */}
+        <TouchableOpacity
+          style={styles.notificationButton}
+          onPress={toggleNotification}
+        >
+          <Text style={styles.notificationButtonText}>
+            {event.notification
+              ? "Remove from Notifications"
+              : "Add to Notifications"}
+          </Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -98,13 +134,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10,
   },
-  responseButton: {
+  notificationButton: {
     backgroundColor: "#007BFF",
     padding: 10,
     borderRadius: 5,
     marginTop: 10,
   },
-  responseButtonText: {
+  notificationButtonText: {
     color: "#FFF",
     textAlign: "center",
   },
