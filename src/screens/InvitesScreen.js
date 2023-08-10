@@ -14,66 +14,32 @@ const InvitesScreen = () => {
   const [sentInvitesExpanded, setSentInvitesExpanded] = useState(false);
   const [receivedInvitesExpanded, setReceivedInvitesExpanded] = useState(false);
 
-  const { events, setEvents } = useContext(EventContext);
+  const { events } = useContext(EventContext);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(FIREBASE_DB, "events"),
-      (snapshot) => {
-        const updatedSentInvites = [];
-        const updatedReceivedInvites = [];
+    const updatedSentInvites = [];
+    const updatedReceivedInvites = [];
 
-        snapshot.forEach((doc) => {
-          const { invites, name, creator } = doc.data();
+    events.forEach((event) => {
+      const { invites, creator } = event;
 
-          if (invites && invites.length > 0) {
-            const sent = invites.filter(
-              (invite) => creator.email === FIREBASE_AUTH.currentUser.email
-            );
-            const received = invites.filter(
-              (invite) => creator.email !== FIREBASE_AUTH.currentUser.email
-            );
-
-            updatedSentInvites.push(
-              ...sent.map((invite) => ({
-                ...invite,
-                name,
-                creator,
-              }))
-            );
-            updatedReceivedInvites.push(
-              ...received.map((invite) => ({
-                ...invite,
-                name,
-                creator,
-              }))
-            );
+      if (invites && invites.length > 0) {
+        invites.forEach((invite) => {
+          if (creator.email === FIREBASE_AUTH.currentUser.email) {
+            updatedSentInvites.push({ ...event, invite });
+          }
+          if (invite.email === FIREBASE_AUTH.currentUser.email) {
+            updatedReceivedInvites.push({ ...event, invite });
           }
         });
-
-        setSentInvites(updatedSentInvites);
-        setReceivedInvites(updatedReceivedInvites);
       }
-    );
+    });
 
-    return () => unsubscribe();
+    setSentInvites(updatedSentInvites);
+    setReceivedInvites(updatedReceivedInvites);
   }, [events]);
 
-  const renderItem = ({ item }) => (
-    <InvitesCard
-      name={item.name}
-      creator={item.creator}
-      status={item.status}
-      id={item.id}
-      title={item.title}
-      description={item.description}
-      image={item.image}
-      time={item.time}
-      group={item.group}
-      tag={item.tag}
-      onDelete={() => console.log("Delete invite")}
-    />
-  );
+  const renderItem = ({ item }) => <InvitesCard event={item} />;
 
   return (
     <View style={InvitesStyle.container}>

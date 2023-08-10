@@ -6,21 +6,30 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
 import InvitesStyles from "../../../src/assets/InvitesStyles";
 
-const InvitesCard = ({
-  id,
-  title,
-  description,
-  image,
-  time,
-  group,
-  tag,
-  visibility,
-  name,
-  creator,
-  status,
-}) => {
+const InvitesCard = ({ event }) => {
   const navigation = useNavigation();
-  const [events, setEvents] = useContext(EventContext);
+
+  if (!event) {
+    return <Text>No event found</Text>; // Return a message if no event is found
+  }
+
+  // Destructure the event object to get the required properties
+  const {
+    id,
+    title,
+    description,
+    image,
+    time,
+    group,
+    tag,
+    visibility,
+    name,
+    creator,
+    invites,
+  } = event;
+
+  // Extract the status from the invites array
+  const status = invites[0]?.status || "N/A";
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({
@@ -126,5 +135,4 @@ const InvitesCard = ({
     </TouchableOpacity>
   );
 };
-
 export default InvitesCard;
