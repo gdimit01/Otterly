@@ -117,7 +117,7 @@ const CreateEventFunction = ({
         console.error("Error adding document: ", e);
         Alert.alert("Error", "Failed to create event. Please try again.");
       }
-    }, 100),
+    }, 1000),
     [
       eventName,
       eventLocation,

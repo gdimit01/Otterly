@@ -32,8 +32,18 @@ export const HomeScreen = () => {
   );
   const filteredEvents = combinedEvents.filter((event) => {
     if (event.visibility) return true;
-    if (event.creator && event.creator.email === user?.email) return true; // Use optional chaining here
-    if (event.invites && event.invites.includes(user?.email)) return true; // And here
+    if (event.creator && event.creator.email === user?.email) return true;
+
+    // Check if the user's email is in the invites array and the status is "accepted"
+    if (
+      event.invites &&
+      event.invites.some(
+        (invite) => invite.email === user?.email && invite.status === "accepted"
+      )
+    ) {
+      return true;
+    }
+
     return false;
   });
 
