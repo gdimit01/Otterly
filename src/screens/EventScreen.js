@@ -21,6 +21,7 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import InvitesActions from "../../src/components/InvitesGroup/InvitesActions"; // Adjust the path as needed
+import { FontAwesome } from "@expo/vector-icons";
 
 const EventScreen = () => {
   const navigation = useNavigation();
@@ -140,11 +141,11 @@ const EventScreen = () => {
           style={styles.notificationButton}
           onPress={toggleNotification}
         >
-          <Text style={styles.notificationButtonText}>
-            {event.notification
-              ? "Remove from Notifications"
-              : "Add to Notifications"}
-          </Text>
+          <FontAwesome
+            name={event.notification ? "bell" : "bell-o"}
+            size={24}
+            color="#007BFF"
+          />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -156,10 +157,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   notificationButton: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    alignItems: "flex-end", // Align the icon to the right
+    marginTop: -400,
+    marginRight: 20,
   },
   notificationButtonText: {
     color: "#FFF",

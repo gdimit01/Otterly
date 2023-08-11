@@ -30,18 +30,10 @@ export const HomeScreen = () => {
   const combinedEvents = events.filter(
     (event) => event.group === "Social Group" || event.group === "Study Group"
   );
-  // Filter events based on visibility and user invitation
   const filteredEvents = combinedEvents.filter((event) => {
-    // If the event is public, include it
     if (event.visibility) return true;
-
-    // If the current user created the event, include it
-    if (event.creator && event.creator.email === user.email) return true;
-
-    // If the current user was invited to the event, include it
-    if (event.invites && event.invites.includes(user.email)) return true;
-
-    // Otherwise, exclude the event
+    if (event.creator && event.creator.email === user?.email) return true; // Use optional chaining here
+    if (event.invites && event.invites.includes(user?.email)) return true; // And here
     return false;
   });
 

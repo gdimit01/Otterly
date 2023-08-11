@@ -6,18 +6,27 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { EventContext } from "../../context/EventContext";
 import NotificationStyles from "../../../src/assets/NotificationStyles";
 
-const NotificationCard = ({
-  id,
-  title,
-  description,
-  image,
-  time,
-  group,
-  tag,
-  onDelete,
-}) => {
+const NotificationCard = ({ id, onDelete }) => {
   const navigation = useNavigation();
-  const { events, setEvents } = useContext(EventContext);
+  const { events } = useContext(EventContext);
+
+  // Find the specific event by its id
+  const event = events.find((e) => e.id === id);
+
+  // Destructure the event properties
+  const {
+    title,
+    description,
+    image,
+    time,
+    group,
+    tag,
+    name,
+    location,
+    visibility,
+    attendees,
+    invites,
+  } = event || {};
 
   const renderRightActions = (progress, dragX) => {
     const translateMore = dragX.interpolate({
@@ -106,13 +115,45 @@ const NotificationCard = ({
             style={NotificationStyles.notificationImage}
           />
           <View style={NotificationStyles.notificationTextContainer}>
-            <Text style={NotificationStyles.notificationTitle}>
-              {eventName}
+            <Text
+              style={NotificationStyles.notificationTitle}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {title}
             </Text>
-            <Text style={NotificationStyles.notificationDescription}>
-              {description}
+            <Text
+              style={NotificationStyles.notificationDescription}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              Event Name: {name}
             </Text>
-            <Text style={NotificationStyles.notificationTime}>{time}</Text>
+            <Text
+              style={NotificationStyles.notificationDescription}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              Event Description: {description}
+            </Text>
+            <Text style={NotificationStyles.notificationTime}>
+              Created at: {time}
+            </Text>
+            <Text style={NotificationStyles.location}>
+              Event Location: {location}
+            </Text>
+            {/* <Text style={NotificationStyles.visibility}>
+              Visibility: {visibility ? "Public" : "Private"}
+            </Text>
+            <Text style={NotificationStyles.attendees}>
+              Attendees: {Array.isArray(attendees) ? attendees.join(", ") : ""}
+            </Text>
+            <Text style={NotificationStyles.invites}>
+              Invites:{" "}
+              {Array.isArray(invites)
+                ? invites.map((invitee) => invitee.email).join(", ")
+                : ""}
+            </Text> */}
             <Text style={NotificationStyles.notificationGroup}>{group}</Text>
             <Text style={NotificationStyles.notificationTag}>#{tag}</Text>
           </View>
