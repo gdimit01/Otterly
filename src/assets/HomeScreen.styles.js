@@ -13,6 +13,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
   },
+  eventTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+  },
+
   activitiesContainer: {
     margin: 10,
     height: 150, // Adjust this value as needed
@@ -30,7 +37,7 @@ const styles = StyleSheet.create({
     padding: 30, // Increase padding
     marginBottom: 20, // Adjust as needed
     backgroundColor: "#f8f8f8", // Adjust as needed
-    borderRadius: 10, // Adjust as needed
+    //borderRadius: 10, // Adjust as needed
     justifyContent: "center",
     alignItems: "center",
   },
@@ -57,13 +64,17 @@ const styles = StyleSheet.create({
     height: 100, // Adjust as needed
     resizeMode: "cover", // Adjust as needed
   },
-  groupCard: {
-    flex: 1,
-    width: 200, // Adjust the width as needed
-    height: 250, // Adjust the height as needed
-    paddingBottom: 100,
+  groupCardContainer: {
+    width: 320, // Adjust the width as needed
+    height: 400, // Adjust the height to crop the card
+    //overflow: "hidden", // Hide the overflow content
+    borderRadius: 10, // Add border radius to curve the edges
   },
-
+  groupCard: {
+    width: "100%",
+    height: 350,
+    borderRadius: 10,
+  },
   userInfoContainer: {
     alignItems: "center",
     marginBottom: 20,
