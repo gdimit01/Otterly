@@ -81,6 +81,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 0, // Remove margin
   },
+  noEventsCard: {
+    padding: 20,
+    margin: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noEventsText: {
+    fontSize: 16,
+    color: "#333",
+  },
   userInfoContainer: {
     alignItems: "center",
     marginBottom: 20,

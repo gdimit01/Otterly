@@ -61,40 +61,48 @@ export const HomeScreen = () => {
           <Text>No user is signed in.</Text>
         )}
         <Text style={styles.title}>Social and Study Groups</Text>
-        <FlatList
-          horizontal // Enable horizontal scrolling
-          data={filteredEvents}
-          renderItem={({ item }) => (
-            <View style={styles.groupCardContainer}>
-              <Text
-                style={styles.eventTitle}
-                numberOfLines={1} // Limit the text to one line
-                ellipsizeMode="tail" // Add an ellipsis at the end if the text overflows
-              >
-                {item.title}
-              </Text>
-              {/* Add this line */}
-              <View style={styles.groupCard}>
-                {item.group === "Social Group" ? (
-                  <SocialGroupsCard
-                    id={item.id}
-                    showButtons={false}
-                    showDetailsOnly={true}
-                  />
-                ) : (
-                  <StudyGroupsCard
-                    id={item.id}
-                    showButtons={false}
-                    showDetailsOnly={true}
-                  />
-                )}
+        {filteredEvents.length > 0 ? (
+          <FlatList
+            horizontal // Enable horizontal scrolling
+            data={filteredEvents}
+            renderItem={({ item }) => (
+              <View style={styles.groupCardContainer}>
+                <Text
+                  style={styles.eventTitle}
+                  numberOfLines={1} // Limit the text to one line
+                  ellipsizeMode="tail" // Add an ellipsis at the end if the text overflows
+                >
+                  {item.title}
+                </Text>
+                {/* Add this line */}
+                <View style={styles.groupCard}>
+                  {item.group === "Social Group" ? (
+                    <SocialGroupsCard
+                      id={item.id}
+                      showButtons={false}
+                      showDetailsOnly={true}
+                    />
+                  ) : (
+                    <StudyGroupsCard
+                      id={item.id}
+                      showButtons={false}
+                      showDetailsOnly={true}
+                    />
+                  )}
+                </View>
               </View>
-            </View>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: 40 }}
-          showsHorizontalScrollIndicator={false} // Hide scrollbar
-        />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            showsHorizontalScrollIndicator={false} // Hide scrollbar
+          />
+        ) : (
+          <View style={styles.noEventsCard}>
+            <Text style={styles.noEventsText}>
+              Looks like there are no events at the moment
+            </Text>
+          </View>
+        )}
 
         <View style={styles.calendarCard}>
           <Text style={styles.cardText}>Calendar</Text>
