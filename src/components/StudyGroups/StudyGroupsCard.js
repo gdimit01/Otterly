@@ -22,11 +22,7 @@ import {
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
 import moment from "moment";
 
-const SocialGroupsCard = ({
-  id,
-  showButtons = true,
-  showDetailsOnly = false,
-}) => {
+const SocialGroupsCard = ({ id }) => {
   const navigation = useNavigation();
   const { events } = useContext(EventContext); // Use EventContext
   const event = events.find((e) => e.id === id); // Find the event by ID
@@ -190,6 +186,7 @@ const SocialGroupsCard = ({
             time: moment(event.time, "DD/MM/YYYY, HH:mm:ss ZZ").format(
               "MMMM Do YYYY, h:mm:ss a"
             ),
+
             group,
             tag,
             visibility,
@@ -199,29 +196,22 @@ const SocialGroupsCard = ({
         }}
       >
         <Image source={{ uri: image }} style={styles.image} />
-        {showDetailsOnly && (
-          <View>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.creatorName}>
-              Created by:
-              {creator.firstName} {creator.surname} ({creator.email})
-            </Text>
-            <Text style={styles.description}>Description: {description}</Text>
-            <Text style={styles.group}>{group}</Text>
-            <Text style={styles.invitesText}>
-              Invite Email: {invites.email} - Status: {invites.status}
-            </Text>
-            <Text style={styles.attendeesText}>
-              Attendees: {attendees.length}
-            </Text>
-            <Text style={styles.visibility}>
-              {visibility ? "Public" : "Private"}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
-      {showButtons && (
-        <>
+        <View style={styles.text}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.creatorName}>
+            {creator.firstName} {creator.surname} ({creator.email})
+          </Text>
+          <Text style={styles.invitesText}>
+            Invite Email: {invites.email} - Status: {invites.status}
+          </Text>
+          <Text style={styles.attendeesText}>
+            Attendees: {attendees.length}
+          </Text>
+
+          <Text style={styles.description}>Description: {description}</Text>
+          <Text style={styles.time}>Time: {time}</Text>
+          <Text style={styles.group}>{group}</Text>
+          <Text style={styles.tag}>#{tag}</Text>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={toggleVisibility}
@@ -231,29 +221,32 @@ const SocialGroupsCard = ({
               {visibility ? "Make Private" : "Make Public"}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleRSVP}
-            style={styles.rsvpButton}
-          >
-            <Text style={styles.rsvpText}>RSVP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleLikes}
-            style={styles.likeButton}
-          >
-            <Text style={styles.likeText}>Like {likes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={deleteSocialGroup}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        </>
-      )}
+          <Text style={styles.visibility}>
+            {visibility ? "Public" : "Private"}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={handleRSVP}
+        style={styles.rsvpButton}
+      >
+        <Text style={styles.rsvpText}>RSVP</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={handleLikes}
+        style={styles.likeButton}
+      >
+        <Text style={styles.likeText}>Like {likes}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={deleteSocialGroup}
+        style={styles.deleteButton}
+      >
+        <Text style={styles.deleteText}>Delete</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -269,16 +262,6 @@ const styles = StyleSheet.create({
   creatorName: {
     fontSize: 16,
     color: "gray",
-  },
-  toggleButton: {
-    backgroundColor: "#FFD700", // Yellow color
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  toggleText: {
-    color: "#ffffff",
-    textAlign: "center",
   },
   rsvpButton: {
     backgroundColor: "#27ae60",

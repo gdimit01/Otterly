@@ -51,24 +51,12 @@ export const HomeScreen = () => {
           horizontal // Enable horizontal scrolling
           data={combinedEvents}
           renderItem={({ item }) => (
-            <View style={styles.groupCardContainer}>
-              <Text style={styles.eventTitle}>{item.title}</Text>
-              {/* Add this line */}
-              <View style={styles.groupCard}>
-                {item.group === "Social Group" ? (
-                  <SocialGroupsCard
-                    id={item.id}
-                    showButtons={false}
-                    showDetailsOnly={true}
-                  />
-                ) : (
-                  <StudyGroupsCard
-                    id={item.id}
-                    showButtons={false}
-                    showDetailsOnly={true}
-                  />
-                )}
-              </View>
+            <View style={styles.groupCard}>
+              {item.group === "Social Group" ? (
+                <SocialGroupsCard id={item.id} />
+              ) : (
+                <StudyGroupsCard id={item.id} />
+              )}
             </View>
           )}
           keyExtractor={(item) => item.id.toString()}
