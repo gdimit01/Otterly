@@ -22,7 +22,11 @@ import {
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
 import moment from "moment";
 
-const SocialGroupsCard = ({ id }) => {
+const StudyGroupsCard = ({
+  id,
+  showButtons = true,
+  showDetailsOnly = true,
+}) => {
   const navigation = useNavigation();
   const { events } = useContext(EventContext); // Use EventContext
   const event = events.find((e) => e.id === id); // Find the event by ID
@@ -54,10 +58,20 @@ const SocialGroupsCard = ({ id }) => {
     invites,
   } = event;
 
+  // Check if the current user is allowed to see the event
+  const currentUser = auth.currentUser;
+  if (
+    event.private &&
+    creator.email !== currentUser.email &&
+    (!invites || !invites.includes(currentUser.email))
+  ) {
+    return null; // Return null to hide the event
+  }
+
   useEffect(() => {
     const db = getFirestore();
     const likesRef = collection(db, "events", id, "likes");
-    const socialGroupRef = doc(db, "events", id); // Reference to the event document
+    const studyGroupRef = doc(db, "events", id); // Reference to the event document
 
     const unsubscribeLikes = onSnapshot(likesRef, (snapshot) => {
       setLikes(snapshot.size);
@@ -82,19 +96,19 @@ const SocialGroupsCard = ({ id }) => {
     };
   }, [id]);
 
-  const deleteSocialGroup = async () => {
+  const deleteStudyGroup = async () => {
     const db = getFirestore();
     await deleteDoc(doc(db, "events", id));
   };
 
   const handleLikes = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "events", id);
-    const socialGroupSnapshot = await getDoc(socialGroupRef);
+    const studyGroupRef = doc(db, "events", id);
+    const studyGroupSnapshot = await getDoc(studyGroupRef);
     const currentUser = auth.currentUser;
 
-    if (socialGroupSnapshot.exists() && currentUser) {
-      const data = socialGroupSnapshot.data();
+    if (studyGroupSnapshot.exists() && currentUser) {
+      const data = studyGroupSnapshot.data();
 
       if (data.creator.email === currentUser.email) {
         Alert.alert("Error", "You can't like your own post.");
@@ -108,13 +122,13 @@ const SocialGroupsCard = ({ id }) => {
         await setDoc(doc(likesRef, currentUser.email), {
           email: currentUser.email,
         }); // Use email instead of UID
-        await updateDoc(socialGroupRef, {
+        await updateDoc(studyGroupRef, {
           likes: (data.likes || 0) + 1, // Increment likes
         });
         setUserLiked(true);
       } else {
         await deleteDoc(doc(likesRef, currentUser.email)); // Use email instead of UID
-        await updateDoc(socialGroupRef, {
+        await updateDoc(studyGroupRef, {
           likes: (data.likes || 0) - 1, // Decrement likes
         });
         setUserLiked(false);
@@ -125,45 +139,45 @@ const SocialGroupsCard = ({ id }) => {
   // In your RSVP function
   const handleRSVP = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "events", id);
+    const studyGroupRef = doc(db, "events", id);
     const currentUser = auth.currentUser;
     if (currentUser) {
       const rsvpRef = collection(db, "events", id, "rsvps");
       const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
-      const socialGroupSnapshot = await getDoc(socialGroupRef);
-      if (socialGroupSnapshot.exists()) {
-        const data = socialGroupSnapshot.data();
+      const studyGroupSnapshot = await getDoc(studyGroupRef);
+      if (studyGroupSnapshot.exists()) {
+        const data = studyGroupSnapshot.data();
         if (!userRsvpSnapshot.exists()) {
           await setDoc(doc(rsvpRef, currentUser.email), {
             email: currentUser.email,
           });
-          await updateDoc(socialGroupRef, {
+          await updateDoc(studyGroupRef, {
             attendees: (data.attendees || 0) + 1, // Increment attendees
           });
         } else {
           await deleteDoc(doc(rsvpRef, currentUser.email));
-          await updateDoc(socialGroupRef, {
+          await updateDoc(studyGroupRef, {
             attendees: (data.attendees || 0) - 1, // Decrement attendees
           });
         }
       } else {
-        console.error("Social group does not exist:", id);
+        console.error("Study group does not exist:", id);
       }
     }
   };
 
   const toggleVisibility = async () => {
     const db = getFirestore();
-    const socialGroupRef = doc(db, "events", id);
-    const socialGroupSnapshot = await getDoc(socialGroupRef);
+    const studyGroupRef = doc(db, "events", id);
+    const studyGroupSnapshot = await getDoc(studyGroupRef);
     const currentUser = auth.currentUser;
 
-    if (socialGroupSnapshot.exists() && currentUser) {
-      const data = socialGroupSnapshot.data();
+    if (studyGroupSnapshot.exists() && currentUser) {
+      const data = studyGroupSnapshot.data();
       if (data.creator.email === currentUser.email) {
         // Compare emails instead of UIDs
         const newVisibility = !data.visibility;
-        await updateDoc(socialGroupRef, { visibility: newVisibility });
+        await updateDoc(studyGroupRef, { visibility: newVisibility });
       } else {
         Alert.alert(
           "Error",
@@ -196,22 +210,64 @@ const SocialGroupsCard = ({ id }) => {
         }}
       >
         <Image source={{ uri: image }} style={styles.image} />
-        <View style={styles.text}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.creatorName}>
-            {creator.firstName} {creator.surname} ({creator.email})
-          </Text>
-          <Text style={styles.invitesText}>
-            Invite Email: {invites.email} - Status: {invites.status}
-          </Text>
-          <Text style={styles.attendeesText}>
-            Attendees: {attendees.length}
-          </Text>
-
-          <Text style={styles.description}>Description: {description}</Text>
-          <Text style={styles.time}>Time: {time}</Text>
-          <Text style={styles.group}>{group}</Text>
-          <Text style={styles.tag}>#{tag}</Text>
+        {showDetailsOnly && (
+          <View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
+            <Text
+              style={styles.creatorName}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Created by:
+              {creator.firstName} {creator.surname} ({creator.email})
+            </Text>
+            <Text style={styles.time} numberOfLines={1} ellipsizeMode="tail">
+              Created at: {time}
+            </Text>
+            <Text
+              style={styles.description}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Description: {description}
+            </Text>
+            <Text style={styles.group} numberOfLines={1} ellipsizeMode="tail">
+              {group}
+            </Text>
+            <Text style={styles.tag} numberOfLines={1} ellipsizeMode="tail">
+              #{tag}
+            </Text>
+            <Text
+              style={styles.invitesText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Invites:
+              {invites
+                .map((invite) => `${invite.email} - ${invite.status}`)
+                .join(", ")}
+            </Text>
+            <Text
+              style={styles.attendeesText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Attendees: {attendees.length}
+            </Text>
+            <Text
+              style={styles.visibility}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {visibility ? "Public" : "Private"}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      {showButtons && (
+        <>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={toggleVisibility}
@@ -221,32 +277,29 @@ const SocialGroupsCard = ({ id }) => {
               {visibility ? "Make Private" : "Make Public"}
             </Text>
           </TouchableOpacity>
-          <Text style={styles.visibility}>
-            {visibility ? "Public" : "Private"}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={handleRSVP}
-        style={styles.rsvpButton}
-      >
-        <Text style={styles.rsvpText}>RSVP</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={handleLikes}
-        style={styles.likeButton}
-      >
-        <Text style={styles.likeText}>Like {likes}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={deleteSocialGroup}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteText}>Delete</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleRSVP}
+            style={styles.rsvpButton}
+          >
+            <Text style={styles.rsvpText}>RSVP</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleLikes}
+            style={styles.likeButton}
+          >
+            <Text style={styles.likeText}>Like {likes}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={deleteStudyGroup}
+            style={styles.deleteButton}
+          >
+            <Text style={styles.deleteText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
@@ -262,6 +315,16 @@ const styles = StyleSheet.create({
   creatorName: {
     fontSize: 16,
     color: "gray",
+  },
+  toggleButton: {
+    backgroundColor: "#FFD700", // Yellow color
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  toggleText: {
+    color: "#ffffff",
+    textAlign: "center",
   },
   rsvpButton: {
     backgroundColor: "#27ae60",
@@ -357,4 +420,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SocialGroupsCard;
+export default StudyGroupsCard;

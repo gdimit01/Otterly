@@ -22,7 +22,11 @@ import {
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
 import moment from "moment";
 
-const SocialGroupsCard = ({ id }) => {
+const SocialGroupsCard = ({
+  id,
+  showButtons = true,
+  showDetailsOnly = true,
+}) => {
   const navigation = useNavigation();
   const { events } = useContext(EventContext); // Use EventContext
   const event = events.find((e) => e.id === id); // Find the event by ID
@@ -196,22 +200,64 @@ const SocialGroupsCard = ({ id }) => {
         }}
       >
         <Image source={{ uri: image }} style={styles.image} />
-        <View style={styles.text}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.creatorName}>
-            {creator.firstName} {creator.surname} ({creator.email})
-          </Text>
-          <Text style={styles.invitesText}>
-            Invite Email: {invites.email} - Status: {invites.status}
-          </Text>
-          <Text style={styles.attendeesText}>
-            Attendees: {attendees.length}
-          </Text>
-
-          <Text style={styles.description}>Description: {description}</Text>
-          <Text style={styles.time}>Time: {time}</Text>
-          <Text style={styles.group}>{group}</Text>
-          <Text style={styles.tag}>#{tag}</Text>
+        {showDetailsOnly && (
+          <View>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
+            <Text
+              style={styles.creatorName}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Created by:
+              {creator.firstName} {creator.surname} ({creator.email})
+            </Text>
+            <Text style={styles.time} numberOfLines={1} ellipsizeMode="tail">
+              Created at: {time}
+            </Text>
+            <Text
+              style={styles.description}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Description: {description}
+            </Text>
+            <Text style={styles.group} numberOfLines={1} ellipsizeMode="tail">
+              {group}
+            </Text>
+            <Text style={styles.tag} numberOfLines={1} ellipsizeMode="tail">
+              #{tag}
+            </Text>
+            <Text
+              style={styles.invitesText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Invites:
+              {invites
+                .map((invite) => `${invite.email} - ${invite.status}`)
+                .join(", ")}
+            </Text>
+            <Text
+              style={styles.attendeesText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Attendees: {attendees.length}
+            </Text>
+            <Text
+              style={styles.visibility}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {visibility ? "Public" : "Private"}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      {showButtons && (
+        <>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={toggleVisibility}
@@ -221,32 +267,29 @@ const SocialGroupsCard = ({ id }) => {
               {visibility ? "Make Private" : "Make Public"}
             </Text>
           </TouchableOpacity>
-          <Text style={styles.visibility}>
-            {visibility ? "Public" : "Private"}
-          </Text>
-        </View>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={handleRSVP}
-        style={styles.rsvpButton}
-      >
-        <Text style={styles.rsvpText}>RSVP</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={handleLikes}
-        style={styles.likeButton}
-      >
-        <Text style={styles.likeText}>Like {likes}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        onPress={deleteSocialGroup}
-        style={styles.deleteButton}
-      >
-        <Text style={styles.deleteText}>Delete</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleRSVP}
+            style={styles.rsvpButton}
+          >
+            <Text style={styles.rsvpText}>RSVP</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleLikes}
+            style={styles.likeButton}
+          >
+            <Text style={styles.likeText}>Like {likes}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={deleteSocialGroup}
+            style={styles.deleteButton}
+          >
+            <Text style={styles.deleteText}>Delete</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 };
@@ -262,6 +305,16 @@ const styles = StyleSheet.create({
   creatorName: {
     fontSize: 16,
     color: "gray",
+  },
+  toggleButton: {
+    backgroundColor: "#FFD700", // Yellow color
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  toggleText: {
+    color: "#ffffff",
+    textAlign: "center",
   },
   rsvpButton: {
     backgroundColor: "#27ae60",
@@ -356,5 +409,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
 export default SocialGroupsCard;

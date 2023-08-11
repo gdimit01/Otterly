@@ -30,6 +30,20 @@ export const HomeScreen = () => {
   const combinedEvents = events.filter(
     (event) => event.group === "Social Group" || event.group === "Study Group"
   );
+  // Filter events based on visibility and user invitation
+  const filteredEvents = combinedEvents.filter((event) => {
+    // If the event is public, include it
+    if (event.visibility) return true;
+
+    // If the current user created the event, include it
+    if (event.creator && event.creator.email === user.email) return true;
+
+    // If the current user was invited to the event, include it
+    if (event.invites && event.invites.includes(user.email)) return true;
+
+    // Otherwise, exclude the event
+    return false;
+  });
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
@@ -49,18 +63,37 @@ export const HomeScreen = () => {
         <Text style={styles.title}>Social and Study Groups</Text>
         <FlatList
           horizontal // Enable horizontal scrolling
-          data={combinedEvents}
+          data={filteredEvents}
           renderItem={({ item }) => (
-            <View style={styles.groupCard}>
-              {item.group === "Social Group" ? (
-                <SocialGroupsCard id={item.id} />
-              ) : (
-                <StudyGroupsCard id={item.id} />
-              )}
+            <View style={styles.groupCardContainer}>
+              <Text
+                style={styles.eventTitle}
+                numberOfLines={1} // Limit the text to one line
+                ellipsizeMode="tail" // Add an ellipsis at the end if the text overflows
+              >
+                {item.title}
+              </Text>
+              {/* Add this line */}
+              <View style={styles.groupCard}>
+                {item.group === "Social Group" ? (
+                  <SocialGroupsCard
+                    id={item.id}
+                    showButtons={false}
+                    showDetailsOnly={true}
+                  />
+                ) : (
+                  <StudyGroupsCard
+                    id={item.id}
+                    showButtons={false}
+                    showDetailsOnly={true}
+                  />
+                )}
+              </View>
             </View>
           )}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 40 }}
+          showsHorizontalScrollIndicator={false} // Hide scrollbar
         />
 
         <View style={styles.calendarCard}>

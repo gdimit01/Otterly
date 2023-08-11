@@ -9,6 +9,7 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import moment from "moment-timezone"; // Import moment-timezone
+import { getAuth } from "firebase/auth"; // Import getAuth
 
 export const EventContext = createContext();
 
@@ -17,6 +18,9 @@ export const EventProvider = ({ children }) => {
   const [selectedEvent, setSelectedEvent] = useState(null); // For storing a selected event
 
   useEffect(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser; // Get the current user
+
     const db = getFirestore();
     const eventsCollection = collection(db, "events");
 
@@ -31,13 +35,41 @@ export const EventProvider = ({ children }) => {
       let eventsData = [];
       snapshot.forEach((doc) => {
         const eventData = { id: doc.id, ...doc.data() };
-        // Check if the event with the same id already exists in the eventsData array
-        if (!eventsData.some((event) => event.id === eventData.id)) {
+
+        // If the event is public, include it
+        if (!eventData.private) {
           eventData.time = moment(
             eventData.time,
             "DD/MM/YYYY, HH:mm:ss ZZ"
           ).format("MMMM Do YYYY, h:mm:ss a");
           eventsData.push(eventData);
+          return;
+        }
+
+        // If the current user created the event, include it
+        if (
+          eventData.creator &&
+          eventData.creator.email === currentUser.email
+        ) {
+          eventData.time = moment(
+            eventData.time,
+            "DD/MM/YYYY, HH:mm:ss ZZ"
+          ).format("MMMM Do YYYY, h:mm:ss a");
+          eventsData.push(eventData);
+          return;
+        }
+
+        // If the current user was invited to the event, include it
+        if (
+          eventData.invites &&
+          eventData.invites.includes(currentUser.email)
+        ) {
+          eventData.time = moment(
+            eventData.time,
+            "DD/MM/YYYY, HH:mm:ss ZZ"
+          ).format("MMMM Do YYYY, h:mm:ss a");
+          eventsData.push(eventData);
+          return;
         }
       });
 

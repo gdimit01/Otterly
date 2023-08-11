@@ -1,4 +1,3 @@
-// CreateEventScreen.js
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
@@ -32,7 +31,7 @@ const CreateEventScreen = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      console.log("Auth state changed:", user);
+      console.log("Auth state changed:", user); // Debugging log
 
       if (user) {
         const db = getFirestore();
@@ -75,6 +74,19 @@ const CreateEventScreen = () => {
     },
   });
 
+  const resetForm = () => {
+    console.log("Resetting form..."); // Debugging log
+    setStep(0);
+    setInvites("");
+    setEventName("");
+    setEventLocation("");
+    setEventDescription("");
+    setTag(null);
+    setGroup(null);
+    setIsEventCreated(false);
+    console.log("Form reset. Auth state should remain unchanged."); // Debugging log
+  };
+
   useEffect(() => {
     if (isEventCreated) {
       createEvent();
@@ -95,19 +107,6 @@ const CreateEventScreen = () => {
       setStep(step - 1);
     }
   };
-
-  const resetForm = () => {
-    setStep(0);
-    setCreator("");
-    setInvites("");
-    setEventName("");
-    setEventLocation("");
-    setEventDescription("");
-    setTag(null);
-    setGroup(null);
-    setIsEventCreated(false);
-  };
-
   const renderTabContent = () => {
     switch (step) {
       case 0:
