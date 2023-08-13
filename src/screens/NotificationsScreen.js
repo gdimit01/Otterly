@@ -29,31 +29,36 @@ import MessagesScreen from "./MessagesScreen"; // Import the MessagesScreen comp
 const Tab = createMaterialTopTabNavigator();
 
 const ActivityScreen = () => {
-  const isFocused = useIsFocused();
+  const { events } = useContext(EventContext);
+  const user = auth.currentUser;
   const [notifications, setNotifications] = useState([]);
-  const { events, setEvents } = useContext(EventContext);
 
   useEffect(() => {
-    if (isFocused) {
-      const db = getFirestore();
-      const user = auth.currentUser;
-      if (user) {
-        const q = query(
-          collection(db, "events"),
-          where("userId", "==", user.uid),
-          where("notification", "==", true)
-        );
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          let notificationsData = [];
-          snapshot.forEach((doc) => {
-            notificationsData.push({ id: doc.id, ...doc.data() });
-          });
-          setNotifications(notificationsData);
-        });
-        return () => unsubscribe();
-      }
-    }
-  }, [isFocused]);
+    const db = getFirestore();
+    const q = query(
+      collection(db, "events"),
+      where("notification", "==", true)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let notificationsData = [];
+      snapshot.forEach((doc) => {
+        const eventData = { id: doc.id, ...doc.data() };
+
+        // Check if the current user is the creator or an invitee
+        if (
+          (eventData.creator && eventData.creator.email === user.email) ||
+          (eventData.invites && eventData.invites.includes(user.email))
+        ) {
+          notificationsData.push(eventData);
+        }
+      });
+
+      setNotifications(notificationsData);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   const deleteNotification = async (id) => {
     const db = getFirestore();
@@ -97,11 +102,6 @@ const ActivityScreen = () => {
       time={item.time}
       group={item.group}
       tag={item.tag}
-      name={item.name} // Event Name
-      location={item.location} // Event Location
-      visibility={item.visibility} // Event Visibility
-      attendees={item.attendees} // Event Attendees
-      invites={item.invites} // Event Invites
       onDelete={() => deleteNotification(item.id)}
     />
   );
