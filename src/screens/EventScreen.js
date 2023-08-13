@@ -2,6 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
+  TextInput,
+  ScrollView,
+  Button,
   Image,
   TouchableOpacity,
   SafeAreaView,
@@ -29,6 +32,7 @@ const EventScreen = () => {
   const eventId = route.params.id;
   const event = events.find((e) => e.id === eventId);
   const [eventData, setEventData] = useState(event);
+  const [messageInput, setMessageInput] = useState("");
 
   // Directly access the time from the event object
   const time = event.time;
@@ -97,6 +101,25 @@ const EventScreen = () => {
     );
   }
 
+  const leaveMessage = async () => {
+    // Logic to save the message to the database
+    // You can customize this part based on your needs
+    try {
+      // Example: Save the message to Firestore
+      const db = getFirestore();
+      const messagesRef = collection(db, "events", eventId, "messages");
+      await addDoc(messagesRef, {
+        text: messageInput,
+        timestamp: new Date().toISOString(),
+      });
+      Alert.alert("Success", "Message left successfully!");
+      setMessageInput(""); // Clear the input
+    } catch (error) {
+      console.error("Error leaving message:", error);
+      Alert.alert("Error", "Failed to leave the message. Please try again.");
+    }
+  };
+
   return (
     <SafeAreaView
       style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
@@ -134,6 +157,15 @@ const EventScreen = () => {
         <Text style={styles.invites}>
           Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
         </Text>
+        <View style={styles.messageContainer}>
+          <TextInput
+            style={styles.messageInput}
+            value={messageInput}
+            onChangeText={setMessageInput}
+            placeholder="Leave a message..."
+          />
+          <Button title="Submit" onPress={leaveMessage} />
+        </View>
         {/* Additional JSX can be added here */}
         <InvitesActions event={eventData} eventId={eventId} />
         <TouchableOpacity
@@ -210,6 +242,19 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "blue",
+  },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  messageInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
   },
 });
 
