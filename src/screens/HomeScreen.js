@@ -34,14 +34,18 @@ export const HomeScreen = () => {
   const filteredEvents = combinedEvents.filter((event) => {
     // If the event is public, include it
     if (event.visibility) return true;
+    if (event.creator && event.creator.email === user?.email) return true;
 
-    // If the current user created the event, include it
-    if (event.creator && event.creator.email === user.email) return true;
+    // Check if the user's email is in the invites array and the status is "accepted"
+    if (
+      event.invites &&
+      event.invites.some(
+        (invite) => invite.email === user?.email && invite.status === "accepted"
+      )
+    ) {
+      return true;
+    }
 
-    // If the current user was invited to the event, include it
-    if (event.invites && event.invites.includes(user.email)) return true;
-
-    // Otherwise, exclude the event
     return false;
   });
 
