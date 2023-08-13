@@ -158,6 +158,8 @@ const EventScreen = () => {
         <Text style={styles.invites}>
           Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
         </Text>
+        <Text style={styles.likes}>Likes: {event.likes}</Text>
+
         <View style={styles.messageContainer}>
           <TextInput
             style={styles.messageInput}
@@ -169,16 +171,6 @@ const EventScreen = () => {
         </View>
         {/* Additional JSX can be added here */}
         <InvitesActions event={eventData} eventId={eventId} />
-        {/* <TouchableOpacity
-          style={styles.notificationButton}
-          onPress={toggleNotification}
-        >
-          <FontAwesome
-            name={event.notification ? "bell" : "bell-o"}
-            size={24}
-            color="#007BFF"
-          />
-        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );
