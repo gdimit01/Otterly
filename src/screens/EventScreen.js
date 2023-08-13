@@ -70,25 +70,25 @@ const EventScreen = () => {
     fetchAttendees();
   }, [eventId]);
 
-  const toggleNotification = async () => {
-    try {
-      const db = getFirestore();
-      const eventRef = doc(db, "events", eventId);
-      // Toggle the notification field
-      await updateDoc(eventRef, {
-        notification: !event.notification,
-      });
-      Alert.alert(
-        "Success",
-        `Notification ${
-          event.notification ? "removed" : "added"
-        } for this event`
-      );
-    } catch (error) {
-      console.error("Error updating notification:", error);
-      Alert.alert("Error", "Failed to update notification. Please try again.");
-    }
-  };
+  // const toggleNotification = async () => {
+  //   try {
+  //     const db = getFirestore();
+  //     const eventRef = doc(db, "events", eventId);
+  //     // Toggle the notification field
+  //     await updateDoc(eventRef, {
+  //       notification: !event.notification,
+  //     });
+  //     Alert.alert(
+  //       "Success",
+  //       `Notification ${
+  //         event.notification ? "removed" : "added"
+  //       } for this event`
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating notification:", error);
+  //     Alert.alert("Error", "Failed to update notification. Please try again.");
+  //   }
+  // };
 
   useEffect(() => {
     console.log("Event from EventContext:", event); // Log the event for debugging
@@ -169,7 +169,7 @@ const EventScreen = () => {
         </View>
         {/* Additional JSX can be added here */}
         <InvitesActions event={eventData} eventId={eventId} />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.notificationButton}
           onPress={toggleNotification}
         >
@@ -178,7 +178,7 @@ const EventScreen = () => {
             size={24}
             color="#007BFF"
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );

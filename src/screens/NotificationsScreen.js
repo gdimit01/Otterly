@@ -44,11 +44,17 @@ const ActivityScreen = () => {
       let notificationsData = [];
       snapshot.forEach((doc) => {
         const eventData = { id: doc.id, ...doc.data() };
-
-        // Check if the current user is the creator or an invitee
-        if (
-          (eventData.creator && eventData.creator.email === user.email) ||
-          (eventData.invites && eventData.invites.includes(user.email))
+        // Check if the current user is the creator
+        if (eventData.creator && eventData.creator.email === user.email) {
+          notificationsData.push(eventData);
+        }
+        // Check if the current user is an invitee and has accepted the invitation
+        else if (
+          eventData.invites &&
+          eventData.invites.some(
+            (invite) =>
+              invite.email === user.email && invite.status === "accepted"
+          )
         ) {
           notificationsData.push(eventData);
         }
