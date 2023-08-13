@@ -102,6 +102,11 @@ const ActivityScreen = () => {
       time={item.time}
       group={item.group}
       tag={item.tag}
+      name={item.name} // Event Name
+      location={item.location} // Event Location
+      visibility={item.visibility} // Event Visibility
+      attendees={item.attendees} // Event Attendees
+      invites={item.invites} // Event Invites
       onDelete={() => deleteNotification(item.id)}
     />
   );
