@@ -1,6 +1,7 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
 import WelcomeScreen from "../../src/screens/WelcomeScreen";
 import LoginScreen from "../../src/screens/LoginScreen";
 import SignupScreen from "../../src/screens/SignupScreen";
@@ -12,46 +13,29 @@ import SettingsScreen from "../../src/screens/SettingsScreen";
 
 const Stack = createNativeStackNavigator();
 
+const WelcomeScreenMemo = memo(WelcomeScreen);
+const LoginScreenMemo = memo(LoginScreen);
+const SignupScreenMemo = memo(SignupScreen);
+const HomeNavigatorMemo = memo(HomeNavigator);
+const EventScreenMemo = memo(EventScreen);
+const StudyGroupsScreenMemo = memo(StudyGroupsScreen);
+const SocialGroupsScreenMemo = memo(SocialGroupsScreen);
+const SettingsScreenMemo = memo(SettingsScreen);
+
 export function AppNavigator() {
+  const screenOptions = useMemo(() => ({ headerShown: false }), []);
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
-        <Stack.Screen
-          name="Welcome"
-          component={WelcomeScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignupScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="HomeStack"
-          component={HomeNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="EventScreen"
-          component={EventScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="StudyGroups"
-          component={StudyGroupsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SocialGroups"
-          component={SocialGroupsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="SettingsScreen" component={SettingsScreen} />
+      <Stack.Navigator initialRouteName="Welcome" screenOptions={screenOptions}>
+        <Stack.Screen name="Welcome" component={WelcomeScreenMemo} />
+        <Stack.Screen name="Login" component={LoginScreenMemo} />
+        <Stack.Screen name="SignUp" component={SignupScreenMemo} />
+        <Stack.Screen name="HomeStack" component={HomeNavigatorMemo} />
+        <Stack.Screen name="EventScreen" component={EventScreenMemo} />
+        <Stack.Screen name="StudyGroups" component={StudyGroupsScreenMemo} />
+        <Stack.Screen name="SocialGroups" component={SocialGroupsScreenMemo} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreenMemo} />
       </Stack.Navigator>
     </NavigationContainer>
   );
