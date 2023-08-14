@@ -7,13 +7,17 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  StatusBar, // Import StatusBar
-  Platform, // Import Platform to identify if the device is Android
+  StatusBar,
+  Platform,
 } from "react-native";
 import styles from "../assets/WelcomeScreen.styles.js";
 
 const WelcomeScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(0);
+
+  const background = require("../../src/assets/space.png");
+  const logo = require("../../src/assets/icon.png");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,6 +27,10 @@ const WelcomeScreen = ({ navigation }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  const handleImageLoad = () => {
+    setImagesLoaded(imagesLoaded + 1);
+  };
+
   const handleSignUp = () => {
     navigation.navigate("SignUp");
   };
@@ -31,19 +39,27 @@ const WelcomeScreen = ({ navigation }) => {
     navigation.navigate("Login");
   };
 
-  if (isLoading) {
+  if (isLoading || imagesLoaded < 2) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
+        {/* Preload images by rendering them off-screen */}
+        <Image
+          source={background}
+          onLoad={handleImageLoad}
+          style={{ width: 0, height: 0 }}
+        />
+        <Image
+          source={logo}
+          onLoad={handleImageLoad}
+          style={{ width: 0, height: 0 }}
+        />
       </View>
     );
   }
 
   return (
-    <ImageBackground
-      source={require("../../src/assets/space.png")}
-      style={styles.container}
-    >
+    <ImageBackground source={background} style={styles.container}>
       {Platform.OS === "android" && (
         <StatusBar
           translucent
@@ -53,10 +69,7 @@ const WelcomeScreen = ({ navigation }) => {
       )}
       {/* Add StatusBar for Android */}
       <View style={styles.logoContainer}>
-        <Image
-          source={require("../../src/assets/icon.png")}
-          style={styles.logo}
-        />
+        <Image source={logo} style={styles.logo} />
         <Text style={styles.slogan}>What do you love?</Text>
       </View>
       <View style={styles.bottomContainer}>
