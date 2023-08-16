@@ -27,7 +27,6 @@ import { getStatusBarHeight } from "react-native-status-bar-height";
 
 const MessageScreen = () => {
   const [users, setUsers] = useState([]);
-  const [showUsersList, setShowUsersList] = useState(false); // State to toggle users list
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -103,27 +102,16 @@ const MessageScreen = () => {
       keyboardVerticalOffset={keyboardVerticalOffset} // Pass the combined height
     >
       <View style={{ flex: 1 }}>
-        {showUsersList && (
-          <FlatList
-            ref={flatListRef}
-            data={users}
-            style={styles.usersList}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.userItem}
-                onPress={() => handleUserSelect(item)}
-              >
-                <Text style={styles.userName}>{item.firstName}</Text>
-              </TouchableOpacity>
-            )}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        )}
-        <TouchableOpacity onPress={() => setShowUsersList(!showUsersList)}>
-          <Text style={styles.toggleButton}>
-            {showUsersList ? "Hide Users" : "Show Users"}
-          </Text>
-        </TouchableOpacity>
+        <FlatList
+          ref={flatListRef}
+          data={users}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleUserSelect(item)}>
+              <Text>{item.firstName}</Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
         {selectedUser && (
           <View style={{ flex: 9 }}>
             <Text>Conversation with {selectedUser.firstName}</Text>
@@ -181,23 +169,6 @@ const styles = StyleSheet.create({
   },
   sendText: {
     color: "#fff",
-  },
-  toggleButton: {
-    padding: 10,
-    backgroundColor: "#f0f8ff",
-    textAlign: "center",
-    fontWeight: "bold",
-  },
-  usersList: {
-    maxHeight: 150, // Limit the height of the list
-  },
-  userItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  userName: {
-    fontSize: 16,
   },
 });
 export default MessageScreen;
