@@ -54,7 +54,7 @@ const ExploreScreen = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 1000); // Simulate a loading time of 1000 milliseconds
+    }, 10); // Simulate a loading time of 1000 milliseconds
 
     return () => clearTimeout(timer);
   }, []);
