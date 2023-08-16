@@ -7,20 +7,24 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  StatusBar, // Import StatusBar
-  Platform, // Import Platform to identify if the device is Android
+  StatusBar,
+  Platform,
 } from "react-native";
 import styles from "../assets/WelcomeScreen.styles.js";
+import { Asset } from "expo-asset";
 
 const WelcomeScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const preloadImages = async () => {
+      // Preload the background image
+      await Asset.loadAsync(require("../../src/assets/space.png"));
+      // Set isLoading to false after the image is pre-loaded
       setIsLoading(false);
-    }, 2000); // Change this value to adjust the duration of the loading screen
+    };
 
-    return () => clearTimeout(timer);
+    preloadImages();
   }, []);
 
   const handleSignUp = () => {
@@ -51,7 +55,6 @@ const WelcomeScreen = ({ navigation }) => {
           barStyle="light-content"
         />
       )}
-      {/* Add StatusBar for Android */}
       <View style={styles.logoContainer}>
         <Image
           source={require("../../src/assets/icon.png")}
