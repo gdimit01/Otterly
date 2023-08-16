@@ -9,11 +9,11 @@ import {
   FlatList,
   View,
   StatusBar,
-  ActivityIndicator, // Fixed the extra period here
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/core";
 import { useAuth } from "../../src/hooks/useAuth";
 import styles from "../../src/assets/HomeScreen.styles";
+import { ActivityItem } from "../../src/components/ActivityItem";
 import { EventContext } from "../../src/context/EventContext";
 import SocialGroupsCard from "../../src/components/SocialGroups/SocialGroupsCard";
 import StudyGroupsCard from "../../src/components/StudyGroups/StudyGroupsCard";
@@ -22,7 +22,7 @@ import { Calendar } from "react-native-calendars";
 export const HomeScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
-  const { user, firstName, surname, handleSignOut, isLoading } = useAuth();
+  const { user, firstName, surname, handleSignOut } = useAuth();
 
   const { events = [] } = useContext(EventContext); // Get events from context
 
@@ -30,26 +30,23 @@ export const HomeScreen = () => {
   const combinedEvents = events.filter(
     (event) => event.group === "Social Group" || event.group === "Study Group"
   );
-
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
-    );
-  }
-
   // Filter events based on visibility and user invitation
   const filteredEvents = combinedEvents.filter((event) => {
-    return (
-      event.visibility ||
-      (event.creator && event.creator.email === user?.email) ||
-      (event.invites &&
-        event.invites.some(
-          (invite) =>
-            invite.email === user?.email && invite.status === "accepted"
-        ))
-    );
+    // If the event is public, include it
+    if (event.visibility) return true;
+    if (event.creator && event.creator.email === user?.email) return true;
+
+    // Check if the user's email is in the invites array and the status is "accepted"
+    if (
+      event.invites &&
+      event.invites.some(
+        (invite) => invite.email === user?.email && invite.status === "accepted"
+      )
+    ) {
+      return true;
+    }
+
+    return false;
   });
 
   return (

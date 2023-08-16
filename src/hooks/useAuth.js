@@ -10,7 +10,6 @@ export const useAuth = () => {
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [surname, setSurname] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
 
   useEffect(() => {
     if (isFocused) {
@@ -22,12 +21,14 @@ export const useAuth = () => {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            setFirstName(userData.firstName || "");
-            setSurname(userData.surname || "");
+            const firstName = userData.firstName || "";
+            const surname = userData.surname || "";
+            setFirstName(firstName);
+            setSurname(surname);
             try {
               await AsyncStorage.setItem("user", JSON.stringify(user));
-              await AsyncStorage.setItem("firstName", userData.firstName || "");
-              await AsyncStorage.setItem("surname", userData.surname || "");
+              await AsyncStorage.setItem("firstName", firstName);
+              await AsyncStorage.setItem("surname", surname);
             } catch (err) {
               console.error(err);
             }
@@ -35,7 +36,6 @@ export const useAuth = () => {
             console.log("No such document!");
           }
         }
-        setIsLoading(false); // Set loading to false once data is fetched
       });
       return unsubscribe;
     }
@@ -51,5 +51,5 @@ export const useAuth = () => {
       .catch((error) => alert(error.message));
   };
 
-  return { user, firstName, surname, handleSignOut, isLoading }; // Return isLoading
+  return { user, firstName, surname, handleSignOut };
 };
