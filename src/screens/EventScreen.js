@@ -2,6 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
+  TextInput,
+  ScrollView,
+  Button,
   Image,
   TouchableOpacity,
   SafeAreaView,
@@ -21,6 +24,7 @@ import {
   updateDoc,
 } from "@firebase/firestore";
 import InvitesActions from "../../src/components/InvitesGroup/InvitesActions"; // Adjust the path as needed
+import { FontAwesome } from "@expo/vector-icons";
 
 const EventScreen = () => {
   const navigation = useNavigation();
@@ -29,6 +33,7 @@ const EventScreen = () => {
   const eventId = route.params.id;
   const event = events.find((e) => e.id === eventId);
   const [eventData, setEventData] = useState(event);
+  const [messageInput, setMessageInput] = useState("");
 
   // Directly access the time from the event object
   const time = event.time;
@@ -65,25 +70,25 @@ const EventScreen = () => {
     fetchAttendees();
   }, [eventId]);
 
-  const toggleNotification = async () => {
-    try {
-      const db = getFirestore();
-      const eventRef = doc(db, "events", eventId);
-      // Toggle the notification field
-      await updateDoc(eventRef, {
-        notification: !event.notification,
-      });
-      Alert.alert(
-        "Success",
-        `Notification ${
-          event.notification ? "removed" : "added"
-        } for this event`
-      );
-    } catch (error) {
-      console.error("Error updating notification:", error);
-      Alert.alert("Error", "Failed to update notification. Please try again.");
-    }
-  };
+  // const toggleNotification = async () => {
+  //   try {
+  //     const db = getFirestore();
+  //     const eventRef = doc(db, "events", eventId);
+  //     // Toggle the notification field
+  //     await updateDoc(eventRef, {
+  //       notification: !event.notification,
+  //     });
+  //     Alert.alert(
+  //       "Success",
+  //       `Notification ${
+  //         event.notification ? "removed" : "added"
+  //       } for this event`
+  //     );
+  //   } catch (error) {
+  //     console.error("Error updating notification:", error);
+  //     Alert.alert("Error", "Failed to update notification. Please try again.");
+  //   }
+  // };
 
   useEffect(() => {
     console.log("Event from EventContext:", event); // Log the event for debugging
@@ -96,6 +101,25 @@ const EventScreen = () => {
       </View>
     );
   }
+
+  const leaveMessage = async () => {
+    // Logic to save the message to the database
+    // You can customize this part based on your needs
+    try {
+      // Example: Save the message to Firestore
+      const db = getFirestore();
+      const messagesRef = collection(db, "events", eventId, "messages");
+      await addDoc(messagesRef, {
+        text: messageInput,
+        timestamp: new Date().toISOString(),
+      });
+      Alert.alert("Success", "Message left successfully!");
+      setMessageInput(""); // Clear the input
+    } catch (error) {
+      console.error("Error leaving message:", error);
+      Alert.alert("Error", "Failed to leave the message. Please try again.");
+    }
+  };
 
   return (
     <SafeAreaView
@@ -134,18 +158,19 @@ const EventScreen = () => {
         <Text style={styles.invites}>
           Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
         </Text>
+        <Text style={styles.likes}>Likes: {event.likes}</Text>
+
+        <View style={styles.messageContainer}>
+          <TextInput
+            style={styles.messageInput}
+            value={messageInput}
+            onChangeText={setMessageInput}
+            placeholder="Leave a message..."
+          />
+          <Button title="Submit" onPress={leaveMessage} />
+        </View>
         {/* Additional JSX can be added here */}
         <InvitesActions event={eventData} eventId={eventId} />
-        <TouchableOpacity
-          style={styles.notificationButton}
-          onPress={toggleNotification}
-        >
-          <Text style={styles.notificationButtonText}>
-            {event.notification
-              ? "Remove from Notifications"
-              : "Add to Notifications"}
-          </Text>
-        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -156,10 +181,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   notificationButton: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+    alignItems: "flex-end", // Align the icon to the right
+    marginTop: -400,
+    marginRight: 20,
   },
   notificationButtonText: {
     color: "#FFF",
@@ -210,6 +234,19 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: 16,
     color: "blue",
+  },
+  messageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  messageInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginRight: 10,
   },
 });
 

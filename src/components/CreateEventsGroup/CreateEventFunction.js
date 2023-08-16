@@ -78,6 +78,7 @@ const CreateEventFunction = ({
             invites: invitesProcessed,
             likes: 0, // Initialize likes
             rsvp: [], // Initialize RSVP list
+            notification: true, // Automatically set notifications for the creator
             image:
               group === "Social Groups"
                 ? "https://via.placeholder.com/150"
@@ -117,7 +118,7 @@ const CreateEventFunction = ({
         console.error("Error adding document: ", e);
         Alert.alert("Error", "Failed to create event. Please try again.");
       }
-    }, 100),
+    }, 1000),
     [
       eventName,
       eventLocation,

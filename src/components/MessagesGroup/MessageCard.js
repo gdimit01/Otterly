@@ -1,30 +1,35 @@
-// MessageCard.js
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const MessageCard = ({ message }) => {
+const MessageCard = ({ message, currentUserEmail, otherUserName }) => {
+  const isFromCurrentUser = message.senderEmail === currentUserEmail;
+
   return (
-    <View style={message.from === "Joe" ? styles.fromJoe : styles.toYou}>
+    <View
+      style={isFromCurrentUser ? styles.fromCurrentUser : styles.toCurrentUser}
+    >
       <Text style={styles.sender}>
-        {message.from === "Joe" ? "Joe" : "You"}
+        {isFromCurrentUser ? "You" : otherUserName}
       </Text>
-      <Text style={styles.messageText}>{message.text}</Text>
+      <Text style={styles.messageText}>{message.content}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  fromJoe: {
+  fromCurrentUser: {
     backgroundColor: "#f0f8ff",
     padding: 10,
     margin: 5,
     borderRadius: 5,
+    alignSelf: "flex-end",
   },
-  toYou: {
+  toCurrentUser: {
     backgroundColor: "#e6e6fa",
     padding: 10,
     margin: 5,
     borderRadius: 5,
+    alignSelf: "flex-start",
   },
   sender: {
     fontWeight: "bold",
