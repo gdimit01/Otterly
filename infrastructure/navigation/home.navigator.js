@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../../src/screens/HomeScreen";
 import ExploreScreen from "../../src/screens/ExploreScreen";
@@ -9,30 +9,24 @@ import { Ionicons } from "@expo/vector-icons"; // make sure to install this pack
 
 const Tab = createBottomTabNavigator();
 
-const TabBarIcon = memo(({ focused, routeName, size, color }) => {
-  const icons = {
-    Home: focused ? "home" : "home-outline",
-    Explore: focused ? "compass" : "compass-outline",
-    Create: focused ? "add" : "add-outline",
-    Notifications: focused ? "alarm" : "alarm-outline",
-    Profile: focused ? "person" : "person-outline",
-  };
-
-  return <Ionicons name={icons[routeName]} size={size} color={color} />;
-});
-
 export const HomeNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => (
-          <TabBarIcon
-            focused={focused}
-            routeName={route.name}
-            size={size}
-            color={color}
-          />
-        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          const icons = {
+            Home: focused ? "home" : "home-outline",
+            Explore: focused ? "compass" : "compass-outline",
+            Create: focused ? "add" : "add-outline",
+            Notifications: focused ? "alarm" : "alarm-outline",
+            Profile: focused ? "person" : "person-outline",
+          };
+
+          // You can return any component that you like here!
+          return (
+            <Ionicons name={icons[route.name]} size={size} color={color} />
+          );
+        },
         tabBarActiveTintColor: "tomato",
         tabBarInactiveTintColor: "gray",
         tabBarStyle: [
