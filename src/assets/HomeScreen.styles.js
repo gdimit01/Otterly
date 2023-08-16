@@ -119,6 +119,12 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textDecorationLine: "underline",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF", // Optional: Set a background color
+  },
 });
 
 export default styles;

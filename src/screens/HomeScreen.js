@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import {
   Image,
@@ -9,6 +9,7 @@ import {
   FlatList,
   View,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation, useIsFocused } from "@react-navigation/core";
 import { useAuth } from "../../src/hooks/useAuth";
@@ -23,20 +24,29 @@ export const HomeScreen = () => {
   const navigation = useNavigation();
   const isFocused = useIsFocused();
   const { user, firstName, surname, handleSignOut } = useAuth();
-
   const { events = [] } = useContext(EventContext); // Get events from context
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate data fetching
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Combine social and study group events
   const combinedEvents = events.filter(
     (event) => event.group === "Social Group" || event.group === "Study Group"
   );
+
   // Filter events based on visibility and user invitation
   const filteredEvents = combinedEvents.filter((event) => {
-    // If the event is public, include it
     if (event.visibility) return true;
     if (event.creator && event.creator.email === user?.email) return true;
 
-    // Check if the user's email is in the invites array and the status is "accepted"
     if (
       event.invites &&
       event.invites.some(
@@ -48,6 +58,14 @@ export const HomeScreen = () => {
 
     return false;
   });
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
@@ -67,18 +85,17 @@ export const HomeScreen = () => {
         <Text style={styles.title}>Social and Study Groups</Text>
         {filteredEvents.length > 0 ? (
           <FlatList
-            horizontal // Enable horizontal scrolling
+            horizontal
             data={filteredEvents}
             renderItem={({ item }) => (
               <View style={styles.groupCardContainer}>
                 <Text
                   style={styles.eventTitle}
-                  numberOfLines={1} // Limit the text to one line
-                  ellipsizeMode="tail" // Add an ellipsis at the end if the text overflows
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
                 >
                   {item.title}
                 </Text>
-                {/* Add this line */}
                 <View style={styles.groupCard}>
                   {item.group === "Social Group" ? (
                     <SocialGroupsCard
@@ -98,7 +115,7 @@ export const HomeScreen = () => {
             )}
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={{ paddingBottom: 40 }}
-            showsHorizontalScrollIndicator={false} // Hide scrollbar
+            showsHorizontalScrollIndicator={false}
           />
         ) : (
           <View style={styles.noEventsCard}>
