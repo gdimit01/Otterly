@@ -205,8 +205,8 @@ const SocialGroupsCard = ({
         <Image source={{ uri: image }} style={styles.image} />
         {showDetailsOnly && (
           <View>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-              {title}
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+              Event Name: {event.name}
             </Text>
             <Text
               style={styles.creatorName}
@@ -321,8 +321,15 @@ const SocialGroupsCard = ({
 };
 
 const styles = StyleSheet.create({
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black", // Ensure the text color is visible on its background
+    margin: 10, // Add some margin if necessary
+    // ... other styles
+  },
   card: {
-    flex: 1,
+    flex: 1, // Ensure this is flexible
     margin: 10,
     backgroundColor: "#fff",
     padding: 20,
@@ -414,10 +421,10 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   group: {
-    color: "#0000FF", // Default blue color
+    color: "#0000FF",
     fontSize: 12,
     fontWeight: "bold",
-    position: "absolute", // Position it absolutely
+    position: "absolute", // Remove this line
   },
   tag: {
     color: "#0000FF", // Default blue color
