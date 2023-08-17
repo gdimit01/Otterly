@@ -57,6 +57,11 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     marginBottom: 10,
   },
+  smallText: {
+    flex: 1,
+    fontSize: 12,
+    color: "gray",
+  },
   invitesTextContainer: {
     flex: 1,
   },

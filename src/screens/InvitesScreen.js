@@ -6,7 +6,6 @@ import { FIREBASE_DB, FIREBASE_AUTH } from "../../firebaseConfig";
 import InvitesCard from "../components/InvitesGroup/InvitesCard";
 import InvitesStyle from "../assets/InvitesStyles";
 import { useNavigation } from "@react-navigation/native";
-
 const InvitesScreen = () => {
   const navigation = useNavigation();
   const [sentInvites, setSentInvites] = useState([]);
@@ -45,8 +44,12 @@ const InvitesScreen = () => {
     <View style={InvitesStyle.container}>
       <TouchableOpacity
         onPress={() => setSentInvitesExpanded(!sentInvitesExpanded)}
+        style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text style={InvitesStyle.heading}>Sent Invites</Text>
+        <Text style={InvitesStyle.smallText}>
+          {sentInvitesExpanded ? "click to retract" : "click to expand"}
+        </Text>
       </TouchableOpacity>
       {sentInvitesExpanded && (
         <FlatList
@@ -58,8 +61,12 @@ const InvitesScreen = () => {
 
       <TouchableOpacity
         onPress={() => setReceivedInvitesExpanded(!receivedInvitesExpanded)}
+        style={{ flexDirection: "row", justifyContent: "space-between" }}
       >
         <Text style={InvitesStyle.heading}>Received Invites</Text>
+        <Text style={InvitesStyle.smallText}>
+          {receivedInvitesExpanded ? "click to retract" : "click to expand"}
+        </Text>
       </TouchableOpacity>
       {receivedInvitesExpanded && (
         <FlatList
