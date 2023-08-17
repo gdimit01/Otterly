@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,42 +6,30 @@ import {
   StyleSheet,
   StatusBar,
   SafeAreaView,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
-import { EventContext } from "../../src/context/EventContext"; // Import EventContext
-import SocialGroupsCard from "../components/SocialGroups/SocialGroupsCard"; // Import SocialGroupsCard
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Adjust the path as needed
+import { Searchbar } from "react-native-paper";
+import { FontAwesome } from "@expo/vector-icons";
+import { EventContext } from "../../src/context/EventContext";
+import SocialGroupsCard from "../components/SocialGroups/SocialGroupsCard";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
 const SocialGroupsScreen = () => {
-  const { events = [] } = useContext(EventContext); // Get events from context
-
-  const filteredEvents = events.filter(
-    (event) => event.group === "Social Group"
-  ); // Filter events
-
-  console.log("Filtered events:", filteredEvents); // Log the filtered events
+  const { events = [] } = useContext(EventContext);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredEvents, setFilteredEvents] = useState([]);
 
   useEffect(() => {
-    console.log("Social Groups Events:", filteredEvents); // Log the events for debugging
-  }, [filteredEvents]);
+    const results = events.filter((event) => {
+      return (
+        event.group === "Social Group" &&
+        event.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    });
+    setFilteredEvents(results);
+  }, [searchQuery, events]);
 
-  useEffect(() => {
-    console.log("All Events:", events);
-  }, [events]);
-  console.log("Filtered events:", filteredEvents); // Log the filtered events
-
-  useEffect(() => {
-    console.log("Social Groups Events:", filteredEvents); // Log the events for debugging
-  }, [filteredEvents]);
-
-  useEffect(() => {
-    console.log("All Events:", events);
-  }, [events]);
-
-  /**
-   * The function `renderItem` checks if the current user has permission to view an item and renders a
-   * component if they do.
-   * @returns The function `renderItem` returns either a `<SocialGroupsCard>` component or `null`.
-   */
   const renderItem = ({ item }) => {
     const currentUserEmail = auth.currentUser.email;
     const hasAcceptedInvite = item.invites.some(
@@ -54,32 +42,50 @@ const SocialGroupsScreen = () => {
       item.creator.email === currentUserEmail ||
       hasAcceptedInvite
     ) {
-      console.log("Rendering Event:", item.id);
       return <SocialGroupsCard id={item.id} /* other props */ />;
     }
-    console.log("Skipping Event:", item.id);
     return null;
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.content}>
-        <Text style={styles.title}>Social Groups</Text>
-        <FlatList
-          data={filteredEvents} // Use filteredEvents
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: 40 }}
-        />
-      </View>
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.content}>
+          <Text style={styles.title}>Social Groups</Text>
+          <Searchbar
+            placeholder="Search for events..."
+            onChangeText={setSearchQuery}
+            value={searchQuery}
+            style={styles.searchBar}
+            icon={() => <FontAwesome name="search" size={20} color="grey" />}
+            clearIcon={() =>
+              searchQuery ? (
+                <FontAwesome name="times" size={20} color="grey" />
+              ) : null
+            }
+          />
+          <FlatList
+            data={filteredEvents}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: 60 }}
+          />
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 const styles = StyleSheet.create({
+  text: {
+    flex: 1,
+  },
+  description: {
+    fontSize: 16,
+    marginTop: 5,
+  },
   content: {
-    fontSize: 24,
-    fontWeight: "bold",
+    flex: 1,
     margin: 10,
   },
   title: {
@@ -87,12 +93,17 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     margin: 10,
   },
-  text: {
-    flex: 1,
+  searchBar: {
+    // Custom styling for Searchbar
+    marginBottom: 10,
+    borderRadius: 5,
   },
-  description: {
-    fontSize: 16,
-    marginTop: 5,
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
   // time: {
   //   fontSize: 14,
