@@ -9,6 +9,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { EventContext } from "../../../src/context/EventContext";
+import { List } from "react-native-paper";
+import { FontAwesome } from "@expo/vector-icons";
+
 import {
   deleteDoc,
   getDoc,
@@ -26,6 +29,7 @@ const SocialGroupsCard = ({
   id,
   showButtons = true,
   showDetailsOnly = true,
+  showOptions = true,
 }) => {
   const navigation = useNavigation();
   const { events } = useContext(EventContext); // Use EventContext
@@ -35,7 +39,7 @@ const SocialGroupsCard = ({
   const [likes, setLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
   const [attendees, setAttendees] = useState(0);
-
+  const [optionsVisible, setOptionsVisible] = useState(false);
   // Use event properties directly from the event object
   if (!event) {
     console.error("Event not found for ID:", id);
@@ -190,7 +194,6 @@ const SocialGroupsCard = ({
             time: moment(event.time, "DD/MM/YYYY, HH:mm:ss ZZ").format(
               "MMMM Do YYYY, h:mm:ss a"
             ),
-
             group,
             tag,
             visibility,
@@ -256,39 +259,62 @@ const SocialGroupsCard = ({
           </View>
         )}
       </TouchableOpacity>
-      {showButtons && (
-        <>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={toggleVisibility}
-            style={styles.toggleButton}
-          >
-            <Text style={styles.toggleText}>
-              {visibility ? "Make Private" : "Make Public"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleRSVP}
-            style={styles.rsvpButton}
-          >
-            <Text style={styles.rsvpText}>RSVP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleLikes}
-            style={styles.likeButton}
-          >
-            <Text style={styles.likeText}>Like {likes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={deleteSocialGroup}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        </>
+      {showOptions && ( // Conditionally render based on showOptions prop
+        <List.Accordion
+          title={optionsVisible ? "Hide Options" : "Show Options"}
+          expanded={optionsVisible}
+          onPress={() => setOptionsVisible(!optionsVisible)}
+          left={(props) => (
+            <FontAwesome
+              {...props}
+              name={optionsVisible ? "minus-square-o" : "plus-square-o"}
+            />
+          )}
+          right={() => <View />} // Empty View component
+        >
+          {showButtons && (
+            <>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={toggleVisibility}
+                style={styles.toggleButton}
+              >
+                <FontAwesome
+                  name={visibility ? "eye-slash" : "eye"}
+                  color="#ffffff"
+                  size={20}
+                />
+                <Text style={styles.toggleText}>
+                  {visibility ? "Make Private" : "Make Public"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleRSVP}
+                style={styles.rsvpButton}
+              >
+                <FontAwesome name="calendar" color="#ffffff" size={20} />
+                <Text style={styles.rsvpText}>RSVP</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleLikes}
+                style={styles.likeButton}
+              >
+                <FontAwesome name="heart" color="#ffffff" size={20} />
+                <Text style={styles.likeText}>Like {likes}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={deleteSocialGroup}
+                style={styles.deleteButton}
+              >
+                <FontAwesome name="trash" color="#ffffff" size={20} />
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </List.Accordion>
       )}
     </View>
   );

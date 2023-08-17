@@ -102,6 +102,7 @@ export const HomeScreen = () => {
                       id={item.id}
                       showButtons={false}
                       showDetailsOnly={true}
+                      showOptions={false}
                     />
                   ) : (
                     <StudyGroupsCard
