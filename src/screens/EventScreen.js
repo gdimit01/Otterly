@@ -33,11 +33,12 @@ const EventScreen = () => {
   const eventId = route.params.id;
   const event = events.find((e) => e.id === eventId);
   const [eventData, setEventData] = useState(event);
+
   const [messageInput, setMessageInput] = useState("");
 
   // Directly access the time from the event object
   const time = event.time;
-  const [attendees, setAttendees] = useState([]); // State variable to hold attendees
+  //const { handleRSVP, attendees } = useContext(EventContext);
 
   useEffect(() => {
     const db = getFirestore();
@@ -64,7 +65,7 @@ const EventScreen = () => {
       const attendeesList = attendeesSnapshot.docs.map(
         (doc) => doc.data().email
       ); // Assuming email is the field you want
-      setAttendees(attendeesList);
+      //setAttendees(attendeesList);
     };
 
     fetchAttendees();
@@ -154,10 +155,20 @@ const EventScreen = () => {
         <Text style={styles.visibility}>
           Visibility: {event.visibility ? "Public" : "Private"}
         </Text>
-        <Text style={styles.attendees}>Attendees: {attendees.join(", ")}</Text>
-        <Text style={styles.invites}>
-          Invites: {event.invites.map((invitee) => invitee.email).join(", ")}
+        <Text
+          style={styles.attendeesText}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          Attendees: {event.attendees}
         </Text>
+        <Text style={styles.invites}>
+          Invites:{" "}
+          {event.invites
+            .map((invitee) => `${invitee.email} - ${invitee.status}`)
+            .join(", ")}
+        </Text>
+
         <Text style={styles.likes}>Likes: {event.likes}</Text>
 
         <View style={styles.messageContainer}>

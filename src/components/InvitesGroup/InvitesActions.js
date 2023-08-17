@@ -22,7 +22,22 @@ const InvitesActions = ({ event, eventId }) => {
       const updatedInvites = event.invites.map((invite) =>
         invite.email === currentUserEmail ? { ...invite, status } : invite
       );
-      await updateDoc(eventRef, { invites: updatedInvites });
+
+      // Calculate the new attendees count based on the updated invites array
+      const newAttendeesCount = updatedInvites.filter(
+        (invite) => invite.status === "accepted"
+      ).length;
+
+      // Debugging: Log the updated invites array and the new attendees count
+      console.log("Updated Invites Array:", updatedInvites);
+      console.log("New Attendees Count:", newAttendeesCount);
+
+      // Update the invites field and the attendees count in the events collection
+      await updateDoc(eventRef, {
+        invites: updatedInvites,
+        attendees: newAttendeesCount,
+      });
+
       alert("Status updated successfully!");
     } catch (error) {
       console.error("Error updating invite status:", error);

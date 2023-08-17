@@ -39,6 +39,7 @@ const SocialGroupsCard = ({
   const [likes, setLikes] = useState(0);
   const [userLiked, setUserLiked] = useState(false);
   const [attendees, setAttendees] = useState(0);
+
   const [optionsVisible, setOptionsVisible] = useState(false);
   // Use event properties directly from the event object
   if (!event) {
@@ -247,8 +248,9 @@ const SocialGroupsCard = ({
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              Attendees: {attendees.length}
+              Attendees: {event.attendees}
             </Text>
+
             <Text
               style={styles.visibility}
               numberOfLines={1}
