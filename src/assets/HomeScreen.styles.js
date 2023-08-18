@@ -120,14 +120,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  // title: {
+  //   fontSize: 28,
+  //   fontWeight: "bold",
+  //   color: "#4A90E2", // Example Blue color
+  //   marginVertical: 10,
+  // },
+  // userInfoContainer: {
+  //   margin: 20,
+  //   padding: 20,
+  //   backgroundColor: "#F5F5F5", // Example Light Gray background
+  //   borderRadius: 10,
+  // },
   greetingText: {
-    fontSize: 20, // this sets the font size
-    color: "#000000", // this sets the text color
-    fontWeight: "bold", // this makes the text bold
-    // You can add any other styles you want here. Some examples:
-    fontStyle: "italic",
-    textDecorationLine: "underline",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#E44D26", // Example Orange color
+    fontFamily: "Avenir-Book", // Example custom font family, replace with yours
   },
+
   loadingContainer: {
     flex: 1,
     justifyContent: "center",

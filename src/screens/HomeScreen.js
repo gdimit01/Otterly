@@ -77,12 +77,11 @@ export const HomeScreen = () => {
             <Text style={styles.greetingText}>
               Hi {firstName} {surname}
             </Text>
-            <Text>Email: {user.email}</Text>
           </View>
         ) : (
           <Text>No user is signed in.</Text>
         )}
-        <Text style={styles.title}>Social and Study Groups</Text>
+        <Text style={styles.title}>Available events</Text>
         {filteredEvents.length > 0 ? (
           <FlatList
             horizontal
@@ -125,40 +124,6 @@ export const HomeScreen = () => {
             </Text>
           </View>
         )}
-
-        <View style={styles.calendarCard}>
-          <Text style={styles.cardText}>Calendar</Text>
-          <Calendar
-            style={styles.calendar}
-            current={"2022-08-16"}
-            minDate={"2022-05-10"}
-            maxDate={"2022-06-30"}
-            onDayPress={(day) => {
-              console.log("selected day", day);
-            }}
-            monthFormat={"yyyy MM"}
-            onMonthChange={(month) => {
-              console.log("month changed", month);
-            }}
-            hideArrows={false}
-            renderArrow={(direction) => (
-              <FontAwesome
-                name={direction === "left" ? "arrow-left" : "arrow-right"}
-                size={24}
-              />
-            )}
-            hideExtraDays={false}
-            disableMonthChange={false}
-            firstDay={1}
-            hideDayNames={false}
-            showWeekNumbers={false}
-            onPressArrowLeft={(subtractMonth) => subtractMonth()}
-            onPressArrowRight={(addMonth) => addMonth()}
-          />
-        </View>
-        <TouchableOpacity onPress={handleSignOut} style={styles.button}>
-          <Text style={styles.buttonText}>Sign out</Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

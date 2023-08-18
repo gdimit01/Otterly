@@ -13,7 +13,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FormButton from "../../components/FormButton";
 import LabelInput from "../../components/LabelInput";
-
+import { useAuth } from "../../src/hooks/useAuth";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import {
   getFirestore,
@@ -34,6 +34,7 @@ const SettingsScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [interests, setInterests] = useState("");
   const firestore = getFirestore();
+  const { user, firstName, surname, handleSignOut } = useAuth();
 
   const loadName = async () => {
     const storedName = await AsyncStorage.getItem("name");
@@ -212,7 +213,7 @@ const SettingsScreen = ({ navigation }) => {
         <View style={styles.content}>
           <Image
             style={styles.profileImage}
-            source={{ uri: "https://via.placeholder.com/150" }}
+            source={{ uri: "https://placebear.com/159/150" }}
           />
           <Text style={styles.title}>Edit Profile</Text>
 
@@ -223,14 +224,8 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.label}>Email</Text>
           <Text style={styles.input}>{email}</Text>
 
-          {/* Interests Input */}
-          <LabelInput
-            label="Interests"
-            value={interests}
-            onChangeText={setInterests}
-          />
-
           <FormButton title="Save Changes" onPress={handleSave} />
+          <FormButton title="Sign out" onPress={handleSignOut} />
           <FormButton title="Delete Account" onPress={handleDeleteAccount} />
         </View>
       </ScrollView>

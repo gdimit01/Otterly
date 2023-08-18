@@ -158,16 +158,6 @@ const EventScreen = () => {
 
           <Text style={styles.likes}>Likes: {event.likes}</Text>
 
-          <View style={styles.messageContainer}>
-            <TextInput
-              style={styles.messageInput}
-              value={messageInput}
-              onChangeText={setMessageInput}
-              placeholder="Leave a message..."
-            />
-            <Button title="Submit" onPress={leaveMessage} />
-          </View>
-          {/* Additional JSX can be added here */}
           <InvitesActions event={eventData} eventId={eventId} />
         </View>
       </ScrollView>
@@ -248,20 +238,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#888",
     marginBottom: 20,
-  },
-  messageContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  messageInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginRight: 10,
-    fontSize: 16,
   },
 });
 
