@@ -25,6 +25,8 @@ import {
 import { FIREBASE_AUTH as auth } from "../../../firebaseConfig";
 import moment from "moment";
 
+/* The code is a JavaScript function component called `StudyGroupsCard`. It takes in several
+props: `id`, `showButtons`, `showDetailsOnly`, and `showOptions`. */
 const StudyGroupsCard = ({
   id,
   showButtons = true,
@@ -63,6 +65,7 @@ const StudyGroupsCard = ({
     invites,
   } = event;
 
+  /* The code is a React useEffect hook that listens for changes in a Firestore database. */
   useEffect(() => {
     const db = getFirestore();
     const likesRef = collection(db, "events", id, "likes");
@@ -109,6 +112,12 @@ const StudyGroupsCard = ({
     }
   };
 
+  /**
+   * The `handleLikes` function allows a user to like or unlike a study group event, updating the likes
+   * count and the user's liked status accordingly.
+   * @returns The function `handleLikes` does not have a return statement. Therefore, it does not
+   * explicitly return anything.
+   */
   const handleLikes = async () => {
     const db = getFirestore();
     const studyGroupRef = doc(db, "events", id);
@@ -145,6 +154,11 @@ const StudyGroupsCard = ({
   };
 
   // In your RSVP function
+  /**
+   * The `handleRSVP` function handles the RSVP functionality for a study group event, allowing users
+   * to RSVP or cancel their RSVP.
+   * @returns The function does not explicitly return anything.
+   */
   const handleRSVP = async () => {
     const db = getFirestore();
     const studyGroupRef = doc(db, "events", id);
@@ -200,6 +214,10 @@ const StudyGroupsCard = ({
     }
   };
 
+  /**
+   * The function `toggleVisibility` checks if the current user is the creator of a study group event
+   * and toggles the visibility of the event accordingly.
+   */
   const toggleVisibility = async () => {
     const db = getFirestore();
     const studyGroupRef = doc(db, "events", id);
@@ -221,6 +239,7 @@ const StudyGroupsCard = ({
     }
   };
 
+  /* It defines a component that renders a card with event details. */
   return (
     <View style={styles.card}>
       <TouchableOpacity
