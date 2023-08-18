@@ -1,3 +1,8 @@
+/**
+ * The `ActivityScreen` component is a React Native screen that displays a list of notifications and
+ * allows the user to delete notifications and associated events.
+ * @returns The `ActivityScreen` component is being returned.
+ */
 import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,

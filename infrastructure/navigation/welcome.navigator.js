@@ -1,3 +1,5 @@
+/* This code is creating a navigation stack using the `createNativeStackNavigator` function from the
+`@react-navigation/native-stack` library. */
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import WelcomeScreen from "../../screens/WelcomeScreen";

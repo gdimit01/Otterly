@@ -1,3 +1,8 @@
+/**
+ * The HomeScreen component is a React Native screen that displays user information and a list of
+ * available events.
+ * @returns The HomeScreen component is being returned.
+ */
 import React, { useState, useEffect, useContext } from "react";
 import { FontAwesome } from "@expo/vector-icons";
 import {

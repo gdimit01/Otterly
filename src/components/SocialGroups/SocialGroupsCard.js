@@ -1,3 +1,9 @@
+/**
+ * The `SocialGroupsCard` component is a reusable card component that displays information about a
+ * social group event and allows users to interact with the event through options like RSVP, like, and
+ * delete.
+ * @returns The `SocialGroupsCard` component is being returned.
+ */
 import React, { useState, useEffect, useContext } from "react";
 import {
   View,

@@ -1,3 +1,9 @@
+/**
+ * This is a React Native app component that sets up the necessary providers and navigation for the
+ * app.
+ * @returns The App component is returning a JSX element. The JSX element is wrapped in several context
+ * providers and a QueryClientProvider. The JSX element being returned is the AppNavigator component.
+ */
 import React, { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { EventProvider } from "./src/context/EventContext"; // Import EventProvider

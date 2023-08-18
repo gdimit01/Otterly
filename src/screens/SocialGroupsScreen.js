@@ -1,3 +1,8 @@
+/**
+ * The `SocialGroupsScreen` component is a React Native screen that displays a list of social group
+ * events and allows the user to search for specific events.
+ * @returns The `SocialGroupsScreen` component is being returned.
+ */
 import React, { useState, useContext, useEffect } from "react";
 import {
   View,

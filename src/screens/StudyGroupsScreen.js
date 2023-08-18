@@ -1,3 +1,8 @@
+/**
+ * The StudyGroupsScreen component is a React Native screen that displays study group events and allows
+ * users to search for specific events.
+ * @returns The StudyGroupsScreen component is being returned.
+ */
 import React, { useState, useContext, useEffect } from "react";
 import {
   View,

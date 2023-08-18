@@ -1,3 +1,8 @@
+/**
+ * The code is a React component that allows users to reset their password by sending a password
+ * reset email.
+ * @returns The `ForgotPassword` component is being returned.
+ */
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
 import { sendPasswordResetEmail } from "firebase/auth";

@@ -1,3 +1,5 @@
+/* The code is defining a React context called `UserContext` and a provider component called
+`UserProvider`. */
 // UserContext.js
 import React, { createContext, useState, useEffect } from "react";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";

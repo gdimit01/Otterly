@@ -1,3 +1,8 @@
+/**
+ * The SignupScreen component is a form that allows users to sign up with their first name, surname,
+ * email, and password, and creates a new user in Firebase.
+ * @returns The SignupScreen component is being returned.
+ */
 import React, { useState } from "react";
 import {
   View,

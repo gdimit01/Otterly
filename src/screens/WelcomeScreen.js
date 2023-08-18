@@ -1,3 +1,8 @@
+/**
+ * The WelcomeScreen component is a React Native screen that displays a background image, a logo, a
+ * slogan, and buttons for signing up and logging in.
+ * @returns The WelcomeScreen component is returning a JSX element.
+ */
 import React, { useState, useEffect } from "react";
 import {
   View,

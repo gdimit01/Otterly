@@ -1,3 +1,8 @@
+/**
+ * The SettingsScreen component is a React Native screen that allows the user to edit their profile,
+ * save changes, sign out, and delete their account.
+ * @returns The SettingsScreen component is being returned.
+ */
 import React, { useState, useEffect } from "react";
 import {
   View,

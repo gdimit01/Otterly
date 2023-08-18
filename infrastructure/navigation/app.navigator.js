@@ -1,3 +1,7 @@
+/**
+ * The `AppNavigator` function creates a navigation stack for the app using React Navigation.
+ * @returns The AppNavigator component is being returned.
+ */
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -9,6 +13,7 @@ import EventScreen from "../../src/screens/EventScreen";
 import StudyGroupsScreen from "../../src/screens/StudyGroupsScreen";
 import SocialGroupsScreen from "../../src/screens/SocialGroupsScreen";
 import SettingsScreen from "../../src/screens/SettingsScreen";
+//import VerificationScreen from "../../src/screens/VerificationScreen";
 
 const Stack = createNativeStackNavigator();
 

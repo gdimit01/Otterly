@@ -1,3 +1,8 @@
+/**
+ * The code is a JavaScript function that represents a login screen in a React Native
+ * application.
+ * @returns The LoginScreen component is being returned.
+ */
 import { useNavigation } from "@react-navigation/core";
 import Dialog from "react-native-dialog";
 import React, { useEffect, useState } from "react";
@@ -112,6 +117,10 @@ const LoginScreen = () => {
     setDialogVisible(false);
   };
 
+  /**
+   * The function `handleForgotPassword` handles the logic for resetting a user's password, including
+   * displaying a dialog or an alert depending on the platform.
+   */
   const handleForgotPassword = () => {
     if (Platform.OS === "android") {
       setResetEmail("");

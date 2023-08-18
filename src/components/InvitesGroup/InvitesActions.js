@@ -1,3 +1,11 @@
+/**
+ * The `InvitesActions` component is a React Native component that allows invited users to accept,
+ * decline, or mark themselves as maybe attending an event.
+ * @returns The component is returning a View component that contains three TouchableOpacity
+ * components. Each TouchableOpacity component has a Text component inside it. The TouchableOpacity
+ * components are used as buttons to update the invite status. The buttons are labeled "Accept",
+ * "Maybe", and "Decline".
+ */
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { getFirestore, doc, updateDoc } from "@firebase/firestore";

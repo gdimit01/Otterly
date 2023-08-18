@@ -1,3 +1,8 @@
+/**
+ * The code is a React Native component that implements a messaging screen with a list of users,
+ * message display, and input field for sending messages.
+ * @returns The `MessageScreen` component is being returned.
+ */
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,

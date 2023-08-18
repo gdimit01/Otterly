@@ -1,3 +1,7 @@
+/**
+ * The `InvitesScreen` component displays a list of sent and received invites for events.
+ * @returns The `InvitesScreen` component is being returned.
+ */
 import React, { useContext, useEffect, useState } from "react";
 import { View, Text, FlatList, TouchableOpacity } from "react-native";
 import { EventContext } from "../context/EventContext";

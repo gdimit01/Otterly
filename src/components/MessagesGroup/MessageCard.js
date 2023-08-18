@@ -1,3 +1,8 @@
+/**
+ * The `MessageCard` component is a reusable React Native component that displays a message with
+ * different styles based on whether it is from the current user or another user.
+ * @returns The MessageCard component is being returned.
+ */
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 

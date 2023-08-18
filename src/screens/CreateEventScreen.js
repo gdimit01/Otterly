@@ -1,3 +1,9 @@
+/* The code is a React Native screen component for creating an event. It allows the user to input
+various details of the event such as the event name, location, description, invites, tag, and group.
+The component uses state hooks to manage the form inputs and the current step of the form. It also
+uses Firebase Firestore to retrieve the user's information and create the event in the database. The
+component renders different tabs based on the current step of the form, and the user can navigate
+between the tabs using the "Next" and "Previous" buttons. Once the event is successfully created, a */
 import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,

@@ -1,3 +1,6 @@
+/* The code provided is a React Native component called `ExploreScreen`. It is a screen component that
+displays a list of groups with their names, images, and locations. The component uses the `useState`
+and `useEffect` hooks from React to handle loading state and simulate a loading time. */
 import React, { useState, useEffect } from "react";
 import {
   View,

@@ -1,3 +1,9 @@
+/* This code is a React Native screen component that displays a list of notifications. It imports
+various components and functions from React Native and other libraries, such as `useState`,
+`useEffect`, `useContext`, `SafeAreaView`, `View`, `Text`, `FlatList`, `StatusBar`, `Alert`,
+`useIsFocused`, `EventContext`, `getFirestore`, `collection`, `onSnapshot`, `doc`, `getDoc`,
+`deleteDoc`, `query`, `where`, `createMaterialTopTabNavigator`, `NotificationCard`,
+`NotificationStyles`, `InvitesScreen`, and `MessagesScreen`. */
 import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,

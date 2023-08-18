@@ -1,3 +1,8 @@
+/**
+ * The ProfileScreen component is a React Native screen that displays user profile information and
+ * counts of study group and social group associations.
+ * @returns The ProfileScreen component is being returned.
+ */
 import React, { useState, useEffect } from "react";
 import { TextInput, Card, Title, Paragraph } from "react-native-paper";
 import {

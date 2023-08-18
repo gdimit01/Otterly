@@ -1,3 +1,8 @@
+/**
+ * The `useAuth` function is a custom hook that handles authentication state, retrieves user data from
+ * Firestore, and provides a sign-out function.
+ * @returns The `useAuth` hook returns an object with the following properties and methods:
+ */
 import { useState, useEffect } from "react";
 import { useNavigation, useIsFocused } from "@react-navigation/core";
 import { FIREBASE_AUTH as auth } from "../../firebaseConfig";

@@ -1,3 +1,10 @@
+/**
+ * The `InvitesCard` component is a React Native component that renders a card with event details and
+ * handles navigation to the event screen when pressed.
+ * @returns The InvitesCard component is returning a TouchableOpacity component that wraps a View
+ * component. Inside the View component, there is an Image component, and a View component that
+ * contains multiple Text components.
+ */
 import React from "react";
 import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, Image } from "react-native";

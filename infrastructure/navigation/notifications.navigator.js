@@ -1,3 +1,9 @@
+/* This code is defining a screen component called `NotificationScreen` that displays a tab navigation
+bar with three tabs: "Activity", "Invites", and "Messages". Each tab corresponds to a different
+screen component (`ActivityScreen`, `InvitesScreen`, and `MessagesScreen`). The `NotificationScreen`
+component also includes some imports from various libraries and files, such as React, React Native,
+and Firebase. It also uses some styling and layout components from React Native, such as
+`SafeAreaView`, `View`, `Text`, and `StatusBar`. */
 import React, { useState, useEffect, useContext } from "react";
 import {
   SafeAreaView,

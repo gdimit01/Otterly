@@ -1,3 +1,8 @@
+/**
+ * The `StudyGroupsCard` function is a React component that renders a card with event details,
+ * including options for liking, RSVPing, and deleting the event.
+ * @returns The `StudyGroupsCard` component is being returned.
+ */
 import React, { useState, useEffect, useContext } from "react";
 import {
   View,

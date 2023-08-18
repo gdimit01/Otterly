@@ -1,3 +1,7 @@
+/* This code is creating a bottom tab navigation for a React Native app using the
+`@react-navigation/bottom-tabs` package. It imports necessary components and screens, including
+`createBottomTabNavigator`, `HomeScreen`, `ExploreScreen`, `CreateEventScreen`, `ProfileScreen`,
+`NotificationsScreen`, and `Ionicons` from the `@expo/vector-icons` package. */
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "../../src/screens/HomeScreen";

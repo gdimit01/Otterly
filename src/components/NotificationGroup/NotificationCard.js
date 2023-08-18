@@ -1,3 +1,8 @@
+/**
+ * The `NotificationCard` component is a React Native component that displays information about an
+ * event and allows the user to navigate to the event screen when clicked.
+ * @returns The `NotificationCard` component is being returned.
+ */
 import React, { useContext } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { View, Text, TouchableOpacity, Image } from "react-native";

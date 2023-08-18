@@ -1,3 +1,8 @@
+/**
+ * The code is a React Native component that displays details of an event and allows users to
+ * leave messages and perform actions on the event.
+ * @returns The `EventScreen` component is being returned.
+ */
 import React, { useContext, useEffect, useState } from "react";
 import {
   View,

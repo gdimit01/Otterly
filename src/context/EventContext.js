@@ -1,3 +1,4 @@
+/* This code is creating a React context and provider for managing events in an application. */
 import React, { createContext, useState, useEffect } from "react";
 import {
   getFirestore,
