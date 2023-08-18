@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,42 +6,26 @@ import {
   StyleSheet,
   StatusBar,
   SafeAreaView,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
-import { EventContext } from "../../src/context/EventContext"; // Import EventContext
-import StudyGroupsCard from "../components/StudyGroups/StudyGroupsCard"; // Import StudyGroupsCard
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig"; // Adjust the path as needed
+import { FontAwesome } from "@expo/vector-icons";
+import { EventContext } from "../../src/context/EventContext";
+import StudyGroupsCard from "../components/StudyGroups/StudyGroupsCard";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
 const StudyGroupsScreen = () => {
-  const { events = [] } = useContext(EventContext); // Get events from context
+  const { events = [] } = useContext(EventContext);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredEvents = events.filter(
-    (event) => event.group === "Study Group"
-  ); // Filter events
+  const filteredEvents = events.filter((event) => {
+    return (
+      event.group === "Study Group" &&
+      event.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
-  console.log("Filtered events:", filteredEvents); // Log the filtered events
-
-  useEffect(() => {
-    console.log("Study Groups Events:", filteredEvents); // Log the events for debugging
-  }, [filteredEvents]);
-
-  useEffect(() => {
-    console.log("All Events:", events);
-  }, [events]);
-  console.log("Filtered events:", filteredEvents); // Log the filtered events
-
-  useEffect(() => {
-    console.log("Study Groups Events:", filteredEvents); // Log the events for debugging
-  }, [filteredEvents]);
-
-  useEffect(() => {
-    console.log("All Events:", events);
-  }, [events]);
-
-  /**
-   * The function `renderItem` checks if the current user has permission to view an item and renders a
-   * component if they do.
-   * @returns The function `renderItem` returns either a `<StudyGroupsCard>` component or `null`.
-   */
   const renderItem = ({ item }) => {
     const currentUserEmail = auth.currentUser.email;
     const hasAcceptedInvite = item.invites.some(
@@ -54,38 +38,67 @@ const StudyGroupsScreen = () => {
       item.creator.email === currentUserEmail ||
       hasAcceptedInvite
     ) {
-      console.log("Rendering Event:", item.id);
       return <StudyGroupsCard id={item.id} /* other props */ />;
     }
-    console.log("Skipping Event:", item.id);
     return null;
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.content}>
-        <Text style={styles.title}>Study Groups</Text>
-        <FlatList
-          data={filteredEvents} // Use filteredEvents
-          renderItem={renderItem}
-          keyExtractor={(_, index) => index.toString()} // Use the index as the key
-          contentContainerStyle={{ paddingBottom: 40 }}
-        />
-      </View>
-    </SafeAreaView>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.content}>
+          <Text style={styles.title}>Study Groups</Text>
+          <View style={styles.searchContainer}>
+            <FontAwesome
+              name="search"
+              size={20}
+              color="gray"
+              style={styles.searchIcon}
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search for events..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+          <FlatList
+            data={filteredEvents}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: 100 }}
+          />
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
 const styles = StyleSheet.create({
   content: {
-    fontSize: 24,
-    fontWeight: "bold",
+    flex: 1,
     margin: 10,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     margin: 10,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  searchIcon: {
+    marginRight: 5,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 5,
   },
   text: {
     flex: 1,
@@ -94,11 +107,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  // time: {
-  //   fontSize: 14,
-  //   marginTop: 5,
-  //   color: "#888",
-  // },
   group: {
     color: "#0000FF", // Default blue color
     fontSize: 12,

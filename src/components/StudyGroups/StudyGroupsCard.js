@@ -9,6 +9,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { EventContext } from "../../../src/context/EventContext";
+import { List } from "react-native-paper";
+import { FontAwesome } from "@expo/vector-icons";
+
 import {
   deleteDoc,
   getDoc,
@@ -26,6 +29,7 @@ const StudyGroupsCard = ({
   id,
   showButtons = true,
   showDetailsOnly = true,
+  showOptions = true,
 }) => {
   const navigation = useNavigation();
   const { events } = useContext(EventContext); // Use EventContext
@@ -36,6 +40,7 @@ const StudyGroupsCard = ({
   const [userLiked, setUserLiked] = useState(false);
   const [attendees, setAttendees] = useState(0);
 
+  const [optionsVisible, setOptionsVisible] = useState(false);
   // Use event properties directly from the event object
   if (!event) {
     console.error("Event not found for ID:", id);
@@ -57,16 +62,6 @@ const StudyGroupsCard = ({
     creator,
     invites,
   } = event;
-
-  // Check if the current user is allowed to see the event
-  const currentUser = auth.currentUser;
-  if (
-    event.private &&
-    creator.email !== currentUser.email &&
-    (!invites || !invites.includes(currentUser.email))
-  ) {
-    return null; // Return null to hide the event
-  }
 
   useEffect(() => {
     const db = getFirestore();
@@ -97,8 +92,21 @@ const StudyGroupsCard = ({
   }, [id]);
 
   const deleteStudyGroup = async () => {
-    const db = getFirestore();
-    await deleteDoc(doc(db, "events", id));
+    const currentUser = auth.currentUser;
+
+    // Check if the current user is the same as the creator of the event
+    if (currentUser && event.creator.email === currentUser.email) {
+      const db = getFirestore();
+      try {
+        await deleteDoc(doc(db, "events", id));
+        Alert.alert("Success", "Event deleted successfully.");
+      } catch (error) {
+        Alert.alert("Error", "Failed to delete the event.");
+        console.error("Error deleting document: ", error);
+      }
+    } else {
+      Alert.alert("Error", "Only the creator of the event can delete it.");
+    }
   };
 
   const handleLikes = async () => {
@@ -141,23 +149,49 @@ const StudyGroupsCard = ({
     const db = getFirestore();
     const studyGroupRef = doc(db, "events", id);
     const currentUser = auth.currentUser;
+
     if (currentUser) {
-      const rsvpRef = collection(db, "events", id, "rsvps");
-      const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
       const studyGroupSnapshot = await getDoc(studyGroupRef);
+
       if (studyGroupSnapshot.exists()) {
         const data = studyGroupSnapshot.data();
+
+        // Check if the current user is the creator of the event
+        if (data.creator.email === currentUser.email) {
+          Alert.alert("Error", "You can't RSVP to your own event.");
+          return;
+        }
+
+        // Check if the current user is in the invites list
+        const userInvite = data.invites.find(
+          (invite) => invite.email === currentUser.email
+        );
+
+        // If the user is invited, they can't RSVP regardless of their invite status
+        if (userInvite) {
+          Alert.alert("Error", "Please decide on the invite before RSVPing.");
+          return;
+        }
+
+        const rsvpRef = collection(db, "events", id, "RSVP");
+        const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
+
         if (!userRsvpSnapshot.exists()) {
           await setDoc(doc(rsvpRef, currentUser.email), {
             email: currentUser.email,
+            firstName: currentUser.displayName, // Assuming the user's name is stored in displayName
           });
           await updateDoc(studyGroupRef, {
             attendees: (data.attendees || 0) + 1, // Increment attendees
+            rsvp: [...(data.rsvp || []), currentUser.email], // Add user email to rsvp array
           });
         } else {
           await deleteDoc(doc(rsvpRef, currentUser.email));
           await updateDoc(studyGroupRef, {
             attendees: (data.attendees || 0) - 1, // Decrement attendees
+            rsvp: (data.rsvp || []).filter(
+              (email) => email !== currentUser.email
+            ), // Remove user email from rsvp array
           });
         }
       } else {
@@ -200,7 +234,6 @@ const StudyGroupsCard = ({
             time: moment(event.time, "DD/MM/YYYY, HH:mm:ss ZZ").format(
               "MMMM Do YYYY, h:mm:ss a"
             ),
-
             group,
             tag,
             visibility,
@@ -212,8 +245,8 @@ const StudyGroupsCard = ({
         <Image source={{ uri: image }} style={styles.image} />
         {showDetailsOnly && (
           <View>
-            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-              {title}
+            <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+              Event Name: {event.name}
             </Text>
             <Text
               style={styles.creatorName}
@@ -254,8 +287,9 @@ const StudyGroupsCard = ({
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              Attendees: {attendees.length}
+              Attendees: {event.attendees}
             </Text>
+
             <Text
               style={styles.visibility}
               numberOfLines={1}
@@ -266,47 +300,77 @@ const StudyGroupsCard = ({
           </View>
         )}
       </TouchableOpacity>
-      {showButtons && (
-        <>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={toggleVisibility}
-            style={styles.toggleButton}
-          >
-            <Text style={styles.toggleText}>
-              {visibility ? "Make Private" : "Make Public"}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleRSVP}
-            style={styles.rsvpButton}
-          >
-            <Text style={styles.rsvpText}>RSVP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleLikes}
-            style={styles.likeButton}
-          >
-            <Text style={styles.likeText}>Like {likes}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={deleteStudyGroup}
-            style={styles.deleteButton}
-          >
-            <Text style={styles.deleteText}>Delete</Text>
-          </TouchableOpacity>
-        </>
+      {showOptions && ( // Conditionally render based on showOptions prop
+        <List.Accordion
+          title={optionsVisible ? "Hide Options" : "Show Options"}
+          expanded={optionsVisible}
+          onPress={() => setOptionsVisible(!optionsVisible)}
+          left={(props) => (
+            <FontAwesome
+              {...props}
+              name={optionsVisible ? "minus-square-o" : "plus-square-o"}
+            />
+          )}
+          right={() => <View />} // Empty View component
+        >
+          {showButtons && (
+            <>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={toggleVisibility}
+                style={styles.toggleButton}
+              >
+                <FontAwesome
+                  name={visibility ? "eye-slash" : "eye"}
+                  color="#ffffff"
+                  size={20}
+                />
+                <Text style={styles.toggleText}>
+                  {visibility ? "Make Private" : "Make Public"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleRSVP}
+                style={styles.rsvpButton}
+              >
+                <FontAwesome name="calendar" color="#ffffff" size={20} />
+                <Text style={styles.rsvpText}>RSVP</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleLikes}
+                style={styles.likeButton}
+              >
+                <FontAwesome name="heart" color="#ffffff" size={20} />
+                <Text style={styles.likeText}>Like {likes}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={deleteStudyGroup}
+                style={styles.deleteButton}
+              >
+                <FontAwesome name="trash" color="#ffffff" size={20} />
+                <Text style={styles.deleteText}>Delete</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </List.Accordion>
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black", // Ensure the text color is visible on its background
+    margin: 10, // Add some margin if necessary
+    // ... other styles
+  },
   card: {
-    flex: 1,
+    flex: 1, // Ensure this is flexible
     margin: 10,
     backgroundColor: "#fff",
     padding: 20,
@@ -398,10 +462,10 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   group: {
-    color: "#0000FF", // Default blue color
+    color: "#0000FF",
     fontSize: 12,
     fontWeight: "bold",
-    position: "absolute", // Position it absolutely
+    position: "absolute", // Remove this line
   },
   tag: {
     color: "#0000FF", // Default blue color
@@ -419,5 +483,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
 export default StudyGroupsCard;

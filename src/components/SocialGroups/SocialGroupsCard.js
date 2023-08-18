@@ -92,8 +92,21 @@ const SocialGroupsCard = ({
   }, [id]);
 
   const deleteSocialGroup = async () => {
-    const db = getFirestore();
-    await deleteDoc(doc(db, "events", id));
+    const currentUser = auth.currentUser;
+
+    // Check if the current user is the same as the creator of the event
+    if (currentUser && event.creator.email === currentUser.email) {
+      const db = getFirestore();
+      try {
+        await deleteDoc(doc(db, "events", id));
+        Alert.alert("Success", "Event deleted successfully.");
+      } catch (error) {
+        Alert.alert("Error", "Failed to delete the event.");
+        console.error("Error deleting document: ", error);
+      }
+    } else {
+      Alert.alert("Error", "Only the creator of the event can delete it.");
+    }
   };
 
   const handleLikes = async () => {
