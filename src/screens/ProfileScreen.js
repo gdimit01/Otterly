@@ -24,6 +24,7 @@ import FormButton from "../../components/FormButton";
 import LabelInput from "../../components/LabelInput";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "../../src/hooks/useAuth";
 
 const ProfileScreen = ({ navigation }) => {
   const [name, setName] = useState("");
