@@ -120,23 +120,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // title: {
-  //   fontSize: 28,
-  //   fontWeight: "bold",
-  //   color: "#4A90E2", // Example Blue color
-  //   marginVertical: 10,
-  // },
-  // userInfoContainer: {
-  //   margin: 20,
-  //   padding: 20,
-  //   backgroundColor: "#F5F5F5", // Example Light Gray background
-  //   borderRadius: 10,
-  // },
+  greetingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
   greetingText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#E44D26", // Example Orange color
-    fontFamily: "Avenir-Book", // Example custom font family, replace with yours
+    color: "darkorange", // Blue color, but you can choose your preferred color
   },
 
   loadingContainer: {

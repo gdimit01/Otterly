@@ -4,17 +4,14 @@ import {
   SafeAreaView,
   Text,
   Image,
-  Button,
-  TextInput,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
+import Dialog from "react-native-dialog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FormButton from "../../components/FormButton";
 import LabelInput from "../../components/LabelInput";
 import { useAuth } from "../../src/hooks/useAuth";
-import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 import {
   getFirestore,
   doc,
@@ -28,11 +25,13 @@ import {
   EmailAuthProvider,
   reauthenticateWithCredential,
 } from "firebase/auth";
+import { FIREBASE_AUTH as auth } from "../../firebaseConfig";
 
 const SettingsScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [interests, setInterests] = useState("");
+  const [password, setPassword] = useState("");
+  const [dialogVisible, setDialogVisible] = useState(false);
   const firestore = getFirestore();
   const { user, firstName, surname, handleSignOut } = useAuth();
 
@@ -42,6 +41,27 @@ const SettingsScreen = ({ navigation }) => {
       setName(storedName);
     }
   };
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      console.log("Auth state changed:", user);
+      if (user) {
+        const db = getFirestore();
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          setName(docSnap.data().firstName);
+          setEmail(user.email);
+        } else {
+          console.log("No such document!");
+        }
+      }
+    });
+
+    loadName();
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -87,10 +107,26 @@ const SettingsScreen = ({ navigation }) => {
 
         // Load the updated name
         loadName();
+
+        // Show the success alert
+        Alert.alert("Changes saved!", ""); // Title: "Changes saved!", Message: ""
       }
     } catch (error) {
       console.error("Error saving changes:", error);
     }
+  };
+
+  const showDialog = () => {
+    setDialogVisible(true);
+  };
+
+  const handleCancel = () => {
+    setDialogVisible(false);
+  };
+
+  const handleConfirm = () => {
+    setDialogVisible(false);
+    handleDeleteAccount();
   };
 
   const handleDeleteAccount = async () => {
@@ -217,21 +253,39 @@ const SettingsScreen = ({ navigation }) => {
           />
           <Text style={styles.title}>Edit Profile</Text>
 
-          {/* Name Input */}
           <LabelInput label="Name" value={name} onChangeText={setName} />
-
-          {/* Email Display */}
           <Text style={styles.label}>Email</Text>
           <Text style={styles.input}>{email}</Text>
 
           <FormButton title="Save Changes" onPress={handleSave} />
           <FormButton title="Sign out" onPress={handleSignOut} />
-          <FormButton title="Delete Account" onPress={handleDeleteAccount} />
+          <FormButton title="Delete Account" onPress={showDialog} />
+
+          <Dialog.Container visible={dialogVisible}>
+            <Dialog.Title>Account delete</Dialog.Title>
+            <Dialog.Description>
+              Do you want to delete your account? This action cannot be undone.
+            </Dialog.Description>
+            <Dialog.Input
+              label="Email"
+              value={email}
+              onChangeText={(input) => setEmail(input)}
+            />
+            <Dialog.Input
+              label="Password"
+              secureTextEntry={true}
+              value={password}
+              onChangeText={(input) => setPassword(input)}
+            />
+            <Dialog.Button label="Cancel" onPress={handleCancel} />
+            <Dialog.Button label="Delete" onPress={handleConfirm} />
+          </Dialog.Container>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
