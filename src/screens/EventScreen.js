@@ -71,26 +71,6 @@ const EventScreen = () => {
     fetchAttendees();
   }, [eventId]);
 
-  // const toggleNotification = async () => {
-  //   try {
-  //     const db = getFirestore();
-  //     const eventRef = doc(db, "events", eventId);
-  //     // Toggle the notification field
-  //     await updateDoc(eventRef, {
-  //       notification: !event.notification,
-  //     });
-  //     Alert.alert(
-  //       "Success",
-  //       `Notification ${
-  //         event.notification ? "removed" : "added"
-  //       } for this event`
-  //     );
-  //   } catch (error) {
-  //     console.error("Error updating notification:", error);
-  //     Alert.alert("Error", "Failed to update notification. Please try again.");
-  //   }
-  // };
-
   useEffect(() => {
     console.log("Event from EventContext:", event); // Log the event for debugging
   }, [event]);
@@ -127,88 +107,83 @@ const EventScreen = () => {
       style={[styles.container, { paddingTop: StatusBar.currentHeight }]}
     >
       <StatusBar barStyle="dark-content" />
-      <View style={styles.content}>
+      <View style={styles.header}>
         <Text style={styles.title}>Event</Text>
-        {event.group === "Social Group" ? (
-          <Image
-            source={{
-              uri: "https://loremflickr.com/150/150?random=9000", // Add the URL for Social Group image
-            }}
-            style={styles.mainImage}
-          />
-        ) : (
-          <Image
-            source={{
-              uri: "https://via.placeholder.com/155", // Add the URL for Study Group image
-            }}
-            style={styles.mainImage}
-          />
-        )}
-        <Text style={styles.name}>Event Name: {event.name}</Text>
-        <Text style={styles.description}>
-          Event Description: {event.description}
-        </Text>
-        <Text style={styles.time}>Time: {time}</Text>
-        <Text style={styles.location}>Event Location: {event.location}</Text>
-        <Text style={styles.tag}>Tag: {event.tag}</Text>
-        <Text style={styles.group}>Group: {event.group}</Text>
-        <Text style={styles.visibility}>
-          Visibility: {event.visibility ? "Public" : "Private"}
-        </Text>
-        <Text
-          style={styles.attendeesText}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          Attendees: {event.attendees}
-        </Text>
-        <Text style={styles.invites}>
-          Invites:{" "}
-          {event.invites
-            .map((invitee) => `${invitee.email} - ${invitee.status}`)
-            .join(", ")}
-        </Text>
-
-        <Text style={styles.likes}>Likes: {event.likes}</Text>
-
-        <View style={styles.messageContainer}>
-          <TextInput
-            style={styles.messageInput}
-            value={messageInput}
-            onChangeText={setMessageInput}
-            placeholder="Leave a message..."
-          />
-          <Button title="Submit" onPress={leaveMessage} />
-        </View>
-        {/* Additional JSX can be added here */}
-        <InvitesActions event={eventData} eventId={eventId} />
       </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          {event.group === "Social Group" ? (
+            <Image
+              source={{
+                uri: "https://loremflickr.com/150/150?random=9000", // Add the URL for Social Group image
+              }}
+              style={styles.mainImage}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: "https://via.placeholder.com/155", // Add the URL for Study Group image
+              }}
+              style={styles.mainImage}
+            />
+          )}
+          <Text style={styles.name}>Event Name: {event.name}</Text>
+          <Text style={styles.description}>
+            Event Description: {event.description}
+          </Text>
+          <Text style={styles.creatorName}>
+            Created by: {event.creator.firstName} {event.creator.surname} (
+            {event.creator.email})
+          </Text>
+          <Text style={styles.time}>Created at: {time}</Text>
+          <Text style={styles.location}>Event Location: {event.location}</Text>
+          <Text style={styles.tag}>Tag: {event.tag}</Text>
+          <Text style={styles.group}>Group: {event.group}</Text>
+          <Text style={styles.visibility}>
+            Visibility: {event.visibility ? "Public" : "Private"}
+          </Text>
+          <Text
+            style={styles.attendeesText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Attendees: {event.attendees}
+          </Text>
+          <Text style={styles.invites}>
+            Invites:{" "}
+            {event.invites
+              .map((invitee) => `${invitee.email} - ${invitee.status}`)
+              .join(", ")}
+          </Text>
+
+          <Text style={styles.likes}>Likes: {event.likes}</Text>
+
+          <View style={styles.messageContainer}>
+            <TextInput
+              style={styles.messageInput}
+              value={messageInput}
+              onChangeText={setMessageInput}
+              placeholder="Leave a message..."
+            />
+            <Button title="Submit" onPress={leaveMessage} />
+          </View>
+          {/* Additional JSX can be added here */}
+          <InvitesActions event={eventData} eventId={eventId} />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 const styles = StyleSheet.create({
-  visibility: {
-    fontSize: 14,
-    marginBottom: 10,
-  },
-  notificationButton: {
-    alignItems: "flex-end", // Align the icon to the right
-    marginTop: -400,
-    marginRight: 20,
-  },
-  notificationButtonText: {
-    color: "#FFF",
-    textAlign: "center",
-  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
   },
   content: {
-    padding: 10,
+    padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
@@ -217,39 +192,67 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 200,
     borderRadius: 10,
+    marginBottom: 20,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: "bold",
     marginBottom: 10,
+  },
+  creatorName: {
+    fontSize: 18,
+    marginBottom: 20,
+    color: "#555",
   },
   description: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: 18,
+    marginBottom: 20,
+    color: "#555",
   },
   time: {
-    fontSize: 14,
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 10,
+  },
+  location: {
+    fontSize: 16,
     color: "#888",
     marginBottom: 10,
   },
   tag: {
-    fontSize: 14,
+    fontSize: 16,
+    color: "#888",
     marginBottom: 10,
   },
   group: {
-    fontSize: 14,
+    fontSize: 16,
+    color: "#888",
     marginBottom: 10,
   },
-  backButton: {
-    position: "absolute",
-    top: 20,
-    left: 20,
-    paddingBottom: 25,
-  },
-  backButtonText: {
+  visibility: {
     fontSize: 16,
-    color: "blue",
+    color: "#888",
+    marginBottom: 20,
+  },
+  attendeesText: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 20,
+  },
+  invites: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 20,
+  },
+  likes: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 20,
   },
   messageContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginBottom: 20,
   },
   messageInput: {
     flex: 1,
@@ -258,6 +261,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginRight: 10,
+    fontSize: 16,
   },
 });
 
