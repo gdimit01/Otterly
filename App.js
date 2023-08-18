@@ -37,7 +37,6 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
         <EventProvider>
-          {/* Use EventProvider directly */}
           <UserProvider>
             <AppNavigator />
           </UserProvider>

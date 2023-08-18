@@ -32,6 +32,7 @@ const ProfileScreen = ({ navigation }) => {
   const [refresh, setRefresh] = useState(false);
   const [studyGroupCount, setStudyGroupCount] = useState(0);
   const [socialGroupCount, setSocialGroupCount] = useState(0);
+  const { user, firstName, surname, handleSignOut } = useAuth();
 
   const navigateToSettings = () => {
     try {

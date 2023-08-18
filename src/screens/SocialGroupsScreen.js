@@ -107,11 +107,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 5,
   },
-  // time: {
-  //   fontSize: 14,
-  //   marginTop: 5,
-  //   color: "#888",
-  // },
   group: {
     color: "#0000FF", // Default blue color
     fontSize: 12,
