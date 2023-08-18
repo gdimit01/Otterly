@@ -17,18 +17,18 @@ export default StyleSheet.create({
     marginTop: 40,
   },
   logo: {
-    width: 200,
-    height: 100,
+    width: 300, // Increased from 200 to 300
+    height: 120, // Increased from 100 to 150
     resizeMode: "contain",
   },
   slogan: {
-    fontSize: 24,
+    fontSize: 36, // Increased from 24 to 36
     fontWeight: "bold",
-    color: "#fff",
-    marginTop: 20,
+    color: "cyan",
+    marginTop: 100,
     ...Platform.select({
       ios: {
-        fontFamily: "Helvetica",
+        fontFamily: "Helvetica Neue",
       },
       android: {
         fontFamily: "Roboto",
@@ -42,13 +42,14 @@ export default StyleSheet.create({
   },
   button: {
     backgroundColor: "#f64060",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
     borderRadius: 5,
     marginBottom: 10,
-    width: "130%",
+    width: "100%",
     height: 50,
+    justifyContent: "center", // Center child components vertically
+    alignItems: "center", // Center child components horizontally
   },
+
   buttonText: {
     color: "#fff",
     fontSize: 18,
@@ -56,7 +57,7 @@ export default StyleSheet.create({
     textAlign: "center",
     ...Platform.select({
       ios: {
-        fontFamily: "Helvetica",
+        fontFamily: "Helvetica Neue",
       },
       android: {
         fontFamily: "Roboto",
@@ -64,11 +65,32 @@ export default StyleSheet.create({
     }),
   },
   text: {
+    fontWeight: "bold",
+    fontSize: 20,
     color: "#fff",
+    textDecorationLine: "underline",
     marginTop: 20,
+    ...Platform.select({
+      ios: {
+        fontFamily: "Helvetica Neue",
+      },
+      android: {
+        fontFamily: "Roboto",
+      },
+    }),
   },
   link: {
+    fontWeight: "bold",
+    fontSize: 20,
     color: "#f64060",
     textDecorationLine: "underline",
+    ...Platform.select({
+      ios: {
+        fontFamily: "Helvetica Neue",
+      },
+      android: {
+        fontFamily: "Roboto",
+      },
+    }),
   },
 });

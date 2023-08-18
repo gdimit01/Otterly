@@ -353,8 +353,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: "center", // Center text horizontally
+    color: "#1C1C1C",
+    alignSelf: "center", // Ensure this element is centered horizontally if the parent's alignItems isn't set to 'center'
   },
   input: {
     width: "80%",

@@ -60,7 +60,9 @@ const WelcomeScreen = ({ navigation }) => {
           source={require("../../src/assets/icon.png")}
           style={styles.logo}
         />
-        <Text style={styles.slogan}>What do you love?</Text>
+        <Text style={styles.slogan}>
+          Otterly Unforgettable Experiences Await!
+        </Text>
       </View>
       <View style={styles.bottomContainer}>
         <TouchableOpacity style={styles.button} onPress={handleSignUp}>

@@ -94,9 +94,13 @@ const ExploreScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    margin: 10,
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: "center", // Center text horizontally
+    color: "#1C1C1C",
+    alignSelf: "center", // Ensure this element is centered horizontally if the parent's alignItems isn't set to 'center'
   },
   card: {
     flex: 1,

@@ -6,44 +6,53 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     padding: 20,
+    backgroundColor: "#f7f7f7", // Light gray background for a clean look
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    marginTop: 10,
     marginBottom: 20,
-    textAlign: "center",
+    textAlign: "center", // Center text horizontally
+    color: "#1C1C1C",
+    alignSelf: "center", // Ensure this element is centered horizontally if the parent's alignItems isn't set to 'center'
   },
   eventTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#1C1C1C", // Dark gray for contrast
     marginBottom: 10,
   },
-
   activitiesContainer: {
     margin: 10,
-    height: 150, // Adjust this value as needed
+    height: 150,
     alignItems: "center",
-    backgroundColor: "transparent", // Set the background color to transparent
+    backgroundColor: "transparent",
   },
   activityContainer: {
     margin: 10,
     alignItems: "center",
-    backgroundColor: "transparent", // Set the background color to transparent
+    backgroundColor: "transparent",
   },
   card: {
-    width: "100%", // Adjust as needed
-    height: 100, // Adjust as needed
-    padding: 30, // Increase padding
-    marginBottom: 20, // Adjust as needed
-    backgroundColor: "#f8f8f8", // Adjust as needed
-    //borderRadius: 10, // Adjust as needed
+    width: "100%",
+    height: 120, // Slightly increased
+    padding: 30,
+    marginBottom: 20,
+    backgroundColor: "#FFFFFF", // Pure white for clean cards
+    borderRadius: 10, // Rounded corners
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#000", // Shadow for depth
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 3,
   },
   cardText: {
-    fontSize: 16, // Adjust as needed
-    fontWeight: "bold", // Adjust as needed
+    fontSize: 16,
+    fontWeight: "500", // Semi-bold
+    color: "#333",
   },
   calendarCard: {
     width: "100%",
