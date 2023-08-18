@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { TextInput, StyleSheet, View, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
-const FormInput = ({ value, onChangeText, placeholder, secure }) => {
+const FormInput = ({ testID, value, onChangeText, placeholder, secure }) => {
   const [passwordVisible, setPasswordVisible] = useState(true);
 
   return (
     <View style={styles.container}>
       <TextInput
+        testID={testID}
         value={value}
         style={styles.input}
         placeholder={placeholder}
@@ -40,9 +41,9 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 4,
     marginBottom: 10,
-    width: "80%", // Set the width to 80% of the parent container
-    marginLeft: "10%", // Add 10% margin to the left
-    marginRight: "10%", // Add 10% margin to the right
+    width: "80%",
+    marginLeft: "10%",
+    marginRight: "10%",
   },
   input: {
     flex: 1,

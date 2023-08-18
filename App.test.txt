@@ -1,0 +1,30 @@
+import React from "react";
+import renderer from "react-test-renderer";
+import App from "./App";
+import * as Font from "expo-font";
+
+// Mock the Font.loadAsync method to return a resolved promise
+jest.mock("expo-font");
+
+describe("<App />", () => {
+  beforeEach(() => {
+    Font.loadAsync.mockResolvedValue(Promise.resolve());
+  });
+
+  it("renders correctly when fonts are loaded", async () => {
+    const app = renderer.create(<App />);
+    const instance = app.root.instance;
+
+    // Simulate that fonts have finished loading
+    if (instance && instance.loadFonts) {
+      await instance.loadFonts();
+    }
+
+    // Confirm that the fonts are now loaded
+    expect(instance.state.fontLoaded).toBe(true);
+
+    // The component tree should have been rendered
+    const tree = app.toJSON();
+    expect(tree).not.toBeNull();
+  });
+});

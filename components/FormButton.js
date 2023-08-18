@@ -1,9 +1,13 @@
 import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
-const FormButton = ({ title, onPress }) => {
+const FormButton = ({ title, onPress, testID }) => {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.button}
+      onPress={onPress}
+      testID={testID} // Pass the testID prop to TouchableOpacity
+    >
       <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
@@ -11,9 +15,9 @@ const FormButton = ({ title, onPress }) => {
 
 const styles = StyleSheet.create({
   button: {
-    width: "80%", // Set the width to 80% of the parent container
-    marginLeft: "10%", // Add 10% margin to the left
-    marginRight: "10%", // Add 10% margin to the right
+    width: "80%",
+    marginLeft: "10%",
+    marginRight: "10%",
     backgroundColor: "#f64060",
     padding: 15,
     borderRadius: 30,
