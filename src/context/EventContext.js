@@ -16,6 +16,7 @@ export const EventContext = createContext();
 export const EventProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null); // For storing a selected event
+  const [notifications, setNotifications] = useState([]); // For storing notifications
 
   useEffect(() => {
     const auth = getAuth();
@@ -83,6 +84,37 @@ export const EventProvider = ({ children }) => {
     };
   }, []);
 
+  const addNotification = (event, user) => {
+    setNotifications((prevNotifications) => [
+      ...prevNotifications,
+      {
+        type: "RSVP",
+        event,
+        user,
+        timestamp: new Date(),
+      },
+    ]);
+  };
+
+  useEffect(() => {
+    const db = getFirestore();
+
+    events.forEach((event) => {
+      const rsvpRef = collection(db, "events", event.id, "RSVP");
+      const unsubscribeRSVP = onSnapshot(rsvpRef, (rsvpSnapshot) => {
+        rsvpSnapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+            const user = change.doc.data();
+            addNotification(event, user);
+          }
+        });
+      });
+
+      // Remember to unsubscribe when the component unmounts
+      return () => unsubscribeRSVP();
+    });
+  }, [events]);
+
   // Function to update an event
   const updateEvent = async (eventId, updatedEvent) => {
     try {
@@ -104,7 +136,14 @@ export const EventProvider = ({ children }) => {
 
   return (
     <EventContext.Provider
-      value={{ events, setEvents, updateEvent, selectedEvent, selectEvent }}
+      value={{
+        events,
+        setEvents,
+        updateEvent,
+        selectedEvent,
+        selectEvent,
+        notifications,
+      }}
     >
       {children}
     </EventContext.Provider>

@@ -136,23 +136,49 @@ const SocialGroupsCard = ({
     const db = getFirestore();
     const socialGroupRef = doc(db, "events", id);
     const currentUser = auth.currentUser;
+
     if (currentUser) {
-      const rsvpRef = collection(db, "events", id, "rsvps");
-      const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
       const socialGroupSnapshot = await getDoc(socialGroupRef);
+
       if (socialGroupSnapshot.exists()) {
         const data = socialGroupSnapshot.data();
+
+        // Check if the current user is the creator of the event
+        if (data.creator.email === currentUser.email) {
+          Alert.alert("Error", "You can't RSVP to your own event.");
+          return;
+        }
+
+        // Check if the current user is in the invites list
+        const userInvite = data.invites.find(
+          (invite) => invite.email === currentUser.email
+        );
+
+        // If the user is invited, they can't RSVP regardless of their invite status
+        if (userInvite) {
+          Alert.alert("Error", "Please decide on the invite before RSVPing.");
+          return;
+        }
+
+        const rsvpRef = collection(db, "events", id, "RSVP");
+        const userRsvpSnapshot = await getDoc(doc(rsvpRef, currentUser.email));
+
         if (!userRsvpSnapshot.exists()) {
           await setDoc(doc(rsvpRef, currentUser.email), {
             email: currentUser.email,
+            firstName: currentUser.displayName, // Assuming the user's name is stored in displayName
           });
           await updateDoc(socialGroupRef, {
             attendees: (data.attendees || 0) + 1, // Increment attendees
+            rsvp: [...(data.rsvp || []), currentUser.email], // Add user email to rsvp array
           });
         } else {
           await deleteDoc(doc(rsvpRef, currentUser.email));
           await updateDoc(socialGroupRef, {
             attendees: (data.attendees || 0) - 1, // Decrement attendees
+            rsvp: (data.rsvp || []).filter(
+              (email) => email !== currentUser.email
+            ), // Remove user email from rsvp array
           });
         }
       } else {
