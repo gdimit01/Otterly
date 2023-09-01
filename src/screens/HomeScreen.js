@@ -74,7 +74,15 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, paddingTop: StatusBar.currentHeight }}>
-      <StatusBar barStyle="dark-content" />
+      {Platform.OS === "ios" && <StatusBar barStyle="dark-content" />}
+      {Platform.OS === "android" && (
+        <StatusBar
+          translucent={true}
+          backgroundColor="transparent"
+          barStyle="dark-content"
+        />
+      )}
+
       <Text style={styles.title}>Home</Text>
       <ScrollView contentContainerStyle={styles.container}>
         {user ? (

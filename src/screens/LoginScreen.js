@@ -168,13 +168,22 @@ const LoginScreen = () => {
         <Dialog.Button label="Cancel" onPress={handleCancel} />
         <Dialog.Button label="OK" onPress={handleOk} />
       </Dialog.Container>
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === "ios" ? "padding" : null}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
         >
-          <StatusBar barStyle="dark-content" />
+          {Platform.OS === "ios" && <StatusBar barStyle="dark-content" />}
+          {Platform.OS === "android" && (
+            <StatusBar
+              translucent={true}
+              backgroundColor="transparent"
+              barStyle="dark-content"
+            />
+          )}
+
           <View style={styles.contentContainer}>
             <Icon name="user" size={30} color="#000" style={styles.icon} />
             <Text style={styles.title}>Otterly App</Text>

@@ -18,6 +18,7 @@ import {
   ScrollView,
   Platform,
   Alert,
+  StatusBar,
 } from "react-native";
 import {
   getAuth,
@@ -139,11 +140,21 @@ const SignupScreen = ({ navigation }) => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
+      {Platform.OS === "ios" && <StatusBar barStyle="dark-content" />}
+      {Platform.OS === "android" && (
+        <StatusBar
+          translucent={true}
+          backgroundColor="transparent"
+          barStyle="dark-content"
+        />
+      )}
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollView}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            {/* <Image source={require("../../assets/back_arrow.png")} /> */}
-          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleBack}
+            style={styles.backButton}
+          ></TouchableOpacity>
           <Icon name="user-plus" size={30} color="#000" style={styles.icon} />
           <Text style={styles.title}>Sign Up</Text>
           <FormInput

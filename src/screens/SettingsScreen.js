@@ -1,8 +1,3 @@
-/**
- * The SettingsScreen component is a React Native screen that allows the user to edit their profile,
- * save changes, sign out, and delete their account.
- * @returns The SettingsScreen component is being returned.
- */
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -11,6 +6,8 @@ import {
   Image,
   StyleSheet,
   ScrollView,
+  Alert,
+  Platform,
 } from "react-native";
 import Dialog from "react-native-dialog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -49,7 +46,6 @@ const SettingsScreen = ({ navigation }) => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      console.log("Auth state changed:", user);
       if (user) {
         const db = getFirestore();
         const docRef = doc(db, "users", user.uid);
@@ -58,8 +54,6 @@ const SettingsScreen = ({ navigation }) => {
         if (docSnap.exists()) {
           setName(docSnap.data().firstName);
           setEmail(user.email);
-        } else {
-          console.log("No such document!");
         }
       }
     });
@@ -68,56 +62,24 @@ const SettingsScreen = ({ navigation }) => {
     return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      console.log("Auth state changed:", user);
-      if (user) {
-        const db = getFirestore();
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          setName(docSnap.data().firstName);
-          setEmail(user.email); // Rest of your Firestore queries and onSnapshot functions...
-        } else {
-          console.log("No such document!");
-        }
-      }
-    });
-
-    loadName(); // Cleanup subscription on unmount
-    return unsubscribe;
-  }, []);
-
   const handleSave = async () => {
-    try {
-      // Save the changes here, e.g., update the user profile in your database
-      const user = auth.currentUser;
-      if (user) {
-        const db = getFirestore();
-        const docRef = doc(db, "users", user.uid);
+    const user = auth.currentUser;
+    if (user) {
+      const db = getFirestore();
+      const docRef = doc(db, "users", user.uid);
 
-        // Set the "firstName" field of the user's document
-        await setDoc(
-          docRef,
-          {
-            firstName: name,
-            lastUpdated: serverTimestamp(),
-          },
-          { merge: true }
-        );
+      await setDoc(
+        docRef,
+        {
+          firstName: name,
+          lastUpdated: serverTimestamp(),
+        },
+        { merge: true }
+      );
 
-        // Store the user's name in AsyncStorage
-        await AsyncStorage.setItem("name", name);
-
-        // Load the updated name
-        loadName();
-
-        // Show the success alert
-        Alert.alert("Changes saved!", ""); // Title: "Changes saved!", Message: ""
-      }
-    } catch (error) {
-      console.error("Error saving changes:", error);
+      await AsyncStorage.setItem("name", name);
+      loadName();
+      Alert.alert("Changes saved!", "");
     }
   };
 
@@ -135,96 +97,33 @@ const SettingsScreen = ({ navigation }) => {
   };
 
   const handleDeleteAccount = async () => {
-    let email = "";
-    let password = "";
-
-    // Get currently signed-in user
     const user = auth.currentUser;
-
     if (user) {
       const docRef = doc(firestore, "users", user.uid);
       const docSnap = await getDoc(docRef);
-
       if (docSnap.exists()) {
         const data = docSnap.data();
         const timeSinceLastAuth =
           new Date().getTime() - data.lastAuth.toDate().getTime();
 
         if (timeSinceLastAuth > 5 * 60 * 1000) {
-          // More than 5 minutes
-          // Prompt the user for their email
-          Alert.prompt(
-            "Reauthenticate Account",
-            "Please enter your email to continue.",
-            [
-              { text: "Cancel" },
-              {
-                text: "OK",
-                onPress: async (inputEmail) => {
-                  email = inputEmail;
-
-                  // Prompt the user for their password
-                  Alert.prompt(
-                    "Reauthenticate Account",
-                    "Please enter your password to continue.",
-                    [
-                      { text: "Cancel" },
-                      {
-                        text: "OK",
-                        onPress: async (inputPassword) => {
-                          password = inputPassword;
-
-                          // Create a credential
-                          const credential = EmailAuthProvider.credential(
-                            email,
-                            password
-                          );
-
-                          // Reauthenticate the user
-                          try {
-                            await reauthenticateWithCredential(
-                              user,
-                              credential
-                            );
-                          } catch (error) {
-                            console.error(
-                              "Error reauthenticating user:",
-                              error
-                            );
-                            Alert.alert("Sorry, credentials did not match.");
-                            return;
-                          }
-
-                          // Proceed with account deletion
-                          deleteAccount(user, docRef);
-                        },
-                      },
-                    ],
-                    "secure-text"
-                  );
-                },
-              },
-            ],
-            "plain-text"
-          );
+          setDialogVisible(true);
         } else {
-          // If the user is recently authenticated, you can proceed to delete their account without reauthentication.
+          if (Platform.OS === "android") {
+            // Add any Android-specific behavior here
+            // e.g., you might want to show a Toast message or additional alert
+          } else if (Platform.OS === "ios") {
+            // Add any iOS-specific behavior here
+          }
           deleteAccount(user, docRef);
         }
-      } else {
-        console.log("No such document!");
       }
     }
   };
 
   const deleteAccount = async (user, docRef) => {
-    // Delete the user's document from Firestore
     await deleteDoc(docRef);
-
-    // Delete the user's info from AsyncStorage
     await AsyncStorage.removeItem("name");
-
-    // Delete the user's account from Firebase Auth
     user
       .delete()
       .then(() => {
@@ -235,8 +134,8 @@ const SettingsScreen = ({ navigation }) => {
             {
               text: "OK",
               onPress: () => {
-                navigation.popToTop(); // clear the navigation stack
-                navigation.navigate("Welcome"); // navigate to "Main"
+                navigation.popToTop();
+                navigation.navigate("Welcome");
               },
             },
           ],
@@ -257,19 +156,16 @@ const SettingsScreen = ({ navigation }) => {
             source={{ uri: "https://placebear.com/159/150" }}
           />
           <Text style={styles.title}>Edit Profile</Text>
-
           <LabelInput label="Name" value={name} onChangeText={setName} />
           <Text style={styles.label}>Email</Text>
           <Text style={styles.input}>{email}</Text>
-
           <FormButton title="Save Changes" onPress={handleSave} />
           <FormButton title="Sign out" onPress={handleSignOut} />
           <FormButton title="Delete Account" onPress={showDialog} />
-
           <Dialog.Container visible={dialogVisible}>
-            <Dialog.Title>Account delete</Dialog.Title>
+            <Dialog.Title>Reauthenticate Account</Dialog.Title>
             <Dialog.Description>
-              Do you want to delete your account? This action cannot be undone.
+              Please enter your email and password to continue.
             </Dialog.Description>
             <Dialog.Input
               label="Email"
@@ -311,17 +207,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    fontSize: 18,
-    alignSelf: "flex-start",
+    fontSize: 16,
+    marginBottom: 5,
   },
   input: {
     width: "100%",
-    height: 40,
-    borderColor: "gray",
     borderWidth: 1,
-    marginTop: 10,
+    borderColor: "#ccc",
+    padding: 10,
+    borderRadius: 5,
+    fontSize: 16,
     marginBottom: 20,
-    paddingLeft: 10,
   },
 });
 

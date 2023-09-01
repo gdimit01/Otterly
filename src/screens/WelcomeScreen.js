@@ -53,13 +53,15 @@ const WelcomeScreen = ({ navigation }) => {
       source={require("../../src/assets/space.png")}
       style={styles.container}
     >
+      {Platform.OS === "ios" && <StatusBar barStyle="dark-content" />}
       {Platform.OS === "android" && (
         <StatusBar
-          translucent
+          translucent={true}
           backgroundColor="transparent"
-          barStyle="light-content"
+          barStyle="dark-content"
         />
       )}
+
       <View style={styles.logoContainer}>
         <Image
           source={require("../../src/assets/icon.png")}
