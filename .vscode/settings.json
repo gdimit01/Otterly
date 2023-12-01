@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["Firestore", "fontawesome", "fortawesome", "Ionicons"]
+  "cSpell.words": ["Firestore", "fontawesome", "fortawesome", "Ionicons"],
+  "editor.inlineSuggest.showToolbar": "onHover"
 }
