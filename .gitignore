@@ -33,3 +33,39 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Firebase - Additional entries specific to Firebase
+# Ignore all Firebase configuration files that might contain sensitive data
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Firebase cache and temporary files
+.firebase/
+.firebaserc
+firebase-debug.log
+.firebaseappcheck/
+
+# Security and API keys
+# You can specify additional sensitive files you don't want to commit here
+# .env (if you store API keys or sensitive data here, uncomment this line)
+
+# Keystore files
+# Uncomment if you have keystore files used in your app
+# **/keystore.jks
+# **/keystore.properties
+
+# Gradle files
+.gradle/
+build/
+
+# Android Studio
+.idea/
+*.iml
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+
+# Misc
+*.log
