@@ -6,7 +6,7 @@ import { EmailAuthProvider } from "@firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY, // Updated to use an environment variable
+  apiKey: "AIzaSyD - yJNvi1JuBle - Fzy2Wlk4BJAn2MVb0So",
   authDomain: "msc2-36ce5.firebaseapp.com",
   projectId: "msc2-36ce5",
   storageBucket: "msc2-36ce5.appspot.com",

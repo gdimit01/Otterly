@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+debug.log
+yarn.lock
+
 # Expo
 .expo/
 dist/
@@ -30,43 +33,127 @@ yarn-error.*
 
 # local env files
 .env*.local
-.env
 
 # typescript
 *.tsbuildinfo
 
-# Firebase - Additional entries specific to Firebase
-# Ignore all Firebase configuration files that might contain sensitive data
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Expo & React Native
+**/ios/Pods/
+**/android/app/build/
+**/android/.gradle/
+**/android/captures/
+**/android/gradle/
+**/android/keystore.properties
+**/android/local.properties
+**/ios/build/
+**/ios/Pods/
+**/ios/*.xcworkspace
+**/ios/*.xcodeproj/project.xcworkspace/
+**/ios/*.xcodeproj/xcuserdata/
+**/ios/*.xcworkspace/xcuserdata/
+**/ios/*.xcworkspace/xcshareddata/
+**/ios/*.xcodeproj/xcshareddata/
+**/ios/*.xcodeproj/xcuserdata/
+**/ios/*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+expo-debug.*.log
+metro.config.js
+metro-bundler-config.json
+react-native-config.js
+
+# Firebase
 **/google-services.json
 **/GoogleService-Info.plist
+/firebase.json
+firebaseConfig.js
 
-# Firebase cache and temporary files
-.firebase/
-.firebaserc
-firebase-debug.log
-.firebaseappcheck/
+# Distribution
+/android/app/outputs/
+/android/app/release/
+/android/app/src/main/assets/
+/android/app/src/main/res/raw/
+/ios/fastlane/
+/ios/build/
+/ios/output/
 
-# Security and API keys
-# You can specify additional sensitive files you don't want to commit here
-# .env (if you store API keys or sensitive data here, uncomment this line)
-
-# Keystore files
-# Uncomment if you have keystore files used in your app
-# **/keystore.jks
-# **/keystore.properties
-
-# Gradle files
-.gradle/
-build/
-
-# Android Studio
-.idea/
-*.iml
-
-# BUCK
-buck-out/
-\.buckd/
+# Keystores
+*.jks
 *.keystore
 
-# Misc
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+*.tlog
+*.tmproj
+*.tmproject
 *.log
+*.tmp
+*.tmp_proj
+*.log
+*.sln*
+*.suo
+*.user
+*.userprefs
+*.users
+*.pidb
+*.workspace
+*.DS_Store
+*.AppleDouble
+*.LSOverride
+*.Spotlight-V100
+*.Trashes
+ehthumbs.db
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Testing
+/coverage/
+/.jest/
+
+# Production
+/build/
+.env
+test.txt
+/firebase.json
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+*.un~
+Session.vim
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
+# Yarn
+.yarn/
+.yarn-cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
